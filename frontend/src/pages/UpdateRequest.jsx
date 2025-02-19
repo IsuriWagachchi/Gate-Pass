@@ -88,7 +88,7 @@ const UpdateRequest = () => {
           <button
             type="button"
             className="px-4 py-2 bg-gray-500 text-white rounded-md"
-            onClick={() => navigate('/my-requests')}
+            onClick={() => navigate('/my-request')}
           >
             Cancel
           </button>
