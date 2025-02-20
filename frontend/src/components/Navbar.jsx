@@ -14,6 +14,9 @@ const Navbar = () => {
           <a href="/my-request" className="hover:underline">My Requests</a>
         </li>
         <li>
+          <a href="/executive-approve" className="hover:underline">Executive Approve</a>
+        </li>
+        <li>
           <a href="/item-tracker" className="hover:underline">Item Tracker</a>
         </li>
         <li className="relative">

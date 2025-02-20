@@ -7,6 +7,11 @@ const requestSchema = new mongoose.Schema({
   category: { type: String, required: true },
   description: { type: String, required: true },
   returnable: { type: String, required: true },
+  status: {
+    type: String,
+    enum: ['Pending', 'Approved', 'Rejected'],
+    default: 'Pending'
+  }
 }, {
   timestamps: true,
 });
