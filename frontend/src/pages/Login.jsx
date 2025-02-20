@@ -101,7 +101,7 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
           </button>
         </form>
         <p className="mt-4 text-center">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link to="/signup" className="text-blue-500 hover:text-blue-600">
           Sign up
         </Link>
