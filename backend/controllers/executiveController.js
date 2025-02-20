@@ -4,7 +4,7 @@ import Request from '../models/requestModel.js';
 // Get all requests for executive approval
 const getAllRequests = async (req, res) => {
   try {
-    console.log("🔍 API `/api/executive` called");
+    
 
     const requests = await Request.find();
 
