@@ -8,12 +8,12 @@ const getAllRequests = async (req, res) => {
 
     const requests = await Request.find();
 
-    // console.log("✅ Requests found:", requests.length);
+    // console.log("Requests found:", requests.length);
     
 
     res.status(200).json(requests);
   } catch (error) {
-    console.error("❌ Error fetching requests:", error);
+    console.error(" Error fetching requests:", error);
     res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };

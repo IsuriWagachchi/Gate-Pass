@@ -14,12 +14,12 @@ const ExecutiveApprove = () => {
     try {
       console.log("Fetching requests...");
   
-      const response = await axios.get('http://localhost:5000/api/executive'); // Use direct URL to bypass proxy
+      const response = await axios.get('http://localhost:5000/api/executive'); 
       
   
       setRequests(response.data);
     } catch (error) {
-      console.error("❌ Error fetching requests:", error.response ? error.response.data : error.message);
+      console.error(" Error fetching requests:", error.response ? error.response.data : error.message);
     }
   };
   
@@ -27,7 +27,8 @@ const ExecutiveApprove = () => {
 
   const handleUpdateStatus = async (id, status) => {
     try {
-      await axios.put(`/api/requests/${id}`, { status });
+      await axios.put(`http://localhost:5000/api/executive/${id}/status`, { status });
+
       setRequests(requests.map(req => req._id === id ? { ...req, status } : req));
     } catch (error) {
       console.error('Error updating request:', error);
