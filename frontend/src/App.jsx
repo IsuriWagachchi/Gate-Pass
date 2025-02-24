@@ -6,6 +6,7 @@ import MyRequest from "./pages/MyRequest";
 import UpdateRequest from './pages/UpdateRequest';
 import ItemTracker from "./pages/ItemTracker";
 import ViewRequest from './pages/ViewRequest';
+import ExecutiveApprovePage from "./pages/ExecutiveApprove";
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
           <Route path="/item-tracker" element={<ItemTracker />} />
           <Route path="/update-request/:id" element={<UpdateRequest />} />
           <Route path="/view-request/:id" element={<ViewRequest />} />
+          <Route path="/executive-approve" element={<ExecutiveApprovePage />} />
           <Route path="/" element={<h2 style={{ textAlign: "center" }}>Welcome to the Gate Pass System</h2>} />
         </Routes>
       </div>

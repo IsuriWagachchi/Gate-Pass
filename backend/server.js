@@ -4,6 +4,8 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import requestRoutes from './routes/requestRoutes.js';
+import executiveRoutes from './routes/executiveRoutes.js';
+import itemRoutes from './routes/itemRoutes.js';
 
 dotenv.config(); // Load environment variables
 
@@ -13,6 +15,7 @@ const app = express();
 app.use(express.json()); // Parse JSON data
 app.use(cors()); // Enable CORS
 app.use('/api/requests', requestRoutes); // Use the routes for requests
+app.use('/api/executive', executiveRoutes);
 
 // Connect to MongoDB
 mongoose

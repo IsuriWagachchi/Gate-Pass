@@ -4,14 +4,20 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <nav className="bg-blue-800 text-white p-4 flex justify-between items-center">
-      <h1 className="text-2xl font-bold">Gate Pass Management System</h1>
+    <nav className="bg-white-800 text-black p-4 flex justify-between items-center">
+      <div className="flex items-center gap-3">
+        <img src="./src/assets/SLTMobitel_logo.svg" alt="Logo" className="h-12" />
+        <h1 className="text-2xl font-bold">SLT Gate Pass</h1>
+      </div>
       <ul className="flex gap-6">
         <li>
           <a href="/new-request" className="hover:underline">New Request</a>
         </li>
         <li>
           <a href="/my-request" className="hover:underline">My Requests</a>
+        </li>
+        <li>
+          <a href="/executive-approve" className="hover:underline">Executive Approve</a>
         </li>
         <li>
           <a href="/item-tracker" className="hover:underline">Item Tracker</a>
