@@ -5,6 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import requestRoutes from './routes/requestRoutes.js';
 import executiveRoutes from './routes/executiveRoutes.js';
+import itemRoutes from './routes/itemRoutes.js';
 
 dotenv.config(); // Load environment variables
 
