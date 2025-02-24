@@ -31,7 +31,7 @@ const NewRequest = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen ">
       <div className="bg-white p-6 shadow-lg rounded-lg w-full max-w-lg">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">New Request</h2>
 
