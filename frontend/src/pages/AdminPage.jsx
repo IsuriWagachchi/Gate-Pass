@@ -31,7 +31,7 @@ const AdminPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100 ">
+    <div className="flex justify-center items-center h-screen  ">
       <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 gap-6 border-2 border-blue-900">
         <h1 className="col-span-2 text-2xl font-semibold text-center text-gray-700 mb-6">Admin</h1>
 
