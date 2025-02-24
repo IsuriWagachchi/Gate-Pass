@@ -7,6 +7,7 @@ import UpdateRequest from './pages/UpdateRequest';
 import ItemTracker from "./pages/ItemTracker";
 import ViewRequest from './pages/ViewRequest';
 import ExecutiveApprovePage from "./pages/ExecutiveApprove";
+import AdminPage from "./pages/AdminPage.jsx";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
           <Route path="/update-request/:id" element={<UpdateRequest />} />
           <Route path="/view-request/:id" element={<ViewRequest />} />
           <Route path="/executive-approve" element={<ExecutiveApprovePage />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="/" element={<h2 style={{ textAlign: "center" }}>Welcome to the Gate Pass System</h2>} />
         </Routes>
       </div>
