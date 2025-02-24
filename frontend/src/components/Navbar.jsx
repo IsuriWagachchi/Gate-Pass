@@ -1,42 +1,54 @@
 import { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { Bell, Settings, User } from "lucide-react";
 
 const Navbar = () => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const location = useLocation(); // Get current page path
 
   return (
-    <nav className="bg-white-800 text-black p-4 flex justify-between items-center">
-      <div className="flex items-center gap-3">
-        <img src="./src/assets/SLTMobitel_logo.svg" alt="Logo" className="h-12" />
-        <h1 className="text-2xl font-bold">SLT Gate Pass</h1>
-      </div>
+    <nav className="bg-gradient-to-r from-[#1B3D81] to-[#3459A8] p-3 shadow-lg flex items-center justify-between w-full">
+      {/* Left Side: Logo & Title */}
+      <div className="flex items-center gap-3 px-4">
+        <img src="/assets/SLTMobitel_logo.svg" alt="Logo" className="h-10" />
+        <h1 className="text-white text-xl font-semibold">SLT Gate Pass</h1>
+      </div>
+
+      {/* Center: Navigation Links */}
       <ul className="flex gap-6">
-        <li>
-          <a href="/new-request" className="hover:underline">New Request</a>
-        </li>
-        <li>
-          <a href="/my-request" className="hover:underline">My Requests</a>
-        </li>
-        <li>
-          <a href="/executive-approve" className="hover:underline">Executive Approve</a>
-        </li>
-        <li>
-          <a href="/item-tracker" className="hover:underline">Item Tracker</a>
-        </li>
-        <li className="relative">
-          <button 
-            onClick={() => setDropdownOpen(!dropdownOpen)} 
-            className="hover:underline"
-          >
-            Account ▼
-          </button>
-          {dropdownOpen && (
-            <div className="absolute bg-white text-black right-0 mt-2 py-2 w-32 shadow-lg rounded">
-              <a href="/user" className="block px-4 py-2 hover:bg-gray-200">User</a>
-              <a href="/admin" className="block px-4 py-2 hover:bg-gray-200">Admin</a>
-            </div>
-          )}
-        </li>
+        {[
+          { name: "New Request", path: "/new-request" },
+          { name: "My Requests", path: "/my-request" },
+          { name: "Executive Approve", path: "/executive-approve" },
+          { name: "Item Tracker", path: "/item-tracker" },
+          { name: "Admin Page", path: "/admin" },
+        ].map((item) => (
+          <li key={item.path}>
+            <NavLink
+              to={item.path}
+              className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 ${
+                location.pathname === item.path
+                  ? "bg-white text-[#1B3D81] shadow-lg"
+                  : "text-white hover:bg-white hover:text-[#1B3D81]"
+              }`}
+            >
+              {item.name}
+            </NavLink>
+          </li>
+        ))}
       </ul>
+
+      {/* Right Side: Icons */}
+      <div className="flex items-center gap-3 pr-4">
+        <NavLink to="/settings" className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100">
+          <Settings size={20} className="text-[#1B3D81]" />
+        </NavLink>
+        <NavLink to="/notifications" className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100">
+          <Bell size={20} className="text-[#1B3D81]" />
+        </NavLink>
+        <NavLink to="/profile" className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100">
+          <User size={20} className="text-[#1B3D81]" />
+        </NavLink>
+      </div>
     </nav>
   );
 };
