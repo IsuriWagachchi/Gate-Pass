@@ -19,6 +19,9 @@ const Navbar = () => {
         <li>
           <a href="/item-tracker" className="hover:underline">Item Tracker</a>
         </li>
+        <li>
+          <a href="/admin" className="hover:underline">Admin Page</a>
+        </li>
         <li className="relative">
           <button 
             onClick={() => setDropdownOpen(!dropdownOpen)} 
