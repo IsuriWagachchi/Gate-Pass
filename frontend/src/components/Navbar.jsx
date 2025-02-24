@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Bell, Settings, User } from "lucide-react";
+import logo from "/src/assets/SLTMobitel_logo.svg";
 
 const Navbar = () => {
   const location = useLocation(); // Get current page path
@@ -9,7 +10,7 @@ const Navbar = () => {
     <nav className="bg-gradient-to-r from-[#1B3D81] to-[#3459A8] p-3 shadow-lg flex items-center justify-between w-full">
       {/* Left Side: Logo & Title */}
       <div className="flex items-center gap-3 px-4">
-        <img src="/assets/SLTMobitel_logo.svg" alt="Logo" className="h-10" />
+      <img src={logo} alt="Logo" className="h-10" />
         <h1 className="text-white text-xl font-semibold">SLT Gate Pass</h1>
       </div>
 
