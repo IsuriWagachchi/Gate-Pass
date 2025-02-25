@@ -3,6 +3,6 @@
 @tailwind utilities;
 
 body {
-    @apply bg-gradient-to-br from-[#F0F7FF] via-[#DCEEFF] via-70% to-white;
-    min-height: 100vh;
-  }
+  @apply bg-gradient-to-br from-[#E3EAF5] via-[#F7F9FC] to-[#FFF8E1];
+  min-height: 100vh;
+}
