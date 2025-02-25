@@ -69,7 +69,7 @@ const UpdateRequest = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen py-8"> 
+    <div className=" min-h-screen py-8"> 
       
 
       {error && <p className="text-red-500">{error}</p>}

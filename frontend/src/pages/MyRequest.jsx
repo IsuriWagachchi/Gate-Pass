@@ -31,7 +31,7 @@ const MyRequest = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 bg-gray-200">
+    <div className="container mx-auto p-6 ">
       
       <div className="overflow-x-auto">
         

@@ -38,7 +38,7 @@ const ViewRequest = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen py-8">
+    <div className="min-h-screen py-8">
       {request ? (
         <>
           <div className="max-w-4xl mx-auto p-6 border-2 border-lightblue-400 rounded-md bg-white">

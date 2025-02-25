@@ -48,7 +48,7 @@ const NewRequest = () => {
   };
 
   return (
-    <div className="bg-gray-200 min-h-screen py-8">
+    <div className="min-h-screen py-8">
       <div className="container mx-auto p-4">
         
 
