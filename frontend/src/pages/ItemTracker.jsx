@@ -45,10 +45,11 @@ const ItemTracker = () => {
         <table className="w-full bg-white border rounded-lg shadow-md">
           <thead className="bg-blue-600 text-white">
             <tr>
+              <th className="py-3 px-4 text-left">Ref No</th>
               <th className="py-3 px-4 text-left">Item Name</th>
-              <th className="py-3 px-4 text-left">Serial No</th>
               <th className="py-3 px-4 text-left">Category</th>
-              <th className="py-3 px-4 text-left">Description</th>
+              <th className="py-3 px-4 text-left">In Locationn</th>
+              <th className="py-3 px-4 text-left">Out Location</th>
               <th className="py-3 px-4 text-left">Returnable</th>
               <th className="py-3 px-4 text-center">Full Details</th>
             </tr>
@@ -56,15 +57,16 @@ const ItemTracker = () => {
           <tbody>
             {requests.map((request, index) => (
               <tr key={request._id} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
+                <td className="py-2 px-4 border">{request._id}</td>
                 <td className="py-2 px-4 border">{request.itemName}</td>
-                <td className="py-2 px-4 border">{request.serialNo}</td>
                 <td className="py-2 px-4 border">{request.category}</td>
-                <td className="py-2 px-4 border">{request.description}</td>
+                <td className="py-2 px-4 border">{request.inLocation}</td>
+                <td className="py-2 px-4 border">{request.outLocation}</td>
                 <td className="py-2 px-4 border">{request.returnable}</td>
                 <td className="py-2 px-4 border text-center">
                   <button
                     className="bg-green-500 hover:bg-green-700 text-white px-4 py-1 rounded mr-2"
-                    onClick={() => navigate(`/viewRequest/${request._id}`)}
+                    onClick={() => navigate(`/view-request/${request._id}`)}
                   >
                     View
                   </button>
