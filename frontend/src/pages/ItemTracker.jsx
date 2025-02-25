@@ -64,7 +64,7 @@ const ItemTracker = () => {
                 <td className="py-2 px-4 border text-center">
                   <button
                     className="bg-green-500 hover:bg-green-700 text-white px-4 py-1 rounded mr-2"
-                    onClick={() => navigate(`/view-request/${request._id}`)}
+                    onClick={() => navigate(`/viewRequest/${request._id}`)}
                   >
                     View
                   </button>

@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import requestRoutes from './routes/requestRoutes.js';
-//import executiveRoutes from './routes/executiveRoutes.js';
+import executiveRoutes from './routes/executiveRoutes.js';
 
 
 dotenv.config();
@@ -21,6 +21,8 @@ app.use('/uploads', express.static('uploads'));
 
 // Routes
 app.use('/api/requests', requestRoutes);
+app.use('/api/executive', executiveRoutes);
+
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {

@@ -11,7 +11,12 @@ const requestSchema = new mongoose.Schema({
   inLocation: { type: String, required: true },    // New field
   executiveOfficer: { type: String, required: true }, // New field
   receiverAvailable: { type: String, required: true }, // New field
-  status: { type: String }  // New field for status
+  status: {
+    type: String,
+    enum: ['Pending', 'Approved', 'Rejected'],
+    default: 'Pending'
+  }
+
 }, {
   timestamps: true,
 });
