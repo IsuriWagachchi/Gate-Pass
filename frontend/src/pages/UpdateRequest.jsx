@@ -1,21 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import Popup from "./Popup"; // Import the Popup component
+
 
 const UpdateRequest = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [updateData, setUpdateData] = useState({
-    itemName: '',
-    serialNo: '',
-    category: '',
-    description: '',
-    returnable: '',
+    itemName: "",
+    serialNo: "",
+    category: "",
+    description: "",
+    returnable: "",
     image: null,
   });
 
-  const [preview, setPreview] = useState('');
-  const [error, setError] = useState('');
+  const [preview, setPreview] = useState("");
+  const [error, setError] = useState("");
+  const [showPopup, setShowPopup] = useState(false); // Popup visibility state
 
   useEffect(() => {
     fetchRequestData();
@@ -26,10 +29,10 @@ const UpdateRequest = () => {
       const response = await axios.get(`http://localhost:5000/api/requests/${id}`);
       const { itemName, serialNo, category, description, returnable, image } = response.data;
       setUpdateData({ itemName, serialNo, category, description, returnable, image: null });
-      setPreview(image); // Display existing image
+      setPreview(image);
     } catch (error) {
-      console.error('Error fetching request data:', error);
-      setError('Failed to fetch request data.');
+      console.error("Error fetching request data:", error);
+      setError("Failed to fetch request data.");
     }
   };
 
@@ -41,44 +44,41 @@ const UpdateRequest = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setUpdateData({ ...updateData, image: file });
-    setPreview(URL.createObjectURL(file)); // Preview new image
+    setPreview(URL.createObjectURL(file));
   };
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append('itemName', updateData.itemName);
-    formData.append('serialNo', updateData.serialNo);
-    formData.append('category', updateData.category);
-    formData.append('description', updateData.description);
-    formData.append('returnable', updateData.returnable);
+    formData.append("itemName", updateData.itemName);
+    formData.append("serialNo", updateData.serialNo);
+    formData.append("category", updateData.category);
+    formData.append("description", updateData.description);
+    formData.append("returnable", updateData.returnable);
     if (updateData.image) {
-      formData.append('image', updateData.image);
+      formData.append("image", updateData.image);
     }
 
     try {
       await axios.put(`http://localhost:5000/api/requests/${id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      alert('Request updated successfully!');
-      navigate('/my-request');
+      setShowPopup(true); // Show the popup after a successful update
     } catch (error) {
-      console.error('Error updating request:', error);
-      setError('Failed to update request. Please try again.');
+      console.error("Error updating request:", error);
+      setError("Failed to update request. Please try again.");
     }
   };
 
   return (
-    <div className=" min-h-screen py-8"> 
-      
+    <div className=" min-h-screen py-8">
+      {showPopup && <Popup setShowPopup={setShowPopup} />} {/* Show popup if true */}
 
       {error && <p className="text-red-500">{error}</p>}
 
-      {/* Form Wrapper with Light Blue Border */}
       <div className="max-w-4xl mx-auto p-6 border-2 border-lightblue-400 rounded-md bg-white">
-      <h2 className="text-3xl font-bold text-blue-800 mb-1">Update Request</h2>
+        <h2 className="text-3xl font-bold text-blue-800 mb-1">Update Request</h2>
         <form onSubmit={handleUpdateSubmit} className="space-y-6">
-          {/* Item Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Item Name</label>
             <input
@@ -91,7 +91,6 @@ const UpdateRequest = () => {
             />
           </div>
 
-          {/* Serial Number */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Serial Number</label>
             <input
@@ -104,7 +103,6 @@ const UpdateRequest = () => {
             />
           </div>
 
-          {/* Category */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Category</label>
             <input
@@ -117,7 +115,6 @@ const UpdateRequest = () => {
             />
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Description</label>
             <textarea
@@ -129,7 +126,6 @@ const UpdateRequest = () => {
             />
           </div>
 
-          {/* Returnable Radio Buttons */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Returnable</label>
             <div className="mt-1 flex space-x-4">
@@ -138,7 +134,7 @@ const UpdateRequest = () => {
                   type="radio"
                   name="returnable"
                   value="yes"
-                  checked={updateData.returnable === 'yes'}
+                  checked={updateData.returnable === "yes"}
                   onChange={handleUpdateChange}
                   className="h-4 w-4"
                 />
@@ -149,7 +145,7 @@ const UpdateRequest = () => {
                   type="radio"
                   name="returnable"
                   value="no"
-                  checked={updateData.returnable === 'no'}
+                  checked={updateData.returnable === "no"}
                   onChange={handleUpdateChange}
                   className="h-4 w-4"
                 />
@@ -158,7 +154,6 @@ const UpdateRequest = () => {
             </div>
           </div>
 
-          {/* Image Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Item Image</label>
             {preview && (
@@ -174,19 +169,11 @@ const UpdateRequest = () => {
             />
           </div>
 
-          {/* Submit and Cancel Buttons */}
           <div className="flex justify-end space-x-2">
-            <button
-              type="button"
-              className="px-4 py-2 bg-gray-500 text-white rounded-md"
-              onClick={() => navigate('/my-request')}
-            >
+            <button type="button" className="px-4 py-2 bg-gray-500 text-white rounded-md" onClick={() => navigate("/my-request")}>
               Cancel
             </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-green-500 text-white rounded-md"
-            >
+            <button type="submit" className="px-4 py-2 bg-green-500 text-white rounded-md">
               Update
             </button>
           </div>
