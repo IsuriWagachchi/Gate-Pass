@@ -1,40 +1,50 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Bell, Settings, User } from "lucide-react";
-//import logo from "/src/assets/SLTMobitel_logo.svg";
 
 const Navbar = () => {
-  const [dropdownOpen, setDropdownOpen] = useState(false); // Define state for dropdown
-  const location = useLocation(); // Get current page path
+  //const [dropdownOpen, setDropdownOpen] = useState(false); 
+  const location = useLocation(); 
 
   return (
-    <nav className="bg-white-800 text-black p-4 flex justify-between items-center">
-      <div className="flex items-center gap-4">
+    <nav className="p-4 flex justify-between items-center shadow-lg text-white ">
+      <div className="flex items-center">
         <img src="./src/assets/SLTMobitel_logo.svg" alt="Logo" className="h-12" />
+        <h1 className="text-2xl font-bold ml-4" style={{ color: "#1B3D81" }}>
+          SLT Gate Pass
+        </h1>
       </div>
-      <ul className="flex gap-10">
-        <li>
-          <a href="/new-request" className="hover:underline text-blue-800">New Request</a>
-        </li>
-        <li>
-          <a href="/my-request" className="hover:underline text-blue-800">My Requests</a>
-        </li>
-        <li>
-          <a href="/executive-approve" className="hover:underline text-blue-800">Executive Approve</a>
-        </li>
-        <li>
-          <a href="/verify" className="hover:underline text-blue-800">Verify</a>
-        </li>
-        <li>
-          <a href="/new-request" className="hover:underline text-blue-800">My Receipt</a>
-        </li>
-        <li>
-          <a href="/item-tracker" className="hover:underline text-blue-800">Item Tracker</a>
-        </li>
-        <li className="relative">
+
+      {/* Navigation Links (No Space Between) */}
+      <ul className="flex ml-auto">
+        {[
+          { path: "/", label: "Home" },
+          { path: "/new-request", label: "New Request" },
+          { path: "/my-request", label: "My Requests" },
+          { path: "/executive-approve", label: "Executive Approve" },
+          { path: "/verify", label: "Verify" },
+          { path: "/my-receipt", label: "My Receipt" },
+          { path: "/item-tracker", label: "Item Tracker" }
+        ].map(({ path, label }) => (
+          <li key={path} className="h-full flex items-center">
+            <NavLink
+              to={path}
+              className={`px-6 py-3 text-lg font-medium shadow-md transition-all ${
+                location.pathname === path
+                  ? "bg-[#1B3D81] text-white"
+                  : "bg-white text-[#1B3D81] hover:bg-[#1B3D81] hover:text-white"
+              }`}
+            >
+              {label}
+            </NavLink>
+          </li>
+        ))}
+
+        {/* Account Dropdown (Right-Aligned) */}
+        {/* <li className="relative flex items-center">
           <button 
             onClick={() => setDropdownOpen(!dropdownOpen)} 
-            className="hover:underline text-blue-800"
+            className="px-6 py-3 bg-white text-[#1B3D81] font-medium shadow-md hover:bg-[#1B3D81] hover:text-white"
           >
             Account ▼
           </button>
@@ -44,18 +54,18 @@ const Navbar = () => {
               <a href="/admin" className="block px-4 py-2 hover:bg-gray-200">Admin</a>
             </div>
           )}
-        </li>
+        </li> */}
       </ul>
 
-      {/* Right Side: Icons */}
-      <div className="flex items-center gap-3 pr-4">
-        <NavLink to="/settings" className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100">
+      {/* Icons (Same as Before) */}
+      <div className="flex items-center pl-3">
+        {/* <NavLink to="/settings" className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100">
           <Settings size={20} className="text-[#1B3D81]" />
-        </NavLink>
-        <NavLink to="/notifications" className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100">
+        </NavLink> */}
+        <NavLink to="/notifications" className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100 ml-2">
           <Bell size={20} className="text-[#1B3D81]" />
         </NavLink>
-        <NavLink to="/profile" className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100">
+        <NavLink to="/profile" className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100 ml-2">
           <User size={20} className="text-[#1B3D81]" />
         </NavLink>
       </div>
