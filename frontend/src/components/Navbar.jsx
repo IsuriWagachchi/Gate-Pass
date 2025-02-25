@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Bell, Settings, User } from "lucide-react";
-import logo from "/src/assets/SLTMobitel_logo.svg";
+//import logo from "/src/assets/SLTMobitel_logo.svg";
 
 const Navbar = () => {
+  const [dropdownOpen, setDropdownOpen] = useState(false); // Define state for dropdown
   const location = useLocation(); // Get current page path
 
   return (
