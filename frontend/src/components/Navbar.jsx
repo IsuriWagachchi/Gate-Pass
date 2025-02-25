@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { Bell, Settings, User } from "lucide-react";
+import logo from "/src/assets/SLTMobitel_logo.svg";
 
 const Navbar = () => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const location = useLocation(); // Get current page path
 
   return (
     <nav className="bg-white-800 text-black p-4 flex justify-between items-center">
@@ -42,6 +45,19 @@ const Navbar = () => {
           )}
         </li>
       </ul>
+
+      {/* Right Side: Icons */}
+      <div className="flex items-center gap-3 pr-4">
+        <NavLink to="/settings" className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100">
+          <Settings size={20} className="text-[#1B3D81]" />
+        </NavLink>
+        <NavLink to="/notifications" className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100">
+          <Bell size={20} className="text-[#1B3D81]" />
+        </NavLink>
+        <NavLink to="/profile" className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100">
+          <User size={20} className="text-[#1B3D81]" />
+        </NavLink>
+      </div>
     </nav>
   );
 };

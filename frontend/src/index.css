@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+    @apply bg-gradient-to-br from-[#F0F7FF] via-[#DCEEFF] via-70% to-white;
+    min-height: 100vh;
+  }

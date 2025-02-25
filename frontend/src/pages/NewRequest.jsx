@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const NewRequest = () => {
   const [formData, setFormData] = useState({
@@ -16,7 +16,7 @@ const NewRequest = () => {
     receiverAvailable: ''
   });
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -42,8 +42,8 @@ const NewRequest = () => {
 
       navigate('/my-request');
     } catch (error) {
-      setError('Failed to create request. Please try again.');
-      console.error('Error creating request:', error);
+      setError("Failed to create request. Please try again.");
+      console.error("Error creating request:", error);
     }
   };
 
