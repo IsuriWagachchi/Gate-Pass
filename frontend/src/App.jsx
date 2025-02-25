@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import NewRequest from "./pages/NewRequest";
 import MyRequest from "./pages/MyRequest";
 import UpdateRequest from './pages/UpdateRequest';
+import ViewRequest from './pages/ViewRequest';
 import ItemTracker from "./pages/ItemTracker";
 
 const App = () => {
@@ -15,6 +16,7 @@ const App = () => {
           <Route path="/new-request" element={<NewRequest />} />
           <Route path="/my-request" element={<MyRequest />} />
           <Route path="/item-tracker" element={<ItemTracker />} />
+          <Route path="/view-request/:id" element={<ViewRequest />} />
           <Route path="/update-request/:id" element={<UpdateRequest />} />
           <Route path="/" element={<h2 style={{ textAlign: "center" }}>Welcome to the Gate Pass System</h2>} />
         </Routes>

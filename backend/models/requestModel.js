@@ -1,4 +1,3 @@
-// models/requestModel.js
 import mongoose from 'mongoose';
 
 const requestSchema = new mongoose.Schema({
@@ -7,6 +6,12 @@ const requestSchema = new mongoose.Schema({
   category: { type: String, required: true },
   description: { type: String, required: true },
   returnable: { type: String, required: true },
+  image: { type: String },  // Image field added
+  outLocation: { type: String, required: true },   // New field
+  inLocation: { type: String, required: true },    // New field
+  executiveOfficer: { type: String, required: true }, // New field
+  receiverAvailable: { type: String, required: true }, // New field
+  status: { type: String }  // New field for status
 }, {
   timestamps: true,
 });

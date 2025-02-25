@@ -1,16 +1,29 @@
 // controllers/requestController.js
 import Request from '../models/requestModel.js';
 
-// Create a new request
+// Create a new request with image upload and new fields
 const createRequest = async (req, res) => {
-  const { itemName, serialNo, category, description, returnable } = req.body;
+  const { itemName, serialNo, category, description, returnable, outLocation, inLocation, executiveOfficer, receiverAvailable, status } = req.body;
+  const image = req.file ? req.file.path : null;
 
   try {
-    const newRequest = new Request({ itemName, serialNo, category, description, returnable });
-    await newRequest.save();
-    res.status(201).json(newRequest);
+      const newRequest = new Request({
+          itemName,
+          serialNo,
+          category,
+          description,
+          returnable,
+          image,
+          outLocation,
+          inLocation,
+          executiveOfficer,
+          receiverAvailable,
+          status // Added status field here
+      });
+      await newRequest.save();
+      res.status(201).json(newRequest);
   } catch (err) {
-    res.status(500).json({ message: 'Error creating request', error: err });
+      res.status(500).json({ message: 'Error creating request', error: err });
   }
 };
 
@@ -39,19 +52,36 @@ const getRequestById = async (req, res) => {
   }
 };
 
-// Update request
+// Update request with new fields and image
 const updateRequest = async (req, res) => {
   const { id } = req.params;
-  const { itemName, serialNo, category, description, returnable } = req.body;
+  const { itemName, serialNo, category, description, returnable, outLocation, inLocation, executiveOfficer, receiverAvailable, status } = req.body;
+  const image = req.file ? req.file.path : null;
 
   try {
-    const updatedRequest = await Request.findByIdAndUpdate(id, { itemName, serialNo, category, description, returnable }, { new: true });
-    if (!updatedRequest) {
-      return res.status(404).json({ message: 'Request not found' });
-    }
-    res.status(200).json(updatedRequest);
+      const updatedRequest = await Request.findByIdAndUpdate(
+          id,
+          { 
+            itemName, 
+            serialNo, 
+            category, 
+            description, 
+            returnable, 
+            outLocation, 
+            inLocation, 
+            executiveOfficer, 
+            receiverAvailable, 
+            status, // Added status field here
+            ...(image && { image }) // Handle image upload if available
+          },
+          { new: true }
+      );
+      if (!updatedRequest) {
+          return res.status(404).json({ message: 'Request not found' });
+      }
+      res.status(200).json(updatedRequest);
   } catch (err) {
-    res.status(500).json({ message: 'Error updating request', error: err });
+      res.status(500).json({ message: 'Error updating request', error: err });
   }
 };
 

@@ -1,28 +1,24 @@
-// routes/requestRoutes.js
 import express from 'express';
+import upload from '../middleware/upload.js';
 import {
-  createRequest,
-  getRequests,
-  getRequestById,
-  updateRequest,
-  deleteRequest
+    createRequest,
+    getRequests,
+    getRequestById,
+    updateRequest,
+    deleteRequest
 } from '../controllers/requestController.js';
 
 const router = express.Router();
 
-// Create a new request
-router.post('/create', createRequest);
+// Create a new request (with image upload)
+router.post('/create', upload.single('image'), createRequest);
 
-// Get all requests
+// Update request (with image upload)
+router.put('/:id', upload.single('image'), updateRequest);
+
+// Other routes
 router.get('/', getRequests);
-
-// Get request by ID
 router.get('/:id', getRequestById);
-
-// Update request
-router.put('/:id', updateRequest);
-
-// Delete request
 router.delete('/:id', deleteRequest);
 
 export default router;

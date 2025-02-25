@@ -4,22 +4,33 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <nav className="bg-blue-800 text-white p-4 flex justify-between items-center">
-      <h1 className="text-2xl font-bold">Gate Pass Management System</h1>
-      <ul className="flex gap-6">
+    <nav className="bg-white-800 text-black p-4 flex justify-between items-center">
+      <div className="flex items-center gap-4">
+        <img src="./src/assets/SLTMobitel_logo.svg" alt="Logo" className="h-12" />
+      </div>
+      <ul className="flex gap-10">
         <li>
-          <a href="/new-request" className="hover:underline">New Request</a>
+          <a href="/new-request" className="hover:underline text-blue-800">New Request</a>
         </li>
         <li>
-          <a href="/my-request" className="hover:underline">My Requests</a>
+          <a href="/my-request" className="hover:underline text-blue-800">My Requests</a>
         </li>
         <li>
-          <a href="/item-tracker" className="hover:underline">Item Tracker</a>
+          <a href="/executive-approve" className="hover:underline text-blue-800">Executive Approve</a>
+        </li>
+        <li>
+          <a href="/verify" className="hover:underline text-blue-800">Verify</a>
+        </li>
+        <li>
+          <a href="/new-request" className="hover:underline text-blue-800">My Receipt</a>
+        </li>
+        <li>
+          <a href="/item-tracker" className="hover:underline text-blue-800">Item Tracker</a>
         </li>
         <li className="relative">
           <button 
             onClick={() => setDropdownOpen(!dropdownOpen)} 
-            className="hover:underline"
+            className="hover:underline text-blue-800"
           >
             Account ▼
           </button>
