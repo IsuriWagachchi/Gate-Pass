@@ -4,7 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import requestRoutes from './routes/requestRoutes.js';
 import executiveRoutes from './routes/executiveRoutes.js';
-
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -22,6 +22,7 @@ app.use('/uploads', express.static('uploads'));
 // Routes
 app.use('/api/requests', requestRoutes);
 app.use('/api/executive', executiveRoutes);
+app.use('/api/auth', authRoutes); // Use the routes for authentication
 
 
 // MongoDB Connection
