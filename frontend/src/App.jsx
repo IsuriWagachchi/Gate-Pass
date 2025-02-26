@@ -50,6 +50,7 @@ const App = () => {
         {isAuthenticated && <Navbar role={role} username={username} logout={handleLogout} />}
         <Routes>
           {/* Routes accessible to all authenticated users */}
+          <Route path="/home" element={<ProtectedRoute Component={HomePage} allowedRoles={["user", "admin"]} />} />
           <Route path="/new-request" element={<ProtectedRoute Component={NewRequest} allowedRoles={["user", "admin"]} />} />
           <Route path="/my-request" element={<ProtectedRoute Component={MyRequest} allowedRoles={["user", "admin"]} />} />
           <Route path="/item-tracker" element={<ProtectedRoute Component={ItemTracker} allowedRoles={["user", "admin"]} />} />
@@ -65,7 +66,7 @@ const App = () => {
             path="/login"
             element={
               isAuthenticated ? (
-                <Navigate to={role === "admin" ? "/admin" : "/new-request"} />
+                <Navigate to={role === "admin" ? "/admin" : "/home"} />
               ) : (
                 <Login setRole={setRole} setUsername={setUsername} setIsAuthenticated={setIsAuthenticated} />
               )
@@ -77,7 +78,7 @@ const App = () => {
     path="/signup"
     element={
       isAuthenticated ? (
-        <Navigate to={role === "admin" ? "/admin" : "/new-request"} />
+        <Navigate to={role === "admin" ? "/admin" : "/home"} />
       ) : (
         <Signup setRole={setRole} setUsername={setUsername} setIsAuthenticated={setIsAuthenticated} />
       )
