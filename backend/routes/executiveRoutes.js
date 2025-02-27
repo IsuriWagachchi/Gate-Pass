@@ -2,7 +2,8 @@
 import express from 'express';
 import {
   getAllRequests,
-  updateRequestStatus
+  updateRequestStatus,
+  getRequestById
 } from '../controllers/executiveController.js';
 
 const router = express.Router();
@@ -12,5 +13,7 @@ router.get('/', getAllRequests);
 
 // Update request status
 router.put('/:id/status', updateRequestStatus);
+
+router.get('/:id', getRequestById);
 
 export default router;
