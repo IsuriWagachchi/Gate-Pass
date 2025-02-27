@@ -11,6 +11,7 @@ import AdminPage from "./pages/AdminPage";
 import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
 import Signup from "./pages/SignUp";
+import ViewExecutivePending from "./pages/ExecutivePending";
 
 const App = () => {
   const [role, setRole] = useState(null);
@@ -57,6 +58,8 @@ const App = () => {
           <Route path="/view-request/:id" element={<ProtectedRoute Component={ViewRequest} allowedRoles={["user", "admin"]} />} />
           <Route path="/update-request/:id" element={<ProtectedRoute Component={UpdateRequest} allowedRoles={["user", "admin"]} />} />
           <Route path="/executive-approve" element={<ProtectedRoute Component={ExecutiveApprovePage} allowedRoles={["admin"]} />} />
+          <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["user", "admin"]} />} />
+
 
           {/* Admin-only route */}
           <Route path="/admin" element={<ProtectedRoute Component={AdminPage} allowedRoles={["admin"]} />} />

@@ -36,7 +36,19 @@ const updateRequestStatus = async (req, res) => {
   }
 };
 
-export {
-  getAllRequests,
-  updateRequestStatus,
+// Get request details by ID
+const getRequestById = async (req, res) => {
+  try {
+    const request = await Request.findById(req.params.id);
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+    res.status(200).json(request);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching request", error });
+  }
 };
+
+export { getAllRequests, updateRequestStatus, getRequestById };
+
+
