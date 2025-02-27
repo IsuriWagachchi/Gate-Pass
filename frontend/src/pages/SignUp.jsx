@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
+import slt from "../assets/SLTMobitel_logo.svg";
+import sltHome from "../assets/sltHome.webp"; // Import background image
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -24,63 +26,90 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center"
+      style={{ backgroundImage: `url(${sltHome})` }} // Apply background image
+    >
+      {/* Card Container */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-        className="bg-white shadow-lg rounded-2xl p-6 w-96 border border-gray-300"
+        className="bg-white bg-opacity-75 backdrop-blur-lg rounded-3xl shadow-xl p-8 w-full max-w-md relative"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Sign Up</h2>
+        {/* Logo and Title (Stacked) */}
+        <div className="flex flex-col items-center gap-4 mb-6">
+          <img src={slt} alt="SLT Logo" className="w-25 h-25" />
+          <h1 className="text-2xl font-semibold text-blue-900">SLT GATE PASS</h1>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-700">Username</label>
+          {/* Username Input */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Username</label>
             <input
               type="text"
-              placeholder="Enter username"
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter Username"
             />
           </div>
-          <div>
-            <label className="block text-gray-700">Email</label>
+
+          {/* Email Input */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Email</label>
             <input
               type="email"
-              placeholder="Enter email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter Email"
             />
           </div>
-          <div>
-            <label className="block text-gray-700">Password</label>
+
+          {/* Password Input */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Password</label>
             <input
               type="password"
-              placeholder="Enter password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter Password"
             />
           </div>
-          <div>
-            <label className="block text-gray-700">Role</label>
+
+          {/* Role Dropdown */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Role</label>
             <select
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="user">User</option>
               <option value="admin">Admin</option>
             </select>
           </div>
-          <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-            Sign Up
-          </button>
+
+          {/* Signup Button */}
+          <div className="flex justify-center">
+            <motion.button
+            type="submit"
+            className="w-32 bg-blue-900 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 mt-4"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            >
+          Sign Up
+            </motion.button>
+          </div>
+
         </form>
-        <p className="mt-4 text-center text-gray-600">
-          Already have an account?{' '}
-          <Link to="/login" className="text-blue-500 hover:underline">
+
+        <p className="mt-4 text-center">
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-500 hover:text-blue-600">
             Login
           </Link>
         </p>

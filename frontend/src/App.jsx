@@ -60,13 +60,14 @@ const App = () => {
 
           {/* Admin-only route */}
           <Route path="/admin" element={<ProtectedRoute Component={AdminPage} allowedRoles={["admin"]} />} />
+          
 
           {/* Login Route */}
           <Route
             path="/login"
             element={
               isAuthenticated ? (
-                <Navigate to={role === "admin" ? "/admin" : "/home"} />
+                <Navigate to={role === "admin" ? "/home" : "/admin"} />
               ) : (
                 <Login setRole={setRole} setUsername={setUsername} setIsAuthenticated={setIsAuthenticated} />
               )
@@ -78,7 +79,7 @@ const App = () => {
     path="/signup"
     element={
       isAuthenticated ? (
-        <Navigate to={role === "admin" ? "/admin" : "/home"} />
+        <Navigate to={role === "admin" ? "/home" : "/admin"} />
       ) : (
         <Signup setRole={setRole} setUsername={setUsername} setIsAuthenticated={setIsAuthenticated} />
       )
