@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import PropTypes from "prop-types";
 import { motion } from "framer-motion";
-import slt from "../assets/slt.png";
+import slt from "../assets/SLTMobitel_logo.svg";
+import sltHome from "../assets/sltHome.webp"; // Import your background image
 
 const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
   const navigate = useNavigate();
@@ -34,7 +35,10 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-white flex items-center justify-center p-4">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center"
+      style={{ backgroundImage: `url(${sltHome})` }} // Apply background image
+    >
       {/* Background shapes */}
       <motion.div 
         className="absolute top-0 left-0 w-1/2 h-1/2 bg-blue-100 rounded-full blur-3xl opacity-50 -translate-x-1/4 -translate-y-1/4"
@@ -50,15 +54,16 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
       />
 
       {/* Card Container */}
+      
       <motion.div 
-        className="bg-white rounded-3xl shadow-xl p-8 w-full max-w-md relative"
+        className="bg-white bg-opacity-75 backdrop-blur-lg rounded-3xl shadow-xl p-8 w-full max-w-md relative"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
         {/* Logo and Title */}
-        <div className="flex items-center gap-4 mb-8">
-          <img src={slt} alt="SLT Logo" className="w-50 h-50" />
+        <div className="flex flex-col items-center gap-4 mb-8">
+          <img src={slt} alt="SLT Logo" className="w-25 h-25" />
           <h1 className="text-2xl font-semibold text-blue-900">SLT GATE PASS</h1>
         </div>
 
@@ -115,14 +120,16 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
           </motion.div>
 
           {/* Login Button */}
+          <div className = "flex justify-center">
           <motion.button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 mt-6"
+            className="w-32 bg-blue-900 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 mt-6"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             Login
           </motion.button>
+          </div>
         </form>
 
         <p className="mt-4 text-center">
