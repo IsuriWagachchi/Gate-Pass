@@ -12,6 +12,7 @@ import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
 import Signup from "./pages/SignUp";
 import ViewExecutivePending from "./pages/ExecutivePending";
+import Dispatch from "./pages/Dispatch";
 
 const App = () => {
   const [role, setRole] = useState(null);
@@ -59,6 +60,7 @@ const App = () => {
           <Route path="/update-request/:id" element={<ProtectedRoute Component={UpdateRequest} allowedRoles={["user", "admin"]} />} />
           <Route path="/executive-approve" element={<ProtectedRoute Component={ExecutiveApprovePage} allowedRoles={["admin"]} />} />
           <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["user", "admin"]} />} />
+          <Route path="/dispatch" element={<ProtectedRoute Component={Dispatch} allowedRoles={["user", "admin"]} />} />
 
 
           {/* Admin-only route */}

@@ -27,6 +27,7 @@ const Navbar = ({ logout }) => {
           { path: "/executive-approve", label: "Executive Approve" },
           { path: "/verify", label: "Verify" },
           { path: "/my-receipt", label: "My Receipt" },
+          { path: "/dispatch", lable: "Dispatch"},
           { path: "/item-tracker", label: "Item Tracker" },
 	        { path: "/admin", label: "Admin" }
         ].map(({ path, label }) => (
