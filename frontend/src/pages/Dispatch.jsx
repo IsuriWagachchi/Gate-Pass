@@ -2,14 +2,14 @@ import React from "react";
 
 const Dispatch = () => {
   return (
-    <div className="container mx-auto p-6 border-4 border-blue-200 rounded-lg shadow-lg bg-white w-full mt-12">
+    <div className="container mx-auto p-6">
       <h2 className="text-3xl font-bold text-gray-800 mb-6 text-left">
         Dispatch
       </h2>
       <div className="overflow-x-auto max-h-[80vh] overflow-y-auto">
-        <table className="w-full min-w-max border-collapse border rounded-lg shadow-lg">
+        <table className="w-full bg-white border rounded-lg shadow-md">
             <thead>
-              <tr className="bg-[#2A6BAC] text-white text-lg">
+              <tr className="bg-blue-600 text-white">
                 <th className="py-3 px-4 border text-left">Ref.No</th>
                 <th className="py-3 px-4 border text-left">Name</th>
                 <th className="py-3 px-4 border text-left">Mobile No</th>                
