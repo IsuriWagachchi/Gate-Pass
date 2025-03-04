@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/SignUp";
 import ViewExecutivePending from "./pages/ExecutivePending";
 import Dispatch from "./pages/Dispatch";
+import ItemTrackerView from "./pages/ItemTrackerView";
 import MyReceipt from "./pages/MyReceipt";
 
 const App = () => {
@@ -62,6 +63,7 @@ const App = () => {
           <Route path="/executive-approve" element={<ProtectedRoute Component={ExecutiveApprovePage} allowedRoles={["admin"]} />} />
           <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["user", "admin"]} />} />
           <Route path="/dispatch" element={<ProtectedRoute Component={Dispatch} allowedRoles={["user", "admin"]} />} />
+          <Route path="/item-tracker-view/:id" element={<ProtectedRoute Component={ItemTrackerView} allowedRoles={["user", "admin"]} />} />
           <Route path="/my-receipt" element={<ProtectedRoute Component={MyReceipt} allowedRoles={["user", "admin"]} />} />
 
 
