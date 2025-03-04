@@ -1,14 +1,7 @@
-// import React from "react";
-
-// const ItemTracker = () => {
-//   return <h2 style={{ textAlign: "center" }}>Item Tracker Page</h2>;
-// };
-
-// export default ItemTracker;
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import ItemTrackerView from './ItemTrackerView';
 
 const ItemTracker = () => {
   const [requests, setRequests] = useState([]);
@@ -27,31 +20,20 @@ const ItemTracker = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this request?')) {
-      try {
-        await axios.delete(`http://localhost:5000/api/requests/${id}`);
-        setRequests(requests.filter((request) => request._id !== id));
-      } catch (error) {
-        console.error('Error deleting request:', error);
-      }
-    }
-  };
-
   return (
-    <div className="container mx-auto p-6">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6">Item Tracker</h2>
-      <div className="overflow-x-auto">
-        <table className="w-full bg-white border rounded-lg shadow-md">
-          <thead className="bg-blue-600 text-white">
+    <div className="container mx-auto p-6 border-4 border-blue-200 rounded-lg shadow-lg bg-white w-full mt-12">
+      <h2 className="text-3xl font-bold text-gray-800 mb-6 text-left">Item Tracker</h2>
+      <div className="overflow-x-auto max-h-[80vh] overflow-y-auto">
+        <table className="w-full min-w-max border-collapse border rounded-lg shadow-lg">
+          <thead className="bg-[#2A6BAC] text-white">
             <tr>
-              <th className="py-3 px-4 text-left">Ref No</th>
-              <th className="py-3 px-4 text-left">Item Name</th>
-              <th className="py-3 px-4 text-left">Category</th>
-              <th className="py-3 px-4 text-left">In Locationn</th>
-              <th className="py-3 px-4 text-left">Out Location</th>
-              <th className="py-3 px-4 text-left">Returnable</th>
-              <th className="py-3 px-4 text-center">Full Details</th>
+              <th className="py-3 px-4 border text-left">Ref No</th>
+              <th className="py-3 px-4 border text-left">Item Name</th>
+              <th className="py-3 px-4 border text-left">Category</th>
+              <th className="py-3 px-4 border text-left">In Location</th>
+              <th className="py-3 px-4 border text-left">Out Location</th>
+              <th className="py-3 px-4 border text-left">Returnable</th>
+              <th className="py-3 px-4 border text-center">Full Details</th>
             </tr>
           </thead>
           <tbody>
@@ -66,11 +48,10 @@ const ItemTracker = () => {
                 <td className="py-2 px-4 border text-center">
                   <button
                     className="bg-green-500 hover:bg-green-700 text-white px-4 py-1 rounded mr-2"
-                    onClick={() => navigate(`/view-request/${request._id}`)}
+                    onClick={() => navigate(`/item-tracker-view/${request._id}`)}
                   >
                     View
                   </button>
-                  
                 </td>
               </tr>
             ))}
@@ -82,5 +63,3 @@ const ItemTracker = () => {
 };
 
 export default ItemTracker;
-
-
