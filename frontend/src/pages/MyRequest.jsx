@@ -34,8 +34,10 @@ const MyRequest = () => {
     <div className="container mx-auto p-6 ">
       
       <div className="overflow-x-auto">
+      <div className="container mx-auto p-6 border-4 border-blue-200 rounded-lg shadow-lg bg-white w-full mt-12">
+      <h2 className="text-3xl font-bold text-gray-800 mb-6 text-left">My Request</h2>
         
-        <table className="w-3/4 bg-white border rounded-lg shadow-md mx-auto">
+      <table className="w-full min-w-max border-collapse border rounded-lg shadow-lg">
           <thead className="bg-blue-800 text-white">
             
             <tr>
@@ -53,7 +55,7 @@ const MyRequest = () => {
                 <td className="py-2 px-4 border">{request._id}</td>
                 <td className="py-2 px-4 border">{request.itemName}</td>
                 
-                <td className="py-2 px-4 border">Pending</td>
+                <td className="py-2 px-4 border">{request.status}</td>
                 <td className="py-2 px-4 border">
                   <button
                     className="bg-green-500 hover:bg-green-400 text-white px-4 py-1 rounded"
@@ -69,6 +71,8 @@ const MyRequest = () => {
         </table>
       </div>
     </div>
+    </div>
+    
   );
 };
 
