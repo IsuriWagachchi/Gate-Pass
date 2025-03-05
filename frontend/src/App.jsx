@@ -12,7 +12,13 @@ import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
 import Signup from "./pages/SignUp";
 import ViewExecutivePending from "./pages/ExecutivePending";
+
 import VerifyPage from "./pages/VerifyPage";
+
+import Dispatch from "./pages/Dispatch";
+import ItemTrackerView from "./pages/ItemTrackerView";
+import MyReceipt from "./pages/MyReceipt";
+
 
 const App = () => {
   const [role, setRole] = useState(null);
@@ -59,8 +65,15 @@ const App = () => {
           <Route path="/view-request/:id" element={<ProtectedRoute Component={ViewRequest} allowedRoles={["user", "admin"]} />} />
           <Route path="/update-request/:id" element={<ProtectedRoute Component={UpdateRequest} allowedRoles={["user", "admin"]} />} />
           <Route path="/executive-approve" element={<ProtectedRoute Component={ExecutiveApprovePage} allowedRoles={["admin"]} />} />
+
           <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["admin"]} />} />
           <Route path="/verify" element={<ProtectedRoute Component={VerifyPage} allowedRoles={["admin"]} />} />
+
+          <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["user", "admin"]} />} />
+          <Route path="/dispatch" element={<ProtectedRoute Component={Dispatch} allowedRoles={["user", "admin"]} />} />
+          <Route path="/item-tracker-view/:id" element={<ProtectedRoute Component={ItemTrackerView} allowedRoles={["user", "admin"]} />} />
+          <Route path="/my-receipt" element={<ProtectedRoute Component={MyReceipt} allowedRoles={["user", "admin"]} />} />
+
 
 
           {/* Admin-only route */}
