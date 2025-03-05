@@ -14,6 +14,7 @@ import Signup from "./pages/SignUp";
 import ViewExecutivePending from "./pages/ExecutivePending";
 
 import VerifyPage from "./pages/VerifyPage";
+import ViewVerify from "./pages/VerifyView";
 
 import Dispatch from "./pages/Dispatch";
 import ItemTrackerView from "./pages/ItemTrackerView";
@@ -68,7 +69,7 @@ const App = () => {
 
           <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["admin"]} />} />
           <Route path="/verify" element={<ProtectedRoute Component={VerifyPage} allowedRoles={["admin"]} />} />
-
+          <Route path="/view-verify/:id" element={<ProtectedRoute Component={ViewVerify} allowedRoles={["user", "admin"]} />} />
           <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["user", "admin"]} />} />
           <Route path="/dispatch" element={<ProtectedRoute Component={Dispatch} allowedRoles={["user", "admin"]} />} />
           <Route path="/item-tracker-view/:id" element={<ProtectedRoute Component={ItemTrackerView} allowedRoles={["user", "admin"]} />} />
