@@ -28,7 +28,7 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
       setRole(role);
       setUsername(res.data.username);
       setIsAuthenticated(true);
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       alert(error.response?.data?.error || "Login failed");
     }
