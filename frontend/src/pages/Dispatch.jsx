@@ -1,48 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const Dispatch = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
+  const [data, setData] = useState([]);
 
-  const data = [
-    {
-      refNo: "3423455",
-      name: "Dasun Shanaka",
-      mobile: "071 65 56 350",
-      inLocation: "Colombo",
-      outLocation: "Kurunegala",
-      createdDateTime: "2025-02-22 16:30:34",
-    },
-    {
-      refNo: "3424677",
-      name: "Nimal Kumara",
-      mobile: "071 02 26 930",
-      inLocation: "Galle",
-      outLocation: "Kurunegala",
-      createdDateTime: "2024-08-14 15:34:56",
-    },
-    {
-      refNo: "3423875",
-      name: "Amara Disanayake",
-      mobile: "071 67 45 098",
-      inLocation: "Colombo",
-      outLocation: "Kurunegala",
-      createdDateTime: "2023-09-20 09:24:43",
-    },
-  ];
+  useEffect(() => {
+    const fetchVerifiedRequests = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/dispatch/verified");
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching verified requests:", error);
+      }
+    };
+    fetchVerifiedRequests();
+  }, []);
 
   // Filter data based on search term and selected date
   const filteredData = data.filter((item) => {
     return (
-      (item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.refNo.includes(searchTerm) ||
-        item.mobile.includes(searchTerm)) &&
-      (selectedDate === "" || item.createdDateTime.startsWith(selectedDate))
+      (item.itemName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.serialNo.includes(searchTerm) ||
+        item.outLocation.toLowerCase().includes(searchTerm) ||
+        item.inLocation.toLowerCase().includes(searchTerm)) &&
+      (selectedDate === "" || item.createdAt.startsWith(selectedDate))
     );
   });
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 border-4 border-blue-200 rounded-lg shadow-lg bg-white w-full mt-12">
       <h2 className="text-3xl font-bold text-gray-800 mb-6 text-left">
         Dispatch
       </h2>
@@ -70,30 +58,30 @@ const Dispatch = () => {
 
       {/* Table Section */}
       <div className="overflow-x-auto max-h-[80vh] overflow-y-auto">
-        <table className="w-full bg-white border rounded-lg shadow-md">
+        <table className="w-full min-w-max border-collapse border rounded-lg shadow-lg">
             <thead>
-              <tr className="bg-blue-600 text-white">
+              <tr className="bg-[#2A6BAC] text-white">
                 <th className="py-3 px-4 border text-left">Ref.No</th>
                 <th className="py-3 px-4 border text-left">Name</th>
-                <th className="py-3 px-4 border text-left">Mobile No</th>                
+                <th className="py-3 px-4 border text-left">Category</th>                
                 <th className="py-3 px-4 border text-left">In Location</th>
                 <th className="py-3 px-4 border text-left">Out Location</th>
                 <th className="py-3 px-4 border text-left">Created Date Time</th>       
-                <th className="py-3 px-4 border text-left">Full Details</th>
+                <th className="py-3 px-4 border text-center">Full Details</th>
               </tr>
             </thead>
             <tbody>
               {filteredData.map((item, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
-                  <td className="py-2 px-4 border text-left">{item.refNo}</td>
-                  <td className="py-2 px-4 border text-left">{item.name}</td>
-                  <td className="py-2 px-4 border text-left">{item.mobile}</td>
+                  <td className="py-2 px-4 border text-left">{item.serialNo}</td>
+                  <td className="py-2 px-4 border text-left">{item.itemName}</td>
+                  <td className="py-2 px-4 border text-left">{item.category}</td>
                   <td className="py-2 px-4 border text-left">{item.inLocation}</td>
                   <td className="py-2 px-4 border text-left">{item.outLocation}</td>
-                  <td className="py-2 px-4 border text-left">{item.createdDateTime}</td>
+                  <td className="py-2 px-4 border text-left">{new Date(item.createdAt).toLocaleString()}</td>
                   <td className="py-2 px-4 border text-center">
                     <button
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded transition-all duration-200"
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded mr-2"
                     >
                       View
                     </button>

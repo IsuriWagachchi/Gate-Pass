@@ -6,6 +6,7 @@ import requestRoutes from './routes/requestRoutes.js';
 import executiveRoutes from './routes/executiveRoutes.js';
 import authRoutes from "./routes/authRoutes.js";
 import verifyRoutes from './routes/verifyRoutes.js';
+import dispatchRoutes from "./routes/dispatchRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -24,7 +25,8 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/requests', requestRoutes);
 app.use('/api/executive', executiveRoutes);
 app.use('/api/auth', authRoutes); // Use the routes for authentication
-app.use('/api/verify', verifyRoutes);	
+app.use('/api/verify', verifyRoutes);
+app.use('/api/dispatch', dispatchRoutes)	
 
 
 // MongoDB Connection
