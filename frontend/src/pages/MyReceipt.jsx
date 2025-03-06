@@ -30,18 +30,18 @@ const MyReceipt = () => {
   ];
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 border-4 border-blue-200 rounded-lg shadow-lg bg-white w-full mt-12">
       <h2 className="text-3xl font-bold text-gray-800 mb-6 text-left">
         My Receipts
       </h2>
       <div className="overflow-x-auto max-h-[80vh] overflow-y-auto">
-        <table className="w-full bg-white border rounded-lg shadow-md">
+        <table className="w-full min-w-max border-collapse border rounded-lg shadow-lg">
             <thead>
-              <tr className="bg-blue-600 text-white">
+              <tr className="bg-[#2A6BAC] text-white">
                 <th className="py-3 px-4 border text-left">Ref.No</th>
                 <th className="py-3 px-4 border text-left">Name</th>
                 <th className="py-3 px-4 border text-left">Created Date Time</th>       
-                <th className="py-3 px-4 border text-left">Full Details</th>
+                <th className="py-3 px-4 border text-center">Full Details</th>
               </tr>
             </thead>
             <tbody>
@@ -52,7 +52,7 @@ const MyReceipt = () => {
                   <td className="py-2 px-4 border text-left">{item.createdDateTime}</td>
                   <td className="py-2 px-4 border text-center">
                     <button
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded transition-all duration-200"
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded mr-2"
                     >
                       View
                     </button>
