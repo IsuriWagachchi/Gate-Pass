@@ -20,6 +20,7 @@ import Dispatch from "./pages/Dispatch";
 import ItemTrackerView from "./pages/ItemTrackerView";
 import MyReceipt from "./pages/MyReceipt";
 
+import SenderDetails from "./pages/SenderDetails";
 
 const App = () => {
   const [role, setRole] = useState(null);
