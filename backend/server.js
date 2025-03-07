@@ -26,7 +26,7 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/executive', executiveRoutes);
 app.use('/api/auth', authRoutes); // Use the routes for authentication
 app.use('/api/verify', verifyRoutes);
-app.use('/api/dispatch', dispatchRoutes)	
+app.use('/api/dispatch', dispatchRoutes);	
 
 
 // MongoDB Connection

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Dispatch = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [data, setData] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchVerifiedRequests = async () => {
@@ -82,6 +84,7 @@ const Dispatch = () => {
                   <td className="py-2 px-4 border text-center">
                     <button
                       className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded mr-2"
+                      onClick={() => navigate(`/dispatch-view/${item._id}`)}
                     >
                       View
                     </button>

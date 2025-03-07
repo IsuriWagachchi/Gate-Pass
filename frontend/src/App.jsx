@@ -19,6 +19,7 @@ import ViewVerify from "./pages/VerifyView";
 import Dispatch from "./pages/Dispatch";
 import ItemTrackerView from "./pages/ItemTrackerView";
 import MyReceipt from "./pages/MyReceipt";
+import DispatchView from "./pages/DispatchView";
 
 
 const App = () => {
@@ -74,6 +75,7 @@ const App = () => {
           <Route path="/dispatch" element={<ProtectedRoute Component={Dispatch} allowedRoles={["user", "admin"]} />} />
           <Route path="/item-tracker-view/:id" element={<ProtectedRoute Component={ItemTrackerView} allowedRoles={["user", "admin"]} />} />
           <Route path="/my-receipt" element={<ProtectedRoute Component={MyReceipt} allowedRoles={["user", "admin"]} />} />
+          <Route path="/dispatch-view/:id" element={<ProtectedRoute Component={DispatchView} allowedRoles={["user", "admin"]} />} />
 
 
 
