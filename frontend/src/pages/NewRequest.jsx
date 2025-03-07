@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import SenderDetails from "./SenderDetails";
 
 const NewRequest = () => {
   const [formData, setFormData] = useState({
@@ -55,6 +56,8 @@ const NewRequest = () => {
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto bg-white border-2 border-blue-200 p-6 rounded-lg">
+                    {/* Sender Details Section */}
+                    <SenderDetails />
           
           {/* Item Details Card */}
           <div className="mb-6 border-2 border-blue-400 p-4 rounded-lg">

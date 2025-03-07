@@ -21,6 +21,7 @@ import ItemTrackerView from "./pages/ItemTrackerView";
 import MyReceipt from "./pages/MyReceipt";
 import DispatchView from "./pages/DispatchView";
 
+import SenderDetails from "./pages/SenderDetails";
 
 const App = () => {
   const [role, setRole] = useState(null);
