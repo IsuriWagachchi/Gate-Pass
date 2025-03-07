@@ -24,7 +24,7 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/executive', executiveRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/verify', verifyRoutes);
-app.use('/api/dispatch', dispatchRoutes);
+app.use('/api/dispatch', dispatchRoutes);;
 app.use('/api/upload', uploadRoutes); // CSV upload route
 
 // MongoDB Connection
