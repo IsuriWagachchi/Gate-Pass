@@ -24,11 +24,14 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/executive', executiveRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/verify', verifyRoutes);
-app.use('/api/dispatch', dispatchRoutes);;
+app.use('/api/dispatch', dispatchRoutes);
 app.use('/api/upload', uploadRoutes); // CSV upload route
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI, {
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
+})
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('MongoDB connection error: ', err));
 
