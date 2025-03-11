@@ -4,29 +4,30 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import { motion } from "framer-motion";
 import slt from "../assets/SLTMobitel_logo.svg";
-import sltHome from "../assets/sltHome.webp"; // Import your background image
+import sltHome from "../assets/sltHome.webp";
+import PopupLogout from "./PopupLogout";
 
 const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", formData);
 
-      console.log("Login response:", res.data); // Debug log
-      const username = res.data.username;
-      const role = res.data.role;
+      console.log("Login response:", res.data);
+      const { username, role, token } = res.data;
       if (!username) {
         console.error("Username not found in response:", res.data);
         throw new Error("Username not found in response");
       }
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("role", res.data.role);
-      localStorage.setItem("username", res.data.username);
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
+      localStorage.setItem("username", username);
       setRole(role);
-      setUsername(res.data.username);
+      setUsername(username);
       setIsAuthenticated(true);
       navigate("/home");
     } catch (error) {
@@ -34,12 +35,25 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
     }
   };
 
+  const handleLogout = () => {
+    setShowLogoutPopup(true);
+  };
+
+  const confirmLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("username");
+    setRole(null);
+    setUsername(null);
+    setIsAuthenticated(false);
+    setShowLogoutPopup(false);
+    navigate("/login");
+  };
+
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center"
-      style={{ backgroundImage: `url(${sltHome})` }} // Apply background image
-    >
-      {/* Background shapes */}
+    <div className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center relative" style={{ backgroundImage: `url(${sltHome})` }}>
+      {showLogoutPopup && <PopupLogout onConfirm={confirmLogout} onCancel={() => setShowLogoutPopup(false)} />}
+      
       <motion.div 
         className="absolute top-0 left-0 w-1/2 h-1/2 bg-blue-100 rounded-full blur-3xl opacity-50 -translate-x-1/4 -translate-y-1/4"
         initial={{ opacity: 0, scale: 0.8 }} 
@@ -52,23 +66,18 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
         animate={{ opacity: 0.5, scale: 1 }} 
         transition={{ duration: 1 }}
       />
-
-      {/* Card Container */}
-      
       <motion.div 
-        className="bg-white bg-opacity-75 backdrop-blur-lg rounded-3xl shadow-xl p-8 w-full max-w-md relative"
+        className="bg-white bg-opacity-75 backdrop-blur-lg rounded-3xl shadow-xl p-8 w-full max-w-md relative z-10"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        {/* Logo and Title */}
         <div className="flex flex-col items-center gap-4 mb-8">
           <img src={slt} alt="SLT Logo" className="w-25 h-25" />
           <h1 className="text-2xl font-semibold text-blue-900">SLT GATE PASS</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* User Type Dropdown */}
           <motion.div 
             className="space-y-2"
             initial={{ opacity: 0, y: 10 }}
@@ -84,8 +93,6 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
               <option value="User">User</option>
             </select>
           </motion.div>
-
-          {/* Email Input */}
           <motion.div 
             className="space-y-2"
             initial={{ opacity: 0, y: 10 }}
@@ -101,8 +108,6 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
               placeholder="Enter User Email"
             />
           </motion.div>
-
-          {/* Password Input */}
           <motion.div 
             className="space-y-2"
             initial={{ opacity: 0, y: 10 }}
@@ -118,25 +123,19 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
               placeholder="Enter Password"
             />
           </motion.div>
-
-          {/* Login Button */}
-          <div className = "flex justify-center">
-          <motion.button
-            type="submit"
-            className="w-32 bg-blue-900 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 mt-6"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Login
-          </motion.button>
+          <div className="flex justify-center">
+            <motion.button
+              type="submit"
+              className="w-32 bg-blue-900 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 mt-6"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Login
+            </motion.button>
           </div>
         </form>
-
         <p className="mt-4 text-center">
-          Don't have an account?{" "}
-          <Link to="/signup" className="text-blue-500 hover:text-blue-600">
-            Sign up
-          </Link>
+          Don't have an account? <Link to="/signup" className="text-blue-500 hover:text-blue-600">Sign up</Link>
         </p>
       </motion.div>
     </div>
