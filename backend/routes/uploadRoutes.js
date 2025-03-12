@@ -47,8 +47,7 @@ router.post('/upload', upload.single('csvFile'), async (req, res) => {
                         continue;
                     }
 
-                    // Hash password
-                    user.password = await bcrypt.hash(user.password, 10);
+                    
 
                     // Check if user already exists
                     const existingUser = await User.findOne({ email: user.email });
