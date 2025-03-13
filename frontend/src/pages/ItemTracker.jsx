@@ -14,7 +14,8 @@ const ItemTracker = () => {
   const fetchRequests = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/requests');
-      setRequests(response.data);
+      const returnableItems = response.data.filter(request => request.returnable === "yes");
+      setRequests(returnableItems);
     } catch (error) {
       console.error('Error fetching requests:', error);
     }
