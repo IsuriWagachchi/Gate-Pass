@@ -14,7 +14,11 @@ const NewRequest = () => {
     inLocation: '',
     outLocation: '',
     executiveOfficer: '',
-    receiverAvailable: ''
+    receiverAvailable: '',
+    receiverName: '', // Added field for receiver name
+    receiverContact: '', // Added field for receiver contact number
+    receiverGroup: '', // Added field for receiver group
+    receiverServiceNumber: '' // Added field for receiver service number
   });
 
   const [error, setError] = useState("");
@@ -243,6 +247,63 @@ const NewRequest = () => {
                 <span className="ml-2 text-gray-700">No</span>
               </label>
             </div>
+
+            {/* Additional fields when receiver is available */}
+            {formData.receiverAvailable === 'yes' && (
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="receiverName" className="block text-sm font-medium text-gray-700">Receiver Name</label>
+                  <input
+                    type="text"
+                    name="receiverName"
+                    id="receiverName"
+                    value={formData.receiverName}
+                    onChange={handleChange}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="receiverContact" className="block text-sm font-medium text-gray-700">Contact No</label>
+                  <input
+                    type="text"
+                    name="receiverContact"
+                    id="receiverContact"
+                    value={formData.receiverContact}
+                    onChange={handleChange}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="receiverGroup" className="block text-sm font-medium text-gray-700">Group</label>
+                  <input
+                    type="text"
+                    name="receiverGroup"
+                    id="receiverGroup"
+                    value={formData.receiverGroup}
+                    onChange={handleChange}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="receiverServiceNumber" className="block text-sm font-medium text-gray-700">Service Number</label>
+                  <input
+                    type="text"
+                    name="receiverServiceNumber"
+                    id="receiverServiceNumber"
+                    value={formData.receiverServiceNumber}
+                    onChange={handleChange}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <button type="submit" className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
