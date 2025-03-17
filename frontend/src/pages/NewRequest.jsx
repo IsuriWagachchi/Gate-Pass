@@ -158,6 +158,7 @@ const NewRequest = () => {
             </div>
           </div>
 
+
           {/* Location & Officer Details Card */}
           <div className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
             
