@@ -14,7 +14,10 @@ const SenderDetails = () => {
   useEffect(() => {
     const fetchSenderDetails = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/auth");
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:5000/api/auth/user", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setFormData(response.data);
       } catch (error) {
         console.error("Error fetching sender details:", error);
@@ -31,9 +34,8 @@ const SenderDetails = () => {
           <label htmlFor="sender_name" className="block text-sm font-medium text-gray-700">Sender Name</label>
           <input
             type="text"
-            name="sender_name"
             id="sender_name"
-            value={formData.sender_name}
+            value={formData.sender_name || ""}
             readOnly
             className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
           />
@@ -43,9 +45,8 @@ const SenderDetails = () => {
           <label htmlFor="designation" className="block text-sm font-medium text-gray-700">Designation</label>
           <input
             type="text"
-            name="designation"
             id="designation"
-            value={formData.designation}
+            value={formData.designation || ""}
             readOnly
             className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
           />
@@ -57,9 +58,8 @@ const SenderDetails = () => {
           <label htmlFor="service_no" className="block text-sm font-medium text-gray-700">Service No</label>
           <input
             type="text"
-            name="service_no"
             id="service_no"
-            value={formData.service_no}
+            value={formData.service_no || ""}
             readOnly
             className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
           />
@@ -69,9 +69,8 @@ const SenderDetails = () => {
           <label htmlFor="section" className="block text-sm font-medium text-gray-700">Section</label>
           <input
             type="text"
-            name="section"
             id="section"
-            value={formData.section}
+            value={formData.section || ""}
             readOnly
             className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
           />
@@ -83,9 +82,8 @@ const SenderDetails = () => {
           <label htmlFor="group_number" className="block text-sm font-medium text-gray-700">Group Number</label>
           <input
             type="text"
-            name="group_number"
             id="group_number"
-            value={formData.group_number}
+            value={formData.group_number || ""}
             readOnly
             className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
           />
@@ -95,9 +93,8 @@ const SenderDetails = () => {
           <label htmlFor="contact_number" className="block text-sm font-medium text-gray-700">Contact Number</label>
           <input
             type="text"
-            name="contact_number"
             id="contact_number"
-            value={formData.contact_number}
+            value={formData.contact_number || ""}
             readOnly
             className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
           />
