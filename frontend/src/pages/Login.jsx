@@ -90,7 +90,7 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
               defaultValue="SLT"
             >
               <option value="SLT">SLT</option>
-              <option value="User">User</option>
+              <option value="User">NON SLT</option>
             </select>
           </motion.div>
           <motion.div 
