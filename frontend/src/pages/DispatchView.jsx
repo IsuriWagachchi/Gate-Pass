@@ -1,16 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import laptopImage from "../assets/laptop.jpg";
 
 const DispatchView = () => {
   const [request, setRequest] = useState(null);
   const { id } = useParams();
+  const location = useLocation();
+  const [dispatchStatus, setStatusDispatch] = useState("");
+  const [approverName, setApproverName] = useState("");
+  const [serviceNo, setServiceNo] = useState("");
+  const [comment, setComment] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchRequestDetails();
   }, []);
+
+  useEffect(() => {
+    if (location.state && location.state.dispatchStatus) {
+      setStatusDispatch(location.state.dispatchStatus);
+    }
+  }, [location.state]);
 
   const fetchRequestDetails = async () => {
     try {
@@ -18,8 +29,40 @@ const DispatchView = () => {
         `http://localhost:5000/api/dispatch/getDispatchById/${id}`
       );
       setRequest(response.data);
+      setStatusDispatch(response.data.dispatchStatus);
     } catch (error) {
       console.error("Error fetching request details:", error);
+    }
+  };
+
+  const handleUpdateStatus = async (newDispatchStatus) => {
+    // Validation
+    if (!approverName.trim() || !serviceNo.trim()) {
+      alert("Name and Service Number are required!");
+      return;
+    }
+    if (newDispatchStatus === "Rejected" && !comment.trim()) {
+      alert("Comment is required for rejection!");
+      return;
+    }
+
+    try {
+      await axios.put(
+        `http://localhost:5000/api/dispatch/updateApproval/${id}`,
+        {
+          dispatchStatus: newDispatchStatus,
+          approverName,
+          serviceNo,
+          comment: newDispatchStatus === "Rejected" ? comment : "",
+        }
+      );
+      setStatusDispatch(newDispatchStatus);
+      alert(`Request ${newDispatchStatus} successfully!`);
+    } catch (error) {
+      console.error(
+        `Error updating approval status to ${newDispatchStatus}:`,
+        error
+      );
     }
   };
 
@@ -30,7 +73,21 @@ const DispatchView = () => {
       <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg w-full max-w-3xl mt-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-4 text-blue-700 font-bold text-lg">
-          <h2>Dispatch Details</h2>
+          <h2>
+            Dispatch Details ➝{" "}
+            <span
+              className={`${
+                dispatchStatus === "Approved"
+                  ? "text-green-600"
+                  : dispatchStatus === "Pending"
+                  ? "text-yellow-600"
+                  : "text-red-600"
+              }`}
+            >
+              {dispatchStatus}
+            </span>
+          </h2>
+
           <button
             onClick={() => navigate(-1)}
             className="text-blue-500 hover:underline"
@@ -60,10 +117,39 @@ const DispatchView = () => {
                   Serial No:{" "}
                   <span className="font-normal">{request.serialNo}</span>
                 </p>
-                <p className="text-lg font-medium">
+                <p className="text-lg font-medium mb-1">
                   Returnable:{" "}
                   <span className="font-normal">{request.returnable}</span>
                 </p>
+                <br />
+
+                {request.dispatchStatus !== "Pending" && (
+                  <>
+                    <p className="text-lg font-medium mb-1">
+                      Status:{" "}
+                      <span
+                        className={`px-3 py-2 rounded ${
+                          request.dispatchStatus === "Approved"
+                            ? "bg-green-200 text-green-800"
+                            : "bg-red-200 text-red-800"
+                        }`}
+                      >
+                        {request.dispatchStatus}
+                      </span>
+                    </p>
+                    <br />
+                    <p className="text-lg font-medium mb-1">
+                      Processed By:{" "}
+                      <span className="font-normal">
+                        {request.approverName}
+                      </span>
+                    </p>
+                    <p className="text-lg font-medium">
+                      Service No:{" "}
+                      <span className="font-normal">{request.serviceNo}</span>
+                    </p>
+                  </>
+                )}
               </div>
 
               {/* Right Section (Image + Button) */}
@@ -80,6 +166,60 @@ const DispatchView = () => {
               </div>
             </div>
           </div>
+
+          {dispatchStatus === "Pending" && (
+            <>
+              {/* Approver Name and Service Number */}
+              <label className="block font-bold mb-2 text-blue-700 mt-5">
+                Processed By
+              </label>
+              <input
+                type="text"
+                value={approverName}
+                onChange={(e) => setApproverName(e.target.value)}
+                className="w-full border border-gray-300 p-2 rounded"
+                placeholder="Enter Name"
+              />
+
+              <label className="block font-bold mb-2 text-blue-700 mt-3">
+                Service Number
+              </label>
+              <input
+                type="text"
+                value={serviceNo}
+                onChange={(e) => setServiceNo(e.target.value)}
+                className="w-full border border-gray-300 p-2 rounded"
+                placeholder="Enter Service Number"
+              />
+
+              {/* Comment (Required for Rejection) */}
+              <label className="block font-bold mb-2 text-blue-700 mt-3">
+                Comment
+              </label>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className="w-full border border-gray-300 p-2 rounded"
+                placeholder="Enter Comment Here"
+              ></textarea>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end mt-4 space-x-2">
+                <button
+                  className="bg-green-600 text-white px-6 py-2 rounded-lg shadow-md"
+                  onClick={() => handleUpdateStatus("Approved")}
+                >
+                  Approve
+                </button>
+                <button
+                  className="bg-red-700 text-white px-6 py-2 rounded-lg shadow-md"
+                  onClick={() => handleUpdateStatus("Rejected")}
+                >
+                  Reject
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
