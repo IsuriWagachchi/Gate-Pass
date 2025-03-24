@@ -56,6 +56,7 @@ const ViewExecutivePending = () => {
               {/* Left Section */}
               <div className="flex-1">
                 <p className="text-lg font-medium mb-1">Item Name: <span className="font-normal">{request.itemName}</span></p>
+                <p className="text-lg font-medium mb-1">Quantity: <span className="font-normal">{request.quantity}</span></p>
                 <p className="text-lg font-medium mb-1">In Location: <span className="font-normal">{request.inLocation}</span></p>
                 <p className="text-lg font-medium">Out Location: <span className="font-normal">{request.outLocation}</span></p>
               </div>
