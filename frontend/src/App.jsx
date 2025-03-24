@@ -23,6 +23,8 @@ import DispatchView from "./pages/DispatchView";
 
 import SenderDetails from "./pages/SenderDetails";
 
+import ProfileCard from "./pages/ProfileCard";
+
 const App = () => {
   const [role, setRole] = useState(null);
   const [username, setUsername] = useState(null);
@@ -61,22 +63,23 @@ const App = () => {
         {isAuthenticated && <Navbar role={role} username={username} logout={handleLogout} />}
         <Routes>
           {/* Routes accessible to all authenticated users */}
-          <Route path="/home" element={<ProtectedRoute Component={HomePage} allowedRoles={["user", "admin"]} />} />
-          <Route path="/new-request" element={<ProtectedRoute Component={NewRequest} allowedRoles={["user", "admin"]} />} />
-          <Route path="/my-request" element={<ProtectedRoute Component={MyRequest} allowedRoles={["user", "admin"]} />} />
+          <Route path="/home" element={<ProtectedRoute Component={HomePage} allowedRoles={["user", "admin","executiveofficer","dutyofficer"]} />} />
+          <Route path="/new-request" element={<ProtectedRoute Component={NewRequest} allowedRoles={["user", "admin","executiveofficer","dutyofficer"]} />} />
+          <Route path="/my-request" element={<ProtectedRoute Component={MyRequest} allowedRoles={["user", "admin","executiveofficer","dutyofficer"]} />} />
           <Route path="/item-tracker" element={<ProtectedRoute Component={ItemTracker} allowedRoles={["user", "admin"]} />} />
-          <Route path="/view-request/:id" element={<ProtectedRoute Component={ViewRequest} allowedRoles={["user", "admin"]} />} />
-          <Route path="/update-request/:id" element={<ProtectedRoute Component={UpdateRequest} allowedRoles={["user", "admin"]} />} />
-          <Route path="/executive-approve" element={<ProtectedRoute Component={ExecutiveApprovePage} allowedRoles={["admin"]} />} />
+          <Route path="/view-request/:id" element={<ProtectedRoute Component={ViewRequest} allowedRoles={["user", "admin","executiveofficer","dutyofficer"]} />} />
+          <Route path="/update-request/:id" element={<ProtectedRoute Component={UpdateRequest} allowedRoles={["user", "admin","executiveofficer","dutyofficer"]} />} />
+          <Route path="/executive-approve" element={<ProtectedRoute Component={ExecutiveApprovePage} allowedRoles={["admin","executiveofficer"]} />} />
 
-          <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["admin"]} />} />
-          <Route path="/verify" element={<ProtectedRoute Component={VerifyPage} allowedRoles={["admin"]} />} />
-          <Route path="/view-verify/:id" element={<ProtectedRoute Component={ViewVerify} allowedRoles={["user", "admin"]} />} />
-          <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["user", "admin"]} />} />
+          <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["admin","executiveofficer"]} />} />
+          <Route path="/verify" element={<ProtectedRoute Component={VerifyPage} allowedRoles={["admin","dutyofficer"]} />} />
+          <Route path="/view-verify/:id" element={<ProtectedRoute Component={ViewVerify} allowedRoles={["user", "admin","dutyofficer"]} />} />
+          {/* <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["user", "admin"]} />} /> */}
           <Route path="/dispatch" element={<ProtectedRoute Component={Dispatch} allowedRoles={["user", "admin"]} />} />
           <Route path="/item-tracker-view/:id" element={<ProtectedRoute Component={ItemTrackerView} allowedRoles={["user", "admin"]} />} />
           <Route path="/my-receipt" element={<ProtectedRoute Component={MyReceipt} allowedRoles={["user", "admin"]} />} />
           <Route path="/dispatch-view/:id" element={<ProtectedRoute Component={DispatchView} allowedRoles={["user", "admin"]} />} />
+          <Route path="/profile" element={<ProtectedRoute Component={ProfileCard} allowedRoles={["user", "admin"]} />} />
 
 
 
@@ -91,7 +94,7 @@ const App = () => {
             path="/login"
             element={
               isAuthenticated ? (
-                <Navigate to={"/home"} />
+                <Navigate to ="/home" />
               ) : (
                 <Login setRole={setRole} setUsername={setUsername} setIsAuthenticated={setIsAuthenticated} />
               )
