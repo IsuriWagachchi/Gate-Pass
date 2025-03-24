@@ -56,6 +56,7 @@ const DispatchView = () => {
                   Item Name:{" "}
                   <span className="font-normal">{request.itemName}</span>
                 </p>
+                <p className="text-lg font-medium mb-1">Quantity: <span className="font-normal">{request.quantity}</span></p>
                 <p className="text-lg font-medium mb-1">
                   Serial No:{" "}
                   <span className="font-normal">{request.serialNo}</span>

@@ -18,7 +18,8 @@ const NewRequest = () => {
     receiverName: '', // Added field for receiver name
     receiverContact: '', // Added field for receiver contact number
     receiverGroup: '', // Added field for receiver group
-    receiverServiceNumber: '' // Added field for receiver service number
+    receiverServiceNumber: '', // Added field for receiver service number
+    quantity: ''
   });
 
   const [error, setError] = useState("");
@@ -105,6 +106,20 @@ const NewRequest = () => {
                   required
                 />
               </div>
+
+              <div>
+                <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">Item Quantity</label>
+                  <input
+                    type="number"
+                    name="quantity"
+                    id="quantity"
+                    value={formData.quantity}
+                    onChange={handleChange}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  />
+                  </div>
+
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

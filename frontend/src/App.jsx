@@ -23,6 +23,8 @@ import DispatchView from "./pages/DispatchView";
 
 import SenderDetails from "./pages/SenderDetails";
 
+import ProfileCard from "./pages/ProfileCard";
+
 const App = () => {
   const [role, setRole] = useState(null);
   const [username, setUsername] = useState(null);
@@ -77,6 +79,7 @@ const App = () => {
           <Route path="/item-tracker-view/:id" element={<ProtectedRoute Component={ItemTrackerView} allowedRoles={["user", "admin"]} />} />
           <Route path="/my-receipt" element={<ProtectedRoute Component={MyReceipt} allowedRoles={["user", "admin"]} />} />
           <Route path="/dispatch-view/:id" element={<ProtectedRoute Component={DispatchView} allowedRoles={["user", "admin"]} />} />
+          <Route path="/profile" element={<ProtectedRoute Component={ProfileCard} allowedRoles={["user", "admin"]} />} />
 
 
 
@@ -112,7 +115,7 @@ const App = () => {
 
 
           {/* Home Redirect based on Role */}
-          <Route path="/" element={isAuthenticated ? <Navigate to={role === "admin" ? "/admin" : "/new-request"} /> : <Navigate to="/login" />} />
+          <Route path="/" element={isAuthenticated ? <Navigate to={role === "admin" ? "/login" : "/home"} /> : <Navigate to="/login" />} />
         </Routes>
       </div>
     </Router>
