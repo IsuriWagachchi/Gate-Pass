@@ -115,7 +115,7 @@ const App = () => {
 
 
           {/* Home Redirect based on Role */}
-          <Route path="/" element={isAuthenticated ? <Navigate to={role === "admin" ? "/admin" : "/new-request"} /> : <Navigate to="/login" />} />
+          <Route path="/" element={isAuthenticated ? <Navigate to={role === "admin" ? "/login" : "/home"} /> : <Navigate to="/login" />} />
         </Routes>
       </div>
     </Router>

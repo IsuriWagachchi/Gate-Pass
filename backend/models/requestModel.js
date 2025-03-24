@@ -4,6 +4,7 @@ const requestSchema = new mongoose.Schema({
   itemName: { type: String, required: true },
   serialNo: { type: String, required: true },
   category: { type: String, required: true },
+  quantity: { type: Number, required: true },
   description: { type: String, required: true },
   returnable: { type: String, required: true },
   image: { type: String },  // Image field added
