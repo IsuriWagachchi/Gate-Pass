@@ -4,49 +4,95 @@ import { useNavigate } from "react-router-dom";
 import SenderDetails from "./SenderDetails";
 
 const NewRequest = () => {
-  const [formData, setFormData] = useState({
-    itemName: '',
-    serialNo: '',
-    category: '',
-    description: '',
-    returnable: '',
-    image: null, // Store image file
-    inLocation: '',
-    outLocation: '',
-    executiveOfficer: '',
-    receiverAvailable: '',
-    receiverName: '', // Added field for receiver name
-    receiverContact: '', // Added field for receiver contact number
-    receiverGroup: '', // Added field for receiver group
-    receiverServiceNumber: '', // Added field for receiver service number
-    quantity: ''
-  });
+  // State to handle multiple items
+  const [formData, setFormData] = useState([
+    {
+      itemName: "",
+      serialNo: "",
+      category: "",
+      description: "",
+      returnable: "",
+      image: null,
+      inLocation: "",
+      outLocation: "",
+      executiveOfficer: "",
+      receiverAvailable: "",
+      receiverName: "",
+      receiverContact: "",
+      receiverGroup: "",
+      receiverServiceNumber: "",
+      quantity: "",
+      vehicleNumber: "",
+      byHand: "",
+    },
+  ]);
 
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  // Function to handle input changes for specific items
+  const handleChange = (e, index) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const newFormData = [...formData];
+    newFormData[index][name] = value;
+    setFormData(newFormData);
   };
 
-  const handleImageChange = (e) => {
-    setFormData({ ...formData, image: e.target.files[0] });
+  // Function to handle image changes for specific items
+  const handleImageChange = (e, index) => {
+    const newFormData = [...formData];
+    newFormData[index].image = e.target.files[0];
+    setFormData(newFormData);
   };
 
+  // Function to add a new item section
+  const addItem = () => {
+    setFormData([
+      ...formData,
+      {
+        itemName: "",
+        serialNo: "",
+        category: "",
+        description: "",
+        returnable: "",
+        image: null,
+        inLocation: "",
+        outLocation: "",
+        executiveOfficer: "",
+        receiverAvailable: "",
+        receiverName: "",
+        receiverContact: "",
+        receiverGroup: "",
+        receiverServiceNumber: "",
+        quantity: "",
+        vehicleNumber: "",
+        byHand: "",
+      },
+    ]);
+  };
+
+  // Function to remove an item section
+  const removeItem = (index) => {
+    const newFormData = formData.filter((_, i) => i !== index);
+    setFormData(newFormData);
+  };
+
+  // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
-      Object.keys(formData).forEach((key) => {
-        formDataToSend.append(key, formData[key]);
+      formData.forEach((item, index) => {
+        Object.keys(item).forEach((key) => {
+          formDataToSend.append(`items[${index}][${key}]`, item[key]);
+        });
       });
 
-      await axios.post('http://localhost:5000/api/requests/create', formDataToSend, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      await axios.post("http://localhost:5000/api/requests/create", formDataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      navigate('/my-request');
+      navigate("/my-request");
     } catch (error) {
       setError("Failed to create request. Please try again.");
       console.error("Error creating request:", error);
@@ -56,139 +102,182 @@ const NewRequest = () => {
   return (
     <div className="min-h-screen py-8">
       <div className="container mx-auto p-4">
-        
-
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto bg-white border-2 border-blue-200 p-6 rounded-lg">
-                    {/* Sender Details Section */}
-                    <SenderDetails />
-          
+          {/* Sender Details Section */}
+          <SenderDetails />
+
           {/* Item Details Card */}
-          <div className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
-            <h3 className="text-xl font-semibold mb-4">Item Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label htmlFor="itemName" className="block text-sm font-medium text-gray-700">Item Name</label>
-                <input
-                  type="text"
-                  name="itemName"
-                  id="itemName"
-                  value={formData.itemName}
-                  onChange={handleChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-
-              <div>
-                <label htmlFor="serialNo" className="block text-sm font-medium text-gray-700">Serial No</label>
-                <input
-                  type="text"
-                  name="serialNo"
-                  id="serialNo"
-                  value={formData.serialNo}
-                  onChange={handleChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-
-              <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
-                <input
-                  type="text"
-                  name="category"
-                  id="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-
-              <div>
-                <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">Item Quantity</label>
+          {formData.map((item, index) => (
+            <div key={index} className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
+              <h3 className="text-xl font-semibold mb-4">Item Details {index + 1}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                {/* Item Name */}
+                <div>
+                  <label htmlFor={`itemName-${index}`} className="block text-sm font-medium text-gray-700">
+                    Item Name
+                  </label>
                   <input
-                    type="number"
-                    name="quantity"
-                    id="quantity"
-                    value={formData.quantity}
-                    onChange={handleChange}
+                    type="text"
+                    name="itemName"
+                    id={`itemName-${index}`}
+                    value={item.itemName}
+                    onChange={(e) => handleChange(e, index)}
                     className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                     required
                   />
+                </div>
+
+                {/* Serial No */}
+                <div>
+                  <label htmlFor={`serialNo-${index}`} className="block text-sm font-medium text-gray-700">
+                    Serial No
+                  </label>
+                  <input
+                    type="text"
+                    name="serialNo"
+                    id={`serialNo-${index}`}
+                    value={item.serialNo}
+                    onChange={(e) => handleChange(e, index)}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+
+                {/* Category */}
+                <div>
+                  <label htmlFor={`category-${index}`} className="block text-sm font-medium text-gray-700">
+                    Category
+                  </label>
+                  <input
+                    type="text"
+                    name="category"
+                    id={`category-${index}`}
+                    value={item.category}
+                    onChange={(e) => handleChange(e, index)}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+
+                {/* Quantity */}
+                <div>
+                  <label htmlFor={`quantity-${index}`} className="block text-sm font-medium text-gray-700">
+                    Quantity
+                  </label>
+                  <input
+                    type="number"
+                    name="quantity"
+                    id={`quantity-${index}`}
+                    value={item.quantity}
+                    onChange={(e) => handleChange(e, index)}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label htmlFor={`description-${index}`} className="block text-sm font-medium text-gray-700">
+                    Description
+                  </label>
+                  <textarea
+                    name="description"
+                    id={`description-${index}`}
+                    value={item.description}
+                    onChange={(e) => handleChange(e, index)}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+
+                {/* Returnable */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Returnable</label>
+                  <div className="mt-1 flex items-center space-x-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="returnable"
+                        value="yes"
+                        checked={item.returnable === "yes"}
+                        onChange={(e) => handleChange(e, index)}
+                        className="h-4 w-4 text-blue-600 border-gray-300"
+                      />
+                      <span className="ml-2 text-gray-700">Yes</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="returnable"
+                        value="no"
+                        checked={item.returnable === "no"}
+                        onChange={(e) => handleChange(e, index)}
+                        className="h-4 w-4 text-blue-600 border-gray-300"
+                      />
+                      <span className="ml-2 text-gray-700">No</span>
+                    </label>
                   </div>
+                </div>
 
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea
-                  name="description"
-                  id="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Returnable</label>
-                <div className="mt-1 flex items-center space-x-4">
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      name="returnable"
-                      value="yes"
-                      checked={formData.returnable === 'yes'}
-                      onChange={handleChange}
-                      className="h-4 w-4 text-blue-600 border-gray-300"
-                    />
-                    <span className="ml-2 text-gray-700">Yes</span>
+                {/* Upload Image */}
+                <div>
+                  <label htmlFor={`image-${index}`} className="block text-sm font-medium text-gray-700">
+                    Upload Image
                   </label>
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      name="returnable"
-                      value="no"
-                      checked={formData.returnable === 'no'}
-                      onChange={handleChange}
-                      className="h-4 w-4 text-blue-600 border-gray-300"
-                    />
-                    <span className="ml-2 text-gray-700">No</span>
-                  </label>
+                  <input
+                    type="file"
+                    name="image"
+                    id={`image-${index}`}
+                    accept="image/*"
+                    onChange={(e) => handleImageChange(e, index)}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                  />
                 </div>
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700">Upload Image</label>
-              <input
-                type="file"
-                name="image"
-                id="image"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-              />
-            </div>
-          </div>
+              <span className="flex justify-between w-full mt-4">
+  {/* Remove Item Button */}
+  <button
+    type="button"
+    onClick={() => removeItem(index)}
+    className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+  >
+    Remove Item
+  </button>
 
+  {/* Add More Item Button */}
+  <button
+    type="button"
+    onClick={addItem}
+    className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+  >
+    Add More Item
+  </button>
+</span>
+
+
+
+
+            </div>
+          ))}
+
+          
 
           {/* Location & Officer Details Card */}
           <div className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              {/* In Location */}
               <div>
-                <label htmlFor="inLocation" className="block text-sm font-medium text-gray-700">In Location</label>
+                <label htmlFor="inLocation" className="block text-sm font-medium text-gray-700">
+                  In Location
+                </label>
                 <select
                   name="inLocation"
                   id="inLocation"
-                  value={formData.inLocation}
-                  onChange={handleChange}
+                  value={formData[0].inLocation}
+                  onChange={(e) => handleChange(e, 0)}
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                   required
                 >
@@ -199,13 +288,16 @@ const NewRequest = () => {
                 </select>
               </div>
 
+              {/* Out Location */}
               <div>
-                <label htmlFor="outLocation" className="block text-sm font-medium text-gray-700">Out Location</label>
+                <label htmlFor="outLocation" className="block text-sm font-medium text-gray-700">
+                  Out Location
+                </label>
                 <select
                   name="outLocation"
                   id="outLocation"
-                  value={formData.outLocation}
-                  onChange={handleChange}
+                  value={formData[0].outLocation}
+                  onChange={(e) => handleChange(e, 0)}
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                   required
                 >
@@ -216,13 +308,16 @@ const NewRequest = () => {
                 </select>
               </div>
 
+              {/* Executive Officer */}
               <div>
-                <label htmlFor="executiveOfficer" className="block text-sm font-medium text-gray-700">Executive Officer</label>
+                <label htmlFor="executiveOfficer" className="block text-sm font-medium text-gray-700">
+                  Executive Officer
+                </label>
                 <select
                   name="executiveOfficer"
                   id="executiveOfficer"
-                  value={formData.executiveOfficer}
-                  onChange={handleChange}
+                  value={formData[0].executiveOfficer}
+                  onChange={(e) => handleChange(e, 0)}
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                   required
                 >
@@ -230,6 +325,39 @@ const NewRequest = () => {
                   <option value="Mr. Gunawardana">Mr. Gunawardana</option>
                   <option value="Mr. Perera">Mr. Perera</option>
                   <option value="Ms. Silva">Ms. Silva</option>
+                </select>
+              </div>
+
+              {/* Vehicle Number */}
+              <div>
+                <label htmlFor="vehicleNumber" className="block text-sm font-medium text-gray-700">
+                  Vehicle Number
+                </label>
+                <input
+                  type="text"
+                  name="vehicleNumber"
+                  id="vehicleNumber"
+                  value={formData[0].vehicleNumber}
+                  onChange={(e) => handleChange(e, 0)}
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                />
+              </div>
+
+              {/* By Hand */}
+              <div>
+                <label htmlFor="byHand" className="block text-sm font-medium text-gray-700">
+                  By Hand
+                </label>
+                <select
+                  name="byHand"
+                  id="byHand"
+                  value={formData[0].byHand}
+                  onChange={(e) => handleChange(e, 0)}
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                >
+                  <option value="">Select</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
                 </select>
               </div>
             </div>
@@ -244,8 +372,8 @@ const NewRequest = () => {
                   type="radio"
                   name="receiverAvailable"
                   value="yes"
-                  checked={formData.receiverAvailable === 'yes'}
-                  onChange={handleChange}
+                  checked={formData[0].receiverAvailable === "yes"}
+                  onChange={(e) => handleChange(e, 0)}
                   className="h-4 w-4 text-blue-600 border-gray-300"
                 />
                 <span className="ml-2 text-gray-700">Yes</span>
@@ -255,8 +383,8 @@ const NewRequest = () => {
                   type="radio"
                   name="receiverAvailable"
                   value="no"
-                  checked={formData.receiverAvailable === 'no'}
-                  onChange={handleChange}
+                  checked={formData[0].receiverAvailable === "no"}
+                  onChange={(e) => handleChange(e, 0)}
                   className="h-4 w-4 text-blue-600 border-gray-300"
                 />
                 <span className="ml-2 text-gray-700">No</span>
@@ -264,55 +392,63 @@ const NewRequest = () => {
             </div>
 
             {/* Additional fields when receiver is available */}
-            {formData.receiverAvailable === 'yes' && (
+            {formData[0].receiverAvailable === "yes" && (
               <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="receiverName" className="block text-sm font-medium text-gray-700">Receiver Name</label>
+                  <label htmlFor="receiverName" className="block text-sm font-medium text-gray-700">
+                    Receiver Name
+                  </label>
                   <input
                     type="text"
                     name="receiverName"
                     id="receiverName"
-                    value={formData.receiverName}
-                    onChange={handleChange}
+                    value={formData[0].receiverName}
+                    onChange={(e) => handleChange(e, 0)}
                     className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                     required
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="receiverContact" className="block text-sm font-medium text-gray-700">Contact No</label>
+                  <label htmlFor="receiverContact" className="block text-sm font-medium text-gray-700">
+                    Contact No
+                  </label>
                   <input
                     type="text"
                     name="receiverContact"
                     id="receiverContact"
-                    value={formData.receiverContact}
-                    onChange={handleChange}
+                    value={formData[0].receiverContact}
+                    onChange={(e) => handleChange(e, 0)}
                     className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                     required
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="receiverGroup" className="block text-sm font-medium text-gray-700">Group</label>
+                  <label htmlFor="receiverGroup" className="block text-sm font-medium text-gray-700">
+                    Group
+                  </label>
                   <input
                     type="text"
                     name="receiverGroup"
                     id="receiverGroup"
-                    value={formData.receiverGroup}
-                    onChange={handleChange}
+                    value={formData[0].receiverGroup}
+                    onChange={(e) => handleChange(e, 0)}
                     className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                     required
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="receiverServiceNumber" className="block text-sm font-medium text-gray-700">Service Number</label>
+                  <label htmlFor="receiverServiceNumber" className="block text-sm font-medium text-gray-700">
+                    Service Number
+                  </label>
                   <input
                     type="text"
                     name="receiverServiceNumber"
                     id="receiverServiceNumber"
-                    value={formData.receiverServiceNumber}
-                    onChange={handleChange}
+                    value={formData[0].receiverServiceNumber}
+                    onChange={(e) => handleChange(e, 0)}
                     className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                     required
                   />
@@ -321,6 +457,7 @@ const NewRequest = () => {
             )}
           </div>
 
+          {/* Submit Button */}
           <button type="submit" className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
             Submit Request
           </button>
