@@ -21,6 +21,15 @@ const requestSchema = new mongoose.Schema({
     type: String,
     enum: ['Pending', 'Verified', 'Rejected'],
     default: 'Pending'
+  },
+  dispatchStatus: {
+    type: String,
+    enum: ["Pending", "Approved", "Rejected"],
+    default: "Pending",
+  },
+  approverName: { required: true, type: String },
+  serviceNo: { required: true, type: String },
+  comment: { type: String 
   }
 
 }, {
