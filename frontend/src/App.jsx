@@ -63,29 +63,27 @@ const App = () => {
         {isAuthenticated && <Navbar role={role} username={username} logout={handleLogout} />}
         <Routes>
           {/* Routes accessible to all authenticated users */}
-          <Route path="/home" element={<ProtectedRoute Component={HomePage} allowedRoles={["user", "admin","executiveofficer","dutyofficer"]} />} />
-          <Route path="/new-request" element={<ProtectedRoute Component={NewRequest} allowedRoles={["user", "admin","executiveofficer","dutyofficer"]} />} />
-          <Route path="/my-request" element={<ProtectedRoute Component={MyRequest} allowedRoles={["user", "admin","executiveofficer","dutyofficer"]} />} />
-          <Route path="/item-tracker" element={<ProtectedRoute Component={ItemTracker} allowedRoles={["user", "admin"]} />} />
-          <Route path="/view-request/:id" element={<ProtectedRoute Component={ViewRequest} allowedRoles={["user", "admin","executiveofficer","dutyofficer"]} />} />
-          <Route path="/update-request/:id" element={<ProtectedRoute Component={UpdateRequest} allowedRoles={["user", "admin","executiveofficer","dutyofficer"]} />} />
-          <Route path="/executive-approve" element={<ProtectedRoute Component={ExecutiveApprovePage} allowedRoles={["admin","executiveofficer"]} />} />
+          <Route path="/home" element={<ProtectedRoute Component={HomePage} allowedRoles={["user", "admin","executive_officer","duty_officer","security_officer"]} />} />
+          <Route path="/new-request" element={<ProtectedRoute Component={NewRequest} allowedRoles={["user", "admin","executive_officer","duty_officer","security_officer"]} />} />
+          <Route path="/my-request" element={<ProtectedRoute Component={MyRequest} allowedRoles={["user", "admin","executive_officer","duty_officer","security_officer"]} />} />
+          <Route path="/item-tracker" element={<ProtectedRoute Component={ItemTracker} allowedRoles={["user", "admin","security_officer"]} />} />
+          <Route path="/view-request/:id" element={<ProtectedRoute Component={ViewRequest} allowedRoles={["user", "admin","executive_officer","duty_officer","security_officer"]} />} />
+          <Route path="/update-request/:id" element={<ProtectedRoute Component={UpdateRequest} allowedRoles={["user", "admin","executive_officer","duty_officer","security_officer"]} />} />
+          <Route path="/executive-approve" element={<ProtectedRoute Component={ExecutiveApprovePage} allowedRoles={["admin","executive_officer"]} />} />
 
-          <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["admin","executiveofficer"]} />} />
-          <Route path="/verify" element={<ProtectedRoute Component={VerifyPage} allowedRoles={["admin","dutyofficer"]} />} />
-          <Route path="/view-verify/:id" element={<ProtectedRoute Component={ViewVerify} allowedRoles={["user", "admin","dutyofficer"]} />} />
-          {/* <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["user", "admin"]} />} /> */}
-          <Route path="/dispatch" element={<ProtectedRoute Component={Dispatch} allowedRoles={["user", "admin"]} />} />
-          <Route path="/item-tracker-view/:id" element={<ProtectedRoute Component={ItemTrackerView} allowedRoles={["user", "admin"]} />} />
-          <Route path="/my-receipt" element={<ProtectedRoute Component={MyReceipt} allowedRoles={["user", "admin"]} />} />
-          <Route path="/dispatch-view/:id" element={<ProtectedRoute Component={DispatchView} allowedRoles={["user", "admin"]} />} />
-          <Route path="/profile" element={<ProtectedRoute Component={ProfileCard} allowedRoles={["user", "admin"]} />} />
+          <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["admin","executive_officer"]} />} />
+          <Route path="/verify" element={<ProtectedRoute Component={VerifyPage} allowedRoles={["admin","duty_officer"]} />} />
+          <Route path="/view-verify/:id" element={<ProtectedRoute Component={ViewVerify} allowedRoles={[ "admin","duty_officer"]} />} />
+          <Route path="/dispatch" element={<ProtectedRoute Component={Dispatch} allowedRoles={[ "admin","security_officer"]} />} />
+          <Route path="/item-tracker-view/:id" element={<ProtectedRoute Component={ItemTrackerView} allowedRoles={["admin","security_officer"]} />} />
+          <Route path="/my-receipt" element={<ProtectedRoute Component={MyReceipt} allowedRoles={["user", "admin","security_officer"]} />} />
+          <Route path="/dispatch-view/:id" element={<ProtectedRoute Component={DispatchView} allowedRoles={["admin","security_officer"]} />} />
+          <Route path="/profile" element={<ProtectedRoute Component={ProfileCard} allowedRoles={["user", "admin","executive_officer","duty_officer","security_officer"]} />} />
 
 
 
           {/* Admin-only route */}
           <Route path="/admin" element={<ProtectedRoute Component={AdminPage} allowedRoles={["admin"]} />} />
-          <Route path="/home" element={<ProtectedRoute Component={AdminPage} allowedRoles={["admin"]} />} />
 
           
 
