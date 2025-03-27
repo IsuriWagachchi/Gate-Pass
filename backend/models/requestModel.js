@@ -4,7 +4,7 @@ const requestSchema = new mongoose.Schema({
   itemName: { type: String, required: true },
   serialNo: { type: String, required: true },
   category: { type: String, required: true },
-  quantity: { type: Number, required: true },
+  // quantity: { type: Number, required: true },
   description: { type: String, required: true },
   returnable: { type: String, required: true },
   image: { type: String },  // Image field added
@@ -22,14 +22,22 @@ const requestSchema = new mongoose.Schema({
     enum: ['Pending', 'Verified', 'Rejected'],
     default: 'Pending'
   },
-  dispatchStatus: {
+  dispatchStatusOut: {
     type: String,
     enum: ["Pending", "Approved", "Rejected"],
     default: "Pending",
   },
-  approverName: { required: true, type: String },
-  serviceNo: { required: true, type: String },
-  comment: { type: String 
+  dispatchStatusIn: {
+    type: String,
+    enum: ["Pending", "Approved", "Rejected"],
+    default: "Pending",
+  },
+  approverNameOut: { required: true, type: String },
+  serviceNoOut: { required: true, type: String },
+  commentOut: { type: String },
+  approverNameIn: { required: true, type: String },
+  serviceNoIn: { required: true, type: String },
+  commentIn: { type: String 
   }
 
 }, {

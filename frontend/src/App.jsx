@@ -24,6 +24,7 @@ import DispatchView from "./pages/DispatchView";
 import SenderDetails from "./pages/SenderDetails";
 
 import ProfileCard from "./pages/ProfileCard";
+import DispatchViewIn from "./pages/DispatchViewIn";
 
 const App = () => {
   const [role, setRole] = useState(null);
@@ -80,6 +81,7 @@ const App = () => {
           <Route path="/my-receipt" element={<ProtectedRoute Component={MyReceipt} allowedRoles={["user", "admin"]} />} />
           <Route path="/dispatch-view/:id" element={<ProtectedRoute Component={DispatchView} allowedRoles={["user", "admin"]} />} />
           <Route path="/profile" element={<ProtectedRoute Component={ProfileCard} allowedRoles={["user", "admin"]} />} />
+          <Route path="/dispatch-view-In/:id" element={<ProtectedRoute Component={DispatchViewIn} allowedRoles={["user", "admin"]} />} />
 
 
 
