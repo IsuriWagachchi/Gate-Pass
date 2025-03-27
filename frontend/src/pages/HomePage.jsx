@@ -1,7 +1,14 @@
 import React from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import sltHome from "../assets/sltHome.webp";
 
 const HomePage = () => {
+  const navigate = useNavigate(); // Initialize navigation function
+
+  const handleGetStarted = () => {
+    navigate("/new-request"); // Navigate to the new-request page
+  };
+
   return (
     <div className="relative w-full h-screen">
       {/* Full-width Image */}
@@ -19,9 +26,12 @@ const HomePage = () => {
         <p className="mt-4 text-lg text-white font-medium">
           Seamless gate pass management for your security needs.
         </p>
-        <a href="/new-request" className="mt-6 px-6 py-3 bg-[#1B3D81] text-white font-semibold rounded-full shadow-md hover:bg-[#3C5A99] transition">
+        <button 
+          onClick={handleGetStarted} 
+          className="mt-6 px-6 py-3 bg-[#1B3D81] text-white font-semibold rounded-full shadow-md hover:bg-[#3C5A99] transition"
+        >
           Get Started
-        </a>
+        </button>
       </div>
     </div>
   );
