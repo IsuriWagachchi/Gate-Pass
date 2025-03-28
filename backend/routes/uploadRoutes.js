@@ -34,6 +34,7 @@ router.post('/upload', upload.single('csvFile'), async (req, res) => {
                 section: row.section || '',
                 group_number: row.group_number || '',
                 contact_number: row.contact_number || '',
+                branch_location: row.branch_location || '',
                 role: row.role || 'user', // Default to "user" if not specified
             });
         })
