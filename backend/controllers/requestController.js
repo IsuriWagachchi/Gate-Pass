@@ -3,7 +3,7 @@ import Request from '../models/requestModel.js';
 
 // Create a new request with image upload and new fields
 const createRequest = async (req, res) => {
-  const { itemName, serialNo, category, description, returnable, outLocation, inLocation, executiveOfficer, receiverAvailable, status,quantity } = req.body;
+  const { itemName, serialNo, category, description, returnable, outLocation, inLocation, executiveOfficer, receiverAvailable, status } = req.body;
   const image = req.file ? req.file.path : null;
 
   try {
@@ -19,7 +19,7 @@ const createRequest = async (req, res) => {
           executiveOfficer,
           receiverAvailable,
           status,
-          quantity// Added status field here
+          
       });
       await newRequest.save();
       res.status(201).json(newRequest);
@@ -56,7 +56,7 @@ const getRequestById = async (req, res) => {
 // Update request with new fields and image
 const updateRequest = async (req, res) => {
   const { id } = req.params;
-  const { itemName, serialNo, category, description, returnable, outLocation, inLocation, executiveOfficer, receiverAvailable, status,quantity } = req.body;
+  const { itemName, serialNo, category, description, returnable, outLocation, inLocation, executiveOfficer, receiverAvailable, status } = req.body;
   const image = req.file ? req.file.path : null;
 
   try {
@@ -73,7 +73,6 @@ const updateRequest = async (req, res) => {
             executiveOfficer, 
             receiverAvailable, 
             status, // Added status field here
-            quantity,
             ...(image && { image }) // Handle image upload if available
           },
           { new: true }

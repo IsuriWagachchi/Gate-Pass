@@ -24,6 +24,7 @@ import DispatchView from "./pages/DispatchView";
 import SenderDetails from "./pages/SenderDetails";
 
 import ProfileCard from "./pages/ProfileCard";
+import DispatchViewIn from "./pages/DispatchViewIn";
 
 const App = () => {
   const [role, setRole] = useState(null);
@@ -71,6 +72,7 @@ const App = () => {
           <Route path="/update-request/:id" element={<ProtectedRoute Component={UpdateRequest} allowedRoles={["user", "admin","executive_officer","duty_officer","security_officer"]} />} />
           <Route path="/executive-approve" element={<ProtectedRoute Component={ExecutiveApprovePage} allowedRoles={["admin","executive_officer"]} />} />
 
+
           <Route path="/view-executive-pending/:id" element={<ProtectedRoute Component={ViewExecutivePending} allowedRoles={["admin","executive_officer"]} />} />
           <Route path="/verify" element={<ProtectedRoute Component={VerifyPage} allowedRoles={["admin","duty_officer"]} />} />
           <Route path="/view-verify/:id" element={<ProtectedRoute Component={ViewVerify} allowedRoles={[ "admin","duty_officer"]} />} />
@@ -79,6 +81,8 @@ const App = () => {
           <Route path="/my-receipt" element={<ProtectedRoute Component={MyReceipt} allowedRoles={["user", "admin","security_officer"]} />} />
           <Route path="/dispatch-view/:id" element={<ProtectedRoute Component={DispatchView} allowedRoles={["admin","security_officer"]} />} />
           <Route path="/profile" element={<ProtectedRoute Component={ProfileCard} allowedRoles={["user", "admin","executive_officer","duty_officer","security_officer"]} />} />
+          <Route path="/dispatch-view-In/:id" element={<ProtectedRoute Component={DispatchViewIn} allowedRoles={["admin","security_officer"]} />} />
+
 
 
 

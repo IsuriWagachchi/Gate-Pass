@@ -3,14 +3,14 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import laptopImage from "../assets/laptop.jpg";
 
-const DispatchView = () => {
+const DispatchViewIn = () => {
   const [request, setRequest] = useState(null);
   const { id } = useParams();
   const location = useLocation();
-  const [dispatchStatusOut, setStatusDispatchOut] = useState("");
-  const [approverNameOut, setApproverNameOut] = useState("");
-  const [serviceNoOut, setServiceNoOut] = useState("");
-  const [commentOut, setCommentOut] = useState("");
+  const [dispatchStatusIn, setStatusDispatchIn] = useState("");
+  const [approverNameIn, setapproverNameIn] = useState("");
+  const [serviceNoIn, setserviceNoIn] = useState("");
+  const [commentIn, setcommentIn] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,8 +18,8 @@ const DispatchView = () => {
   }, []);
 
   useEffect(() => {
-    if (location.state && location.state.dispatchStatusOut) {
-      setStatusDispatchOut(location.state.dispatchStatusOut);
+    if (location.state && location.state.dispatchStatusIn) {
+      setStatusDispatchIn(location.state.dispatchStatusIn);
     }
   }, [location.state]);
 
@@ -29,7 +29,7 @@ const DispatchView = () => {
         `http://localhost:5000/api/dispatch/getDispatchById/${id}`
       );
       setRequest(response.data);
-      setStatusDispatchOut(response.data.dispatchStatusOut);
+      setStatusDispatchIn(response.data.dispatchStatusIn);
     } catch (error) {
       console.error("Error fetching request details:", error);
     }
@@ -37,26 +37,26 @@ const DispatchView = () => {
 
   const handleUpdateStatus = async (newDispatchStatus) => {
     // Validation
-    if (!approverNameOut.trim() || !serviceNoOut.trim()) {
+    if (!approverNameIn.trim() || !serviceNoIn.trim()) {
       alert("Name and Service Number are required!");
       return;
     }
-    if (newDispatchStatus === "Rejected" && !commentOut.trim()) {
+    if (newDispatchStatus === "Rejected" && !commentIn.trim()) {
       alert("comment is required for rejection!");
       return;
     }
 
     try {
       await axios.put(
-        `http://localhost:5000/api/dispatch/updateApprovalOut/${id}`,
+        `http://localhost:5000/api/dispatch/updateApprovalIn/${id}`,
         {
-          dispatchStatusOut: newDispatchStatus,
-          approverNameOut,
-          serviceNoOut,
-          commentOut: newDispatchStatus === "Rejected" ? commentOut : "",
+          dispatchStatusIn: newDispatchStatus,
+          approverNameIn,
+          serviceNoIn,
+          commentIn: newDispatchStatus === "Rejected" ? commentIn : "",
         }
       );
-      setStatusDispatchOut(newDispatchStatus);
+      setStatusDispatchIn(newDispatchStatus);
       alert(`Request ${newDispatchStatus} successfully!`);
     } catch (error) {
       console.error(
@@ -74,17 +74,17 @@ const DispatchView = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-4 text-blue-700 font-bold text-lg">
           <h2>
-            Dispatch Out Location Details ➝{" "}
+            Dispatch In Location Details ➝{" "}
             <span
               className={`${
-                dispatchStatusOut === "Approved"
+                dispatchStatusIn === "Approved"
                   ? "text-green-600"
-                  : dispatchStatusOut === "Pending"
+                  : dispatchStatusIn === "Pending"
                   ? "text-yellow-600"
                   : "text-red-600"
               }`}
             >
-              {dispatchStatusOut}
+              {dispatchStatusIn}
             </span>
           </h2>
 
@@ -124,30 +124,30 @@ const DispatchView = () => {
                 </p>
                 <br />
 
-                {request.dispatchStatusOut !== "Pending" && (
+                {request.dispatchStatusIn !== "Pending" && (
                   <>
-                    <h4 className="text-lg font-semibold mb-2">Dispatch Out Location</h4>
+                    <h4 className="text-lg font-semibold mb-2">Dispatch In Location</h4>
                     <p className="text-lg font-medium mb-1">
-                      Dispatch Out Location Status:{" "}
+                      Dispatch In Location Status:{" "}
                       <span
                         className={`px-3 py-2 rounded ${
-                          request.dispatchStatusOut === "Approved"
+                          request.dispatchStatusIn === "Approved"
                             ? "bg-green-200 text-green-800"
                             : "bg-red-200 text-red-800"
                         }`}
                       >
-                        {request.dispatchStatusOut}
+                        {request.dispatchStatusIn}
                       </span>
                     </p>
                     <p className="text-lg font-medium mb-1">
                       Processed By:{" "}
                       <span className="font-normal">
-                        {request.approverNameOut}
+                        {request.approverNameIn}
                       </span>
                     </p>
                     <p className="text-lg font-medium">
                       Service No:{" "}
-                      <span className="font-normal">{request.serviceNoOut}</span>
+                      <span className="font-normal">{request.serviceNoIn}</span>
                     </p>
                   </>
                 )}
@@ -168,7 +168,7 @@ const DispatchView = () => {
             </div>
           </div>
 
-          {dispatchStatusOut === "Pending" && (
+          {dispatchStatusIn === "Pending" && (
             <>
               {/* Approver Name and Service Number */}
               <label className="block font-bold mb-2 text-blue-700 mt-5">
@@ -176,8 +176,8 @@ const DispatchView = () => {
               </label>
               <input
                 type="text"
-                value={approverNameOut}
-                onChange={(e) => setApproverNameOut(e.target.value)}
+                value={approverNameIn}
+                onChange={(e) => setapproverNameIn(e.target.value)}
                 className="w-full border border-gray-300 p-2 rounded"
                 placeholder="Enter Name"
               />
@@ -187,8 +187,8 @@ const DispatchView = () => {
               </label>
               <input
                 type="text"
-                value={serviceNoOut}
-                onChange={(e) => setServiceNoOut(e.target.value)}
+                value={serviceNoIn}
+                onChange={(e) => setserviceNoIn(e.target.value)}
                 className="w-full border border-gray-300 p-2 rounded"
                 placeholder="Enter Service Number"
               />
@@ -198,8 +198,8 @@ const DispatchView = () => {
                 Comment
               </label>
               <textarea
-                value={commentOut}
-                onChange={(e) => setCommentOut(e.target.value)}
+                value={commentIn}
+                onChange={(e) => setcommentIn(e.target.value)}
                 className="w-full border border-gray-300 p-2 rounded"
                 placeholder="Enter Comment Here"
               ></textarea>
@@ -227,4 +227,4 @@ const DispatchView = () => {
   );
 };
 
-export default DispatchView;
+export default DispatchViewIn;
