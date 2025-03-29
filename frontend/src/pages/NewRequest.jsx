@@ -4,54 +4,108 @@ import { useNavigate } from "react-router-dom";
 import SenderDetails from "./SenderDetails";
 
 const NewRequest = () => {
-  // State to handle single item
-  const [formData, setFormData] = useState({
-    itemName: "",
-    serialNo: "",
-    category: "",
-    description: "",
-    returnable: "",
-    image: null,
+  // State to handle multiple items
+  const [items, setItems] = useState([
+    {
+      itemName: "",
+      serialNo: "",
+      category: "",
+      description: "",
+      returnable: "",
+      image: null,
+      quantity: ""
+    }
+  ]);
+
+  // Common fields state
+  const [commonData, setCommonData] = useState({
     inLocation: "",
     outLocation: "",
     executiveOfficer: "",
-    receiverAvailable: "",
     receiverName: "",
     receiverContact: "",
     receiverGroup: "",
     receiverServiceNumber: "",
-    quantity: "",
     vehicleNumber: "",
-    byHand: "",
+    byHand: ""
   });
 
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // Function to handle input changes
-  const handleChange = (e) => {
+  // Handle common field changes
+  const handleCommonChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setCommonData({
+      ...commonData,
       [name]: value
     });
   };
 
-  // Function to handle image changes
-  const handleImageChange = (e) => {
-    setFormData({
-      ...formData,
-      image: e.target.files[0]
-    });
+  // Handle item field changes
+  const handleItemChange = (index, e) => {
+    const { name, value } = e.target;
+    const newItems = [...items];
+    newItems[index] = {
+      ...newItems[index],
+      [name]: value
+    };
+    setItems(newItems);
   };
 
-  // Function to handle form submission
+  // Handle item image changes
+  const handleItemImageChange = (index, e) => {
+    const newItems = [...items];
+    newItems[index] = {
+      ...newItems[index],
+      image: e.target.files[0]
+    };
+    setItems(newItems);
+  };
+
+  // Add new item
+  const addItem = () => {
+    setItems([
+      ...items,
+      {
+        itemName: "",
+        serialNo: "",
+        category: "",
+        description: "",
+        returnable: "",
+        image: null,
+        quantity: ""
+      }
+    ]);
+  };
+
+  // Remove item
+  const removeItem = (index) => {
+    const newItems = [...items];
+    newItems.splice(index, 1);
+    setItems(newItems);
+  };
+
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
-        formDataToSend.append(key, formData[key]);
+
+      // Add common fields
+      Object.keys(commonData).forEach(key => {
+        formDataToSend.append(key, commonData[key]);
+      });
+
+      // Add items
+      items.forEach((item, index) => {
+        Object.keys(item).forEach(key => {
+          if (key !== 'image' && item[key] !== null) {
+            formDataToSend.append(`items[${index}][${key}]`, item[key]);
+          } else if (key === 'image' && item[key]) {
+            formDataToSend.append(`items[${index}][image]`, item[key]);
+          }
+        });
       });
 
       await axios.post("http://localhost:5000/api/requests/create", formDataToSend, {
@@ -71,140 +125,163 @@ const NewRequest = () => {
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto bg-white border-2 border-blue-200 p-6 rounded-lg">
-          {/* Sender Details Section */}
-          <SenderDetails />
-
-          {/* Item Details Card */}
-          <div className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
-            <h3 className="text-xl font-semibold mb-4">Item Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              {/* Item Name */}
-              <div>
-                <label htmlFor="itemName" className="block text-sm font-medium text-gray-700">
-                  Item Name
-                </label>
-                <input
-                  type="text"
-                  name="itemName"
-                  id="itemName"
-                  value={formData.itemName}
-                  onChange={handleChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                />
+          <SenderDetails></SenderDetails>
+          
+          {/* Render items */}
+          {items.map((item, index) => (
+            <div key={index} className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold">Item {index + 1} Details</h3>
+                {index > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => removeItem(index)}
+                    className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                )}
               </div>
-
-              {/* Serial No */}
-              <div>
-                <label htmlFor="serialNo" className="block text-sm font-medium text-gray-700">
-                  Serial No
-                </label>
-                <input
-                  type="text"
-                  name="serialNo"
-                  id="serialNo"
-                  value={formData.serialNo}
-                  onChange={handleChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-
-              {/* Category */}
-              <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-                  Category
-                </label>
-                <input
-                  type="text"
-                  name="category"
-                  id="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-
-              {/* Quantity */}
-              <div>
-                <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
-                  Quantity
-                </label>
-                <input
-                  type="number"
-                  name="quantity"
-                  id="quantity"
-                  value={formData.quantity}
-                  onChange={handleChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  id="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
-
-              {/* Returnable */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Returnable</label>
-                <div className="mt-1 flex items-center space-x-4">
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      name="returnable"
-                      value="yes"
-                      checked={formData.returnable === "yes"}
-                      onChange={handleChange}
-                      className="h-4 w-4 text-blue-600 border-gray-300"
-                    />
-                    <span className="ml-2 text-gray-700">Yes</span>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                {/* Item Name */}
+                <div>
+                  <label htmlFor={`itemName-${index}`} className="block text-sm font-medium text-gray-700">
+                    Item Name
                   </label>
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      name="returnable"
-                      value="no"
-                      checked={formData.returnable === "no"}
-                      onChange={handleChange}
-                      className="h-4 w-4 text-blue-600 border-gray-300"
-                    />
-                    <span className="ml-2 text-gray-700">No</span>
+                  <input
+                    type="text"
+                    name="itemName"
+                    id={`itemName-${index}`}
+                    value={item.itemName}
+                    onChange={(e) => handleItemChange(index, e)}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+
+                {/* Serial No */}
+                <div>
+                  <label htmlFor={`serialNo-${index}`} className="block text-sm font-medium text-gray-700">
+                    Serial No
                   </label>
+                  <input
+                    type="text"
+                    name="serialNo"
+                    id={`serialNo-${index}`}
+                    value={item.serialNo}
+                    onChange={(e) => handleItemChange(index, e)}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+
+                {/* Category */}
+                <div>
+                  <label htmlFor={`category-${index}`} className="block text-sm font-medium text-gray-700">
+                    Category
+                  </label>
+                  <input
+                    type="text"
+                    name="category"
+                    id={`category-${index}`}
+                    value={item.category}
+                    onChange={(e) => handleItemChange(index, e)}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+
+                {/* Quantity */}
+                <div>
+                  <label htmlFor={`quantity-${index}`} className="block text-sm font-medium text-gray-700">
+                    Quantity
+                  </label>
+                  <input
+                    type="number"
+                    name="quantity"
+                    id={`quantity-${index}`}
+                    value={item.quantity}
+                    onChange={(e) => handleItemChange(index, e)}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label htmlFor={`description-${index}`} className="block text-sm font-medium text-gray-700">
+                    Description
+                  </label>
+                  <textarea
+                    name="description"
+                    id={`description-${index}`}
+                    value={item.description}
+                    onChange={(e) => handleItemChange(index, e)}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+
+                {/* Returnable */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Returnable</label>
+                  <div className="mt-1 flex items-center space-x-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="returnable"
+                        value="yes"
+                        checked={item.returnable === "yes"}
+                        onChange={(e) => handleItemChange(index, e)}
+                        className="h-4 w-4 text-blue-600 border-gray-300"
+                      />
+                      <span className="ml-2 text-gray-700">Yes</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="returnable"
+                        value="no"
+                        checked={item.returnable === "no"}
+                        onChange={(e) => handleItemChange(index, e)}
+                        className="h-4 w-4 text-blue-600 border-gray-300"
+                      />
+                      <span className="ml-2 text-gray-700">No</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Upload Image */}
+                <div>
+                  <label htmlFor={`image-${index}`} className="block text-sm font-medium text-gray-700">
+                    Upload Image
+                  </label>
+                  <input
+                    type="file"
+                    name="image"
+                    id={`image-${index}`}
+                    accept="image/*"
+                    onChange={(e) => handleItemImageChange(index, e)}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                  />
                 </div>
               </div>
-
-              {/* Upload Image */}
-              <div>
-                <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-                  Upload Image
-                </label>
-                <input
-                  type="file"
-                  name="image"
-                  id="image"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                />
-              </div>
             </div>
-          </div>
+          ))}
+
+          {/* Add Item Button */}
+          <button
+            type="button"
+            onClick={addItem}
+            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 mb-6"
+          >
+            Add Another Item
+          </button>
 
           {/* Location & Officer Details Card */}
           <div className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
+            <h3 className="text-xl font-semibold mb-4">Request Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               {/* In Location */}
               <div>
@@ -214,8 +291,8 @@ const NewRequest = () => {
                 <select
                   name="inLocation"
                   id="inLocation"
-                  value={formData.inLocation}
-                  onChange={handleChange}
+                  value={commonData.inLocation}
+                  onChange={handleCommonChange}
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                   required
                 >
@@ -234,8 +311,8 @@ const NewRequest = () => {
                 <select
                   name="outLocation"
                   id="outLocation"
-                  value={formData.outLocation}
-                  onChange={handleChange}
+                  value={commonData.outLocation}
+                  onChange={handleCommonChange}
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                   required
                 >
@@ -254,8 +331,8 @@ const NewRequest = () => {
                 <select
                   name="executiveOfficer"
                   id="executiveOfficer"
-                  value={formData.executiveOfficer}
-                  onChange={handleChange}
+                  value={commonData.executiveOfficer}
+                  onChange={handleCommonChange}
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                   required
                 >
@@ -275,8 +352,8 @@ const NewRequest = () => {
                   type="text"
                   name="vehicleNumber"
                   id="vehicleNumber"
-                  value={formData.vehicleNumber}
-                  onChange={handleChange}
+                  value={commonData.vehicleNumber}
+                  onChange={handleCommonChange}
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                 />
               </div>
@@ -289,8 +366,8 @@ const NewRequest = () => {
                 <select
                   name="byHand"
                   id="byHand"
-                  value={formData.byHand}
-                  onChange={handleChange}
+                  value={commonData.byHand}
+                  onChange={handleCommonChange}
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                 >
                   <option value="">Select</option>
@@ -301,98 +378,69 @@ const NewRequest = () => {
             </div>
           </div>
 
-          {/* Receiver Availability Card */}
+          {/* Receiver Details Card */}
           <div className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
-            <h3 className="text-xl font-semibold mb-4">Receiver Availability</h3>
-            <div className="mt-1 flex items-center space-x-4">
-              <label className="inline-flex items-center">
+            <h3 className="text-xl font-semibold mb-4">Receiver Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="receiverName" className="block text-sm font-medium text-gray-700">
+                  Receiver Name
+                </label>
                 <input
-                  type="radio"
-                  name="receiverAvailable"
-                  value="yes"
-                  checked={formData.receiverAvailable === "yes"}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-blue-600 border-gray-300"
+                  type="text"
+                  name="receiverName"
+                  id="receiverName"
+                  value={commonData.receiverName}
+                  onChange={handleCommonChange}
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                  required
                 />
-                <span className="ml-2 text-gray-700">Yes</span>
-              </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="receiverAvailable"
-                  value="no"
-                  checked={formData.receiverAvailable === "no"}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-blue-600 border-gray-300"
-                />
-                <span className="ml-2 text-gray-700">No</span>
-              </label>
-            </div>
-
-            {/* Additional fields when receiver is available */}
-            {formData.receiverAvailable === "yes" && (
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="receiverName" className="block text-sm font-medium text-gray-700">
-                    Receiver Name
-                  </label>
-                  <input
-                    type="text"
-                    name="receiverName"
-                    id="receiverName"
-                    value={formData.receiverName}
-                    onChange={handleChange}
-                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="receiverContact" className="block text-sm font-medium text-gray-700">
-                    Contact No
-                  </label>
-                  <input
-                    type="text"
-                    name="receiverContact"
-                    id="receiverContact"
-                    value={formData.receiverContact}
-                    onChange={handleChange}
-                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="receiverGroup" className="block text-sm font-medium text-gray-700">
-                    Group
-                  </label>
-                  <input
-                    type="text"
-                    name="receiverGroup"
-                    id="receiverGroup"
-                    value={formData.receiverGroup}
-                    onChange={handleChange}
-                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="receiverServiceNumber" className="block text-sm font-medium text-gray-700">
-                    Service Number
-                  </label>
-                  <input
-                    type="text"
-                    name="receiverServiceNumber"
-                    id="receiverServiceNumber"
-                    value={formData.receiverServiceNumber}
-                    onChange={handleChange}
-                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
               </div>
-            )}
+
+              <div>
+                <label htmlFor="receiverContact" className="block text-sm font-medium text-gray-700">
+                  Contact No
+                </label>
+                <input
+                  type="text"
+                  name="receiverContact"
+                  id="receiverContact"
+                  value={commonData.receiverContact}
+                  onChange={handleCommonChange}
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="receiverGroup" className="block text-sm font-medium text-gray-700">
+                  Group
+                </label>
+                <input
+                  type="text"
+                  name="receiverGroup"
+                  id="receiverGroup"
+                  value={commonData.receiverGroup}
+                  onChange={handleCommonChange}
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="receiverServiceNumber" className="block text-sm font-medium text-gray-700">
+                  Service Number
+                </label>
+                <input
+                  type="text"
+                  name="receiverServiceNumber"
+                  id="receiverServiceNumber"
+                  value={commonData.receiverServiceNumber}
+                  onChange={handleCommonChange}
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Submit Button */}
@@ -405,4 +453,4 @@ const NewRequest = () => {
   );
 };
 
-export default NewRequest;
+export default NewRequest;      

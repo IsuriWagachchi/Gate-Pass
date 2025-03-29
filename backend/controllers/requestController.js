@@ -1,32 +1,80 @@
-// controllers/requestController.js
 import Request from '../models/requestModel.js';
 
-// Create a new request with image upload and new fields
-const createRequest = async (req, res) => {
-  const { itemName, serialNo, category, description, returnable, outLocation, inLocation, executiveOfficer, receiverAvailable, status,quantity } = req.body;
-  const image = req.file ? req.file.path : null;
 
+const createRequest = async (req, res) => {
   try {
-      const newRequest = new Request({
-          itemName,
-          serialNo,
-          category,
-          description,
-          returnable,
-          image,
-          outLocation,
-          inLocation,
-          executiveOfficer,
-          receiverAvailable,
-          status,
-          quantity// Added status field here
+    // Extract common fields
+    const {
+      outLocation,
+      inLocation,
+      executiveOfficer,
+      receiverName,
+      receiverContact,
+      receiverGroup,
+      receiverServiceNumber,
+      vehicleNumber,
+      byHand,
+      ...itemsData
+    } = req.body;
+
+    // Process items array from form data
+    const items = [];
+    const files = req.files || [];
+    
+    // Determine if we have multiple items or single item
+    if (Array.isArray(itemsData.items)) {
+      // Multiple items case
+      itemsData.items.forEach((item, index) => {
+        const newItem = {
+          itemName: item.itemName,
+          serialNo: item.serialNo,
+          category: item.category,
+          quantity: item.quantity,
+          description: item.description,
+          returnable: item.returnable,
+          image: files.find(f => f.fieldname === `items[${index}][image]`)?.path || null
+        };
+        items.push(newItem);
       });
-      await newRequest.save();
-      res.status(201).json(newRequest);
-  } catch (err) {
-      res.status(500).json({ message: 'Error creating request', error: err });
+    } else if (itemsData.itemName) {
+      // Single item case (legacy support)
+      items.push({
+        itemName: itemsData.itemName,
+        serialNo: itemsData.serialNo,
+        category: itemsData.category,
+        quantity: itemsData.quantity,
+        description: itemsData.description,
+        returnable: itemsData.returnable,
+        image: req.file?.path || null
+      });
+    }
+
+    // Create new request with items array
+    const newRequest = new Request({
+      items,
+      outLocation,
+      inLocation,
+      executiveOfficer,
+      receiverName,
+      receiverContact,
+      receiverGroup,
+      receiverServiceNumber,
+      vehicleNumber,
+      byHand,
+      status: 'Pending',
+      verify: 'Pending',
+      dispatchStatus: 'Pending'
+    });
+
+    await newRequest.save();
+    
+    res.status(201).json(newRequest);
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating request', error: error.message });
   }
 };
+
+
 
 // Get all requests
 const getRequests = async (req, res) => {
@@ -56,7 +104,7 @@ const getRequestById = async (req, res) => {
 // Update request with new fields and image
 const updateRequest = async (req, res) => {
   const { id } = req.params;
-  const { itemName, serialNo, category, description, returnable, outLocation, inLocation, executiveOfficer, receiverAvailable, status,quantity } = req.body;
+  const { itemName, serialNo, category, description, returnable, outLocation, inLocation, executiveOfficer,vehicleNumber,byHand,receiverName,receiverContact,receiverGroup,receiverServiceNumber, status,quantity } = req.body;
   const image = req.file ? req.file.path : null;
 
   try {
@@ -70,8 +118,11 @@ const updateRequest = async (req, res) => {
             returnable, 
             outLocation, 
             inLocation, 
-            executiveOfficer, 
-            receiverAvailable, 
+            executiveOfficer,vehicleNumber,byHand,
+             receiverName
+            ,receiverContact,
+            receiverGroup,
+            receiverServiceNumber,
             status, // Added status field here
             quantity,
             ...(image && { image }) // Handle image upload if available

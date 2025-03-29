@@ -1,22 +1,20 @@
 import express from 'express';
-import upload from '../middleware/upload.js';
+import { uploadMultipleItems } from '../middleware/upload.js';
 import {
-    createRequest,
-    getRequests,
-    getRequestById,
-    updateRequest,
-    deleteRequest
+  createRequest,
+  getRequests,
+  getRequestById,
+  updateRequest,
+  deleteRequest
 } from '../controllers/requestController.js';
 
 const router = express.Router();
 
-// Create a new request (with image upload)
-router.post('/create', upload.single('image'), createRequest);
+// Use the uploadMultipleItems middleware
+router.post('/create', uploadMultipleItems, createRequest);
+router.put('/:id', uploadMultipleItems, updateRequest);
 
-// Update request (with image upload)
-router.put('/:id', upload.single('image'), updateRequest);
-
-// Other routes
+// Other routes remain the same
 router.get('/', getRequests);
 router.get('/:id', getRequestById);
 router.delete('/:id', deleteRequest);
