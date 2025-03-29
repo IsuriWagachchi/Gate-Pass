@@ -41,13 +41,17 @@ const requestSchema = new mongoose.Schema({
     enum: ["Pending", "Approved", "Rejected"],
     default: "Pending",
   },
-  approverNameOut: { required: true, type: String },
-  serviceNoOut: { required: true, type: String },
+  approverNameOut: {  type: String },
+  serviceNoOut: {  type: String },
   commentOut: { type: String },
-  approverNameIn: { required: true, type: String },
-  serviceNoIn: { required: true, type: String },
-  commentIn: { type: String }
-}, {  
+
+  approverNameIn: {  type: String },
+  serviceNoIn: {  type: String },
+  commentIn: { type: String 
+  }
+
+}, {
+
   timestamps: true,
 });
 
