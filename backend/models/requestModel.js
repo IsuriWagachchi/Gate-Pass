@@ -18,7 +18,7 @@ const requestSchema = new mongoose.Schema({
   receiverName: { type: String, required: true },
   receiverContact: { type: Number, required: true },
   receiverGroup: { type: String, required: true },
-  receiverServiceNumber: { type: String },
+  receiverServiceNumber: { type: Number },
   vehicleNumber: { type: Number },
   byHand: { type: String },
   status: {
@@ -41,11 +41,11 @@ const requestSchema = new mongoose.Schema({
     enum: ["Pending", "Approved", "Rejected"],
     default: "Pending",
   },
-  approverNameOut: {  type: String },
-  serviceNoOut: {  type: String },
+  approverNameOut: { required: true, type: String },
+  serviceNoOut: { required: true, type: String },
   commentOut: { type: String },
-  approverNameIn: { type: String },
-  serviceNoIn: { rtype: String },
+  approverNameIn: { required: true, type: String },
+  serviceNoIn: { required: true, type: String },
   commentIn: { type: String }
 }, {  // <-- The timestamps option should be part of the Schema options object
   timestamps: true,
