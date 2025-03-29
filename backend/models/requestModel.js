@@ -47,7 +47,7 @@ const requestSchema = new mongoose.Schema({
   approverNameIn: { required: true, type: String },
   serviceNoIn: { required: true, type: String },
   commentIn: { type: String }
-}, {  // <-- The timestamps option should be part of the Schema options object
+}, {  
   timestamps: true,
 });
 
