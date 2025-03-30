@@ -27,15 +27,15 @@ export const getDispatchById = async(req, res) => {
 };
 
 // update dispatch status
-export const updateDispatchStatus = async (req, res) => {
+export const updateDispatchStatusOut = async (req, res) => {
   const { id } = req.params;
-  const { dispatchStatus, approverName, serviceNo, comment } = req.body;
+  const { dispatchStatusOut, approverNameOut, serviceNoOut, commentOut } = req.body;
 
   // Validation
-  if (!approverName || !serviceNo) {
+  if (!approverNameOut || !serviceNoOut) {
     return res.status(400).json({ message: "Name and Service Number are required!" });
   }
-  if (dispatchStatus === "Rejected" && !comment) {
+  if (dispatchStatusOut === "Rejected" && !commentOut) {
     return res.status(400).json({ message: "Comment is required for rejection!" });
   }
 
@@ -45,13 +45,43 @@ export const updateDispatchStatus = async (req, res) => {
       return res.status(404).json({ message: "Request not found" });
     }
 
-    request.dispatchStatus = dispatchStatus;
-    request.approverName = approverName;
-    request.serviceNo = serviceNo;
-    request.comment = comment || ""; 
+    request.dispatchStatusOut = dispatchStatusOut;
+    request.approverNameOut = approverNameOut;
+    request.serviceNoOut = serviceNoOut;
+    request.commentOut = commentOut || ""; 
 
     await request.save();
-    res.status(200).json({ message: `Request ${dispatchStatus} successfully!` });
+    res.status(200).json({ message: `Request ${dispatchStatusOut} successfully!` });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating approval status", error });
+  }
+};
+
+export const updateDispatchStatusIn = async (req, res) => {
+  const { id } = req.params;
+  const { dispatchStatusIn, approverNameIn, serviceNoIn, commentIn } = req.body;
+
+  // Validation
+  if (!approverNameIn || !serviceNoIn) {
+    return res.status(400).json({ message: "Name and Service Number are required!" });
+  }
+  if (dispatchStatusIn === "Rejected" && !commentIn) {
+    return res.status(400).json({ message: "Comment is required for rejection!" });
+  }
+
+  try {
+    const request = await Request.findById(id);
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    request.dispatchStatusIn = dispatchStatusIn;
+    request.approverNameIn = approverNameIn;
+    request.serviceNoIn = serviceNoIn;
+    request.commentIn = commentIn || ""; 
+
+    await request.save();
+    res.status(200).json({ message: `Request ${dispatchStatusIn} successfully!` });
   } catch (error) {
     res.status(500).json({ message: "Error updating approval status", error });
   }
