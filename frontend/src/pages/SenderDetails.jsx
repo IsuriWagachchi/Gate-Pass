@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const SenderDetails = () => {
+const SenderDetails = ({ onSenderDetailsChange }) => {
   const [formData, setFormData] = useState({
     sender_name: "",
     designation: "",
@@ -19,12 +19,16 @@ const SenderDetails = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setFormData(response.data);
+        // Pass data back to parent
+        if (onSenderDetailsChange) {
+          onSenderDetailsChange(response.data);
+        }
       } catch (error) {
         console.error("Error fetching sender details:", error);
       }
     };
     fetchSenderDetails();
-  }, []);
+  }, [onSenderDetailsChange]);
 
   return (
     <div className="mb-6 border-2 border-blue-400 p-4 rounded-lg">

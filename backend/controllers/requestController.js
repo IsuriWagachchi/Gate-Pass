@@ -7,6 +7,12 @@ const createRequest = async (req, res) => {
   try {
     // Extract common fields
     const {
+      sender_name,
+      designation,
+      service_no,
+      section,
+      group_number,
+      contact_number,
       outLocation,
       inLocation,
       executiveOfficer,
@@ -53,6 +59,12 @@ const createRequest = async (req, res) => {
 
     // Create new request with items array
     const newRequest = new Request({
+      sender_name,
+      designation,
+      service_no,
+      section,
+      group_number,
+      contact_number,
       items,
       outLocation,
       inLocation,
