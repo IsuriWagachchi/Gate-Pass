@@ -4,6 +4,15 @@ import { useNavigate } from "react-router-dom";
 import SenderDetails from "./SenderDetails";
 
 const NewRequest = () => {
+
+  const [senderDetails, setSenderDetails] = useState({
+    sender_name: "",  
+    designation: "",
+    service_no: "",
+    section: "",
+    group_number: "",
+    contact_number: "",
+  });
   // State to handle multiple items
   const [items, setItems] = useState([
     {
@@ -92,6 +101,10 @@ const NewRequest = () => {
     try {
       const formDataToSend = new FormData();
 
+      Object.keys(senderDetails).forEach(key => {
+        formDataToSend.append(key, senderDetails[key]);
+      });
+
       // Add common fields
       Object.keys(commonData).forEach(key => {
         formDataToSend.append(key, commonData[key]);
@@ -125,7 +138,10 @@ const NewRequest = () => {
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto bg-white border-2 border-blue-200 p-6 rounded-lg">
-          <SenderDetails></SenderDetails>
+        
+          <SenderDetails 
+            onSenderDetailsChange={(details) => setSenderDetails(details)}
+          />
           
           {/* Render items */}
           {items.map((item, index) => (

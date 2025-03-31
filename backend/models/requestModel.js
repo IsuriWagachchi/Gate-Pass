@@ -11,6 +11,15 @@ const itemSchema = new mongoose.Schema({
 });
 
 const requestSchema = new mongoose.Schema({
+
+  // Add these fields for sender details
+  sender_name: { type: String, required: true },
+  designation: { type: String, required: true },
+  service_no: { type: String, required: true },
+  section: { type: String, required: true },
+  group_number: { type: String, required: true },
+  contact_number: { type: String, required: true },
+  
   items: [itemSchema], // Array of items
   outLocation: { type: String, required: true },
   inLocation: { type: String, required: true },
