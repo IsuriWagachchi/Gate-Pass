@@ -3,7 +3,19 @@ import Request from '../models/requestModel.js';
 // Get only verified requests
 export const getVerifiedRequests = async (req, res) => {
   try {
-    const verifiedRequests = await Request.find({ verify: 'Verified' });
+    // Get logged-in user's branch_location
+    const userBranch = req.user?.branch_location;
+
+    if (!userBranch) {
+      return res.status(400).json({ message: "Branch location missing from token" });
+    }
+
+    // Fetch only verified requests that match the branch location
+    const verifiedRequests = await Request.find({
+      verify: "Verified",
+      $or: [{ inLocation: userBranch }, { outLocation: userBranch }],
+    });
+    
     res.status(200).json(verifiedRequests);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching verified requests', error: err });

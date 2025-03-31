@@ -41,7 +41,16 @@ export const login = async (req, res) => {
         const isMatch = await user.comparePassword(password);
         if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
 
-        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        // Include branch_location in the token payload
+        const token = jwt.sign(
+            {
+                id: user._id,
+                role: user.role,
+                branch_location: user.branch_location,
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
 
         res.status(200).json({ token, role: user.role, username: user.username });
     } catch (error) {

@@ -15,13 +15,28 @@ const Dispatch = () => {
   useEffect(() => {
     const fetchDispatches = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/dispatch/verified");
+        const token = localStorage.getItem("token");
+          if (!token) {
+            console.error("No token found in localStorage");
+            return;
+          }
+
+          // Decode the token to get branch_location
+        const tokenPayload = JSON.parse(atob(token.split(".")[1])); 
+        const userBranch = tokenPayload.branch_location;
+        console.log("User's Branch Location:", userBranch);
+
+        const response = await axios.get("http://localhost:5000/api/dispatch/verified", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const allDispatches = response.data;
 
-        setUpcomingDispatches(allDispatches.filter(item => item.dispatchStatusOut === "Pending" && item.dispatchStatusIn === "Pending"));
-        setProcessedDispatches(allDispatches.filter(item => item.dispatchStatusOut !== "Pending" ));
-        setInLocationDispatches(allDispatches.filter(item => item.dispatchStatusOut === "Approved" && item.dispatchStatusIn === "Pending"));
-        setProcessedInLocation(allDispatches.filter(item => item.dispatchStatusOut === "Approved" && item.dispatchStatusIn !== "Pending"));
+        setUpcomingDispatches(allDispatches.filter(item => item.dispatchStatusOut === "Pending" && item.dispatchStatusIn === "Pending" && item.outLocation === userBranch));
+        setProcessedDispatches(allDispatches.filter(item => item.dispatchStatusOut !== "Pending" && item.outLocation === userBranch));
+        setInLocationDispatches(allDispatches.filter(item => item.dispatchStatusOut === "Approved" && item.dispatchStatusIn === "Pending" && item.inLocation === userBranch));
+        setProcessedInLocation(allDispatches.filter(item => item.dispatchStatusOut === "Approved" && item.dispatchStatusIn !== "Pending" && item.inLocation === userBranch));
       } catch (error) {
         console.error("Error fetching dispatches:", error);
       }
