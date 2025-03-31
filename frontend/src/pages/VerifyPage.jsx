@@ -66,7 +66,17 @@ const Verify = () => {
             {requests.filter(req => req.verify === filter).map((request, index) => (
               <tr key={request._id} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
                 <td className="py-2 px-4 border text-left">{request._id}</td>
-                <td className="py-2 px-4 border text-left">{request.itemName}</td>
+                <td className="py-2 px-4 border text-left">{request.items && request.items.length > 0 ? (
+                    <ul className="list-disc list-inside">
+                      {request.items.map((item, itemIndex) => (
+                        <li key={itemIndex}>
+                          {item.itemName} {item.quantity && `(Qty: ${item.quantity})`}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <span>No items</span>
+                  )}</td>
                 <td className="py-2 px-4 border text-left">{request.inLocation}</td>
                 <td className="py-2 px-4 border text-left">{request.outLocation}</td>
                 <td className="py-2 px-4 border text-left">{request.createdAt}</td>
