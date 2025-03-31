@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { FaArrowLeft } from "react-icons/fa"; // Importing the arrow icon
 
 const ViewRequest = () => {
   const [request, setRequest] = useState(null);
@@ -53,7 +54,16 @@ const ViewRequest = () => {
 
   return (
     <div className="container mx-auto p-6 font-sans flex justify-center">
-      <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg w-full max-w-3xl mt-6">
+      <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg w-full max-w-3xl mt-6 relative">
+        
+        {/* Back Arrow Button */}
+        <button 
+          onClick={() => navigate("/my-request")}
+          className="absolute top-4 right-4 bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded-full transition-colors"
+          aria-label="Back to My Requests"
+        >
+          <FaArrowLeft className="text-lg" />
+        </button>
         
         {/* Request Details Heading */}
         <div className="text-blue-700 font-bold text-lg text-center my-4">Request Details</div>
