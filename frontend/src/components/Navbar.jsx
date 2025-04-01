@@ -28,7 +28,7 @@ const Navbar = ({ logout, role }) => {
       { path: "/verify", label: "Verify", roles: ["admin", "duty_officer"] },
       { path: "/my-receipt", label: "My Receipt", roles: ["user", "admin", "security_officer"] },
       { path: "/dispatch", label: "Dispatch", roles: ["admin", "security_officer"] },
-      { path: "/item-tracker", label: "Item Tracker", roles: ["user", "admin", "security_officer"] },
+      { path: "/item-tracker", label: "Item Tracker", roles: ["admin", "security_officer"] },
       { path: "/admin", label: "Admin", roles: ["admin"] }
     ];
 
