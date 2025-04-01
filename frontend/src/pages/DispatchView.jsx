@@ -122,6 +122,7 @@ const DispatchView = () => {
                   In Location:{" "}
                   <span className="font-normal">{request.inLocation}</span>
                 </p>
+                <br/>
 
                 {request.dispatchStatusOut !== "Pending" && (
                   <>
