@@ -32,8 +32,8 @@ const ItemTracker = () => {
             <thead className="bg-[#2A6BAC] text-white">
               <tr>
                 <th className="py-3 px-4 border text-left">Ref No</th>
-                <th className="py-3 px-4 border text-left">Item Name</th>
-                <th className="py-3 px-4 border text-left">Category</th>
+                {/* <th className="py-3 px-4 border text-left">Item Name</th>
+                <th className="py-3 px-4 border text-left">Category</th> */}
                 <th className="py-3 px-4 border text-left">In Location</th>
                 <th className="py-3 px-4 border text-left">Out Location</th>
                 <th className="py-3 px-4 border text-left">Status</th>
@@ -50,8 +50,8 @@ const ItemTracker = () => {
                     className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}
                   >
                     <td className="py-2 px-4 border">{request._id}</td>
-                    <td className="py-2 px-4 border">{item.itemName}</td>
-                    <td className="py-2 px-4 border">{item.category}</td>
+                    {/* <td className="py-2 px-4 border">{item.itemName}</td>
+                    <td className="py-2 px-4 border">{item.category}</td> */}
                     <td className="py-2 px-4 border">{request.inLocation}</td>
                     <td className="py-2 px-4 border">{request.outLocation}</td>
                     <td className="py-2 px-4 border">{request.status || 'Pending'}</td>
