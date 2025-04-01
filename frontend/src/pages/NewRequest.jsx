@@ -31,6 +31,7 @@ const NewRequest = () => {
     inLocation: "",
     outLocation: "",
     executiveOfficer: "",
+    receiverAvailable: false,
     receiverName: "",
     receiverContact: "",
     receiverGroup: "",
@@ -94,6 +95,7 @@ const NewRequest = () => {
     newItems.splice(index, 1);
     setItems(newItems);
   };
+  const [debounceTimer, setDebounceTimer] = useState(null);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -107,6 +109,11 @@ const NewRequest = () => {
 
       // Add common fields
       Object.keys(commonData).forEach(key => {
+        // Skip receiver fields if receiver is not available
+        if (!commonData.receiverAvailable && 
+            ['receiverName', 'receiverContact', 'receiverGroup', 'receiverServiceNumber'].includes(key)) {
+          return;
+        }
         formDataToSend.append(key, commonData[key]);
       });
 
@@ -393,71 +400,136 @@ const NewRequest = () => {
               </div>
             </div>
           </div>
+          {/* Combined Receiver Section */}
+<div className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
+  <div className="flex items-center mb-4">
+    <input
+      type="checkbox"
+      id="receiverAvailable"
+      name="receiverAvailable"
+      checked={commonData.receiverAvailable}
+      onChange={(e) => {
+        setCommonData({
+          ...commonData,
+          receiverAvailable: e.target.checked,
+          // Clear receiver details when unchecked
+          ...(!e.target.checked && {
+            receiverName: "",
+            receiverContact: "",
+            receiverGroup: "",
+            receiverServiceNumber: ""
+          })
+        });
+      }}
+      className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+    />
+    <label htmlFor="receiverAvailable" className="ml-2 text-lg font-medium text-gray-700">
+      Receiver Available
+    </label>
+  </div>
 
-          {/* Receiver Details Card */}
-          <div className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
-            <h3 className="text-xl font-semibold mb-4">Receiver Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="receiverName" className="block text-sm font-medium text-gray-700">
-                  Receiver Name
-                </label>
-                <input
-                  type="text"
-                  name="receiverName"
-                  id="receiverName"
-                  value={commonData.receiverName}
-                  onChange={handleCommonChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
+  {commonData.receiverAvailable && (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label htmlFor="receiverServiceNumber" className="block text-sm font-medium text-gray-700">
+            Receiver Service Number
+          </label>
+          <input
+            type="text"
+            name="receiverServiceNumber"
+            id="receiverServiceNumber"
+            value={commonData.receiverServiceNumber}
+            onChange={async (e) => {
+              const serviceNo = e.target.value;
+              setCommonData({
+                ...commonData,
+                receiverServiceNumber: serviceNo
+              });
+              
+              // Auto-fill immediately when service number is entered
+              if (serviceNo) {
+                try {
+                  const response = await axios.get(`http://localhost:5000/api/auth/by-service/${serviceNo}`);
+                  const user = response.data;
+                  if (user) {
+                    setCommonData(prev => ({
+                      ...prev,
+                      receiverName: user.sender_name,
+                      receiverContact: user.contact_number,
+                      receiverGroup: user.group_number
+                    }));
+                  }
+                } catch (error) {
+                  console.error("Error fetching receiver details:", error);
+                }
+              }
+            }}
+            className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+            required
+          />
+        </div>
+      </div>
 
-              <div>
-                <label htmlFor="receiverContact" className="block text-sm font-medium text-gray-700">
-                  Contact No
-                </label>
-                <input
-                  type="text"
-                  name="receiverContact"
-                  id="receiverContact"
-                  value={commonData.receiverContact}
-                  onChange={handleCommonChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="receiverName" className="block text-sm font-medium text-gray-700">
+            Receiver Name
+          </label>
+          <input
+            type="text"
+            name="receiverName"
+            id="receiverName"
+            value={commonData.receiverName}
+            onChange={handleCommonChange}
+            className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+            required
+          />
+        </div>
 
-              <div>
-                <label htmlFor="receiverGroup" className="block text-sm font-medium text-gray-700">
-                  Group
-                </label>
-                <input
-                  type="text"
-                  name="receiverGroup"
-                  id="receiverGroup"
-                  value={commonData.receiverGroup}
-                  onChange={handleCommonChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                />
-              </div>
+        <div>
+          <label htmlFor="receiverContact" className="block text-sm font-medium text-gray-700">
+            Contact No
+          </label>
+          <input
+            type="text"
+            name="receiverContact"
+            id="receiverContact"
+            value={commonData.receiverContact}
+            onChange={handleCommonChange}
+            className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+            required
+          />
+        </div>
 
-              <div>
-                <label htmlFor="receiverServiceNumber" className="block text-sm font-medium text-gray-700">
-                  Service Number
-                </label>
-                <input
-                  type="text"
-                  name="receiverServiceNumber"
-                  id="receiverServiceNumber"
-                  value={commonData.receiverServiceNumber}
-                  onChange={handleCommonChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
-          </div>
+        <div>
+          <label htmlFor="receiverGroup" className="block text-sm font-medium text-gray-700">
+            Group
+          </label>
+          <input
+            type="text"
+            name="receiverGroup"
+            id="receiverGroup"
+            value={commonData.receiverGroup}
+            onChange={handleCommonChange}
+            className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+            required
+          />
+        </div>
+      </div>
+    </>
+  )}
+</div>
+          
+
+  
+
+       
+              
+
+          
+
+    
 
           {/* Submit Button */}
           <button type="submit" className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
