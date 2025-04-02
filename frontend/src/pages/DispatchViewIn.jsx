@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import laptopImage from "../assets/laptop.jpg";
 
 const DispatchViewIn = () => {
   const [request, setRequest] = useState(null);
   const { id } = useParams();
-  const location = useLocation();
   const [dispatchStatusIn, setStatusDispatchIn] = useState("");
   const [approverNameIn, setapproverNameIn] = useState("");
   const [serviceNoIn, setserviceNoIn] = useState("");
@@ -16,12 +15,6 @@ const DispatchViewIn = () => {
   useEffect(() => {
     fetchRequestDetails();
   }, []);
-
-  useEffect(() => {
-    if (location.state && location.state.dispatchStatusIn) {
-      setStatusDispatchIn(location.state.dispatchStatusIn);
-    }
-  }, [location.state]);
 
   const fetchRequestDetails = async () => {
     try {
@@ -53,7 +46,7 @@ const DispatchViewIn = () => {
           dispatchStatusIn: newDispatchStatus,
           approverNameIn,
           serviceNoIn,
-          commentIn: newDispatchStatus === "Rejected" ? commentIn : "",
+          commentIn,
         }
       );
       setStatusDispatchIn(newDispatchStatus);
@@ -110,23 +103,29 @@ const DispatchViewIn = () => {
               {/* Left Section */}
               <div className="flex-1">
                 <p className="text-lg font-medium mb-1">
-                  Item Name:{" "}
-                  <span className="font-normal">{request.itemName}</span>
-                </p>
-                <p className="text-lg font-medium mb-1">Quantity: <span className="font-normal">{request.quantity}</span></p>
-                <p className="text-lg font-medium mb-1">
-                  Serial No:{" "}
-                  <span className="font-normal">{request.serialNo}</span>
+                  Sender Name:{" "}
+                  <span className="font-normal">{request.sender_name}</span>
                 </p>
                 <p className="text-lg font-medium mb-1">
-                  Returnable:{" "}
-                  <span className="font-normal">{request.returnable}</span>
+                  Designation:{" "}
+                  <span className="font-normal">{request.designation}</span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                  Contact Number:{" "}
+                  <span className="font-normal">{request.contact_number}</span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                  Out Location:{" "}
+                  <span className="font-normal">{request.outLocation}</span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                  In Location:{" "}
+                  <span className="font-normal">{request.inLocation}</span>
                 </p>
                 <br />
 
                 {request.dispatchStatusIn !== "Pending" && (
                   <>
-                    <h4 className="text-lg font-semibold mb-2">Dispatch In Location</h4>
                     <p className="text-lg font-medium mb-1">
                       Dispatch In Location Status:{" "}
                       <span
@@ -150,6 +149,39 @@ const DispatchViewIn = () => {
                       <span className="font-normal">{request.serviceNoIn}</span>
                     </p>
                   </>
+                )}
+
+                {/* Items List */}
+                {request.items && request.items.length > 0 && (
+                  <div className="mt-6">
+                    <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">
+                      Item Details
+                    </h4>
+                    <div className="space-y-3">
+                      {request.items.map((item, index) => (
+                        <div
+                          key={index}
+                          className="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition"
+                        >
+                          <p>
+                            <strong>Name:</strong> {item.itemName}
+                          </p>
+                          <p>
+                            <strong>Serial No:</strong> {item.serialNo}
+                          </p>
+                          <p>
+                            <strong>Category:</strong> {item.category}
+                          </p>
+                          <p>
+                            <strong>Quantity:</strong> {item.quantity}
+                          </p>
+                          <p>
+                            <strong>Returnable:</strong> {item.returnable}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
 

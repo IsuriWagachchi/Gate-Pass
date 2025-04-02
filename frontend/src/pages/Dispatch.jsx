@@ -16,27 +16,64 @@ const Dispatch = () => {
     const fetchDispatches = async () => {
       try {
         const token = localStorage.getItem("token");
-          if (!token) {
-            console.error("No token found in localStorage");
-            return;
-          }
-
-          // Decode the token to get branch_location
-        const tokenPayload = JSON.parse(atob(token.split(".")[1])); 
-        const userBranch = tokenPayload.branch_location;
-        console.log("User's Branch Location:", userBranch);
-
+        if (!token) {
+          console.error("No token found in localStorage");
+          return;
+        }
+  
+        let userBranch;
+        try {
+          const tokenPayload = JSON.parse(atob(token.split(".")[1])); 
+          userBranch = tokenPayload.branch_location;
+        } catch (decodeError) {
+          console.error("Invalid token:", decodeError);
+          return;
+        }
+  
+        console.log("User's Branch Location:", `"${userBranch}"`);
+  
         const response = await axios.get("http://localhost:5000/api/dispatch/verified", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-        const allDispatches = response.data;
+  
+        const allDispatches = Array.isArray(response.data) ? response.data : response.data.data;
 
-        setUpcomingDispatches(allDispatches.filter(item => item.dispatchStatusOut === "Pending" && item.dispatchStatusIn === "Pending" && item.outLocation === userBranch));
-        setProcessedDispatches(allDispatches.filter(item => item.dispatchStatusOut !== "Pending" && item.outLocation === userBranch));
-        setInLocationDispatches(allDispatches.filter(item => item.dispatchStatusOut === "Approved" && item.dispatchStatusIn === "Pending" && item.inLocation === userBranch));
-        setProcessedInLocation(allDispatches.filter(item => item.dispatchStatusOut === "Approved" && item.dispatchStatusIn !== "Pending" && item.inLocation === userBranch));
+        const pendingOutLocation = allDispatches.filter(item => {
+          return (
+            item.dispatchStatusOut?.trim().toLowerCase() === "pending" &&
+            item.dispatchStatusIn?.trim().toLowerCase() === "pending" &&
+            item.outLocation?.trim().toLowerCase() === userBranch.trim().toLowerCase()
+          );
+        });
+
+        const approvedOutLocation = allDispatches.filter(item => {
+          return (
+            item.dispatchStatusOut?.trim().toLowerCase() !== "pending" &&
+            item.outLocation?.trim().toLowerCase() === userBranch.trim().toLowerCase()
+          );
+        });
+
+        const pendingInLocation = allDispatches.filter(item => {
+          return (
+            item.dispatchStatusOut?.trim().toLowerCase() === "approved" &&
+            item.dispatchStatusIn?.trim().toLowerCase() === "pending" &&
+            item.inLocation?.trim().toLowerCase() === userBranch.trim().toLowerCase()
+          );
+        });
+
+        const approvedInLocation = allDispatches.filter(item => {
+          return (
+            item.dispatchStatusOut?.trim().toLowerCase() === "approved" &&
+            item.dispatchStatusIn?.trim().toLowerCase() !== "pending" &&
+            item.inLocation?.trim().toLowerCase() === userBranch.trim().toLowerCase()
+          );
+        });
+
+        setUpcomingDispatches(pendingOutLocation);
+        setProcessedDispatches(approvedOutLocation);
+        setInLocationDispatches(pendingInLocation);
+        setProcessedInLocation(approvedInLocation);
+
       } catch (error) {
         console.error("Error fetching dispatches:", error);
       }
@@ -51,17 +88,25 @@ const Dispatch = () => {
   };
 
   const filterDispatches = (dispatches) => {
-    return dispatches.filter(item => {
-      const matchesSearch =
+    return dispatches.filter(dispatch => {
+      // Filter items inside each dispatch
+      const itemMatches = dispatch.items?.some(item =>
         item.serialNo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.inLocation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.outLocation?.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesDate = selectedDate ? new Date(item.createdAt).toISOString().split('T')[0] === selectedDate : true;
-      
-      return matchesSearch && matchesDate;
+        item.category?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+  
+      // Filter based on dispatch-level properties
+      const dispatchMatches =
+        dispatch.inLocation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        dispatch.outLocation?.toLowerCase().includes(searchTerm.toLowerCase());
+  
+      // Check date filter
+      const matchesDate = selectedDate 
+        ? new Date(dispatch.createdAt).toISOString().split('T')[0] === selectedDate 
+        : true;
+  
+      return (itemMatches || dispatchMatches) && matchesDate;
     });
   };
 
@@ -116,23 +161,29 @@ const Dispatch = () => {
               </tr>
             </thead>
             <tbody>
-              {filterDispatches(upcomingDispatches).map((item, index) => (
-                <tr key={index} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
-                  <td className="py-2 px-4 border text-left">{item.serialNo}</td>
-                  <td className="py-2 px-4 border text-left">{item.itemName}</td>
-                  <td className="py-2 px-4 border text-left">{item.category}</td>
-                  <td className="py-2 px-4 border text-left">{item.inLocation}</td>
-                  <td className="py-2 px-4 border text-left">{item.outLocation}</td>
-                  <td className="py-2 px-4 border text-left">{new Date(item.createdAt).toLocaleString()}</td>
-                  <td className="py-2 px-4 border text-center">
-                    <button
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded mr-2"
-                      onClick={() => navigate(`/dispatch-view/${item._id}`)}
-                    >
-                      View
-                    </button>
-                  </td>
-                </tr>
+              {filterDispatches(upcomingDispatches).map((dispatch, index) => (
+                <React.Fragment key={index}>
+                  {dispatch.items.map((item, itemIndex) => (
+                    <tr key={itemIndex} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
+                      <td className="py-2 px-4 border text-left">{item.serialNo}</td>
+                      <td className="py-2 px-4 border text-left">{item.itemName}</td>
+                      <td className="py-2 px-4 border text-left">{item.category}</td>
+                      <td className="py-2 px-4 border text-left">{dispatch.inLocation}</td>
+                      <td className="py-2 px-4 border text-left">{dispatch.outLocation}</td>
+                      <td className="py-2 px-4 border text-left">{new Date(dispatch.createdAt).toLocaleString()}</td>
+                      {itemIndex === 0 && (
+                        <td className="py-2 px-4 border text-center" rowSpan={dispatch.items.length}>
+                          <button
+                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
+                            onClick={() => navigate(`/dispatch-view/${dispatch._id}`)}
+                          >
+                            View
+                          </button>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </React.Fragment>
               ))}
               {filterDispatches(upcomingDispatches).length === 0 && (
                 <tr>
@@ -162,26 +213,31 @@ const Dispatch = () => {
             </tr>
           </thead>
           <tbody>
-            {filterDispatches(processedDispatches).map((item, index) => (
-              <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"}`}>
-                <td className="py-2 px-4 border text-left">{item.serialNo}</td>
-                <td className="py-2 px-4 border text-left">{item.itemName}</td>
-                <td className="py-2 px-4 border text-left">{item.category}</td>
-                <td className="py-2 px-4 border text-left">{item.inLocation}</td>
-                <td className="py-2 px-4 border text-left">{item.outLocation}</td>
-                <td className="py-2 px-4 border text-left">{new Date(item.createdAt).toLocaleString()}</td>
-                <td className={`py-2 px-4 border text-center ${getStatusStyle(item.dispatchStatusOut)}`}>
-                  {item.dispatchStatusOut}
-                </td>
-                <td className="py-2 px-4 border text-center">
-                  <button
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
-                    onClick={() => navigate(`/dispatch-view/${item._id}`)}
-                  >
-                    View
-                  </button>
-                </td>
-              </tr>
+            {filterDispatches(processedDispatches).map((dispatch, index) => (
+              <React.Fragment key={index}>
+                {dispatch.items.map((item, itemIndex) => (
+                  <tr key={itemIndex} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"}`}>
+                    <td className="py-2 px-4 border text-left">{item.serialNo}</td>
+                    <td className="py-2 px-4 border text-left">{item.itemName}</td>
+                    <td className="py-2 px-4 border text-left">{item.category}</td>
+                    <td className="py-2 px-4 border text-left">{dispatch.inLocation}</td>
+                    <td className="py-2 px-4 border text-left">{dispatch.outLocation}</td>
+                    <td className="py-2 px-4 border text-left">{new Date(dispatch.createdAt).toLocaleString()}</td>
+                    <td className={`py-2 px-4 border text-center ${getStatusStyle(dispatch.dispatchStatusOut)}`}>
+                      {dispatch.dispatchStatusOut}
+                    </td>
+                    {itemIndex === 0 && (
+                      <td className="py-2 px-4 border text-center" rowSpan={dispatch.items.length}>
+                        <button
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
+                          onClick={() => navigate(`/dispatch-view/${dispatch._id}`)}
+                        >
+                          View
+                        </button>
+                      </td>
+                    )}
+                  </tr> ))}
+              </React.Fragment>
             ))}
             {filterDispatches(processedDispatches).length === 0 && (
               <tr>
@@ -213,24 +269,30 @@ const Dispatch = () => {
               </tr>
             </thead>
             <tbody>
-              {filterDispatches(inLocationDispatches).map((item, index) => (
-                <tr key={index} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
-                  <td className="py-2 px-4 border text-left">{item.serialNo}</td>
-                  <td className="py-2 px-4 border text-left">{item.itemName}</td>
-                  <td className="py-2 px-4 border text-left">{item.category}</td>
-                  <td className="py-2 px-4 border text-left">{item.inLocation}</td>
-                  <td className="py-2 px-4 border text-left">{item.outLocation}</td>
-                  <td className="py-2 px-4 border text-left">{new Date(item.createdAt).toLocaleString()}</td>
-                  <td className="py-2 px-4 border text-center">
-                    <button
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded mr-2"
-                      onClick={() => navigate(`/dispatch-view-In/${item._id}`)}
-                    >
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {filterDispatches(inLocationDispatches).map((dispatch, index) => (
+                  <React.Fragment key={index}>
+                    {dispatch.items.map((item, itemIndex) => (
+                      <tr key={itemIndex} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
+                        <td className="py-2 px-4 border text-left">{item.serialNo}</td>
+                        <td className="py-2 px-4 border text-left">{item.itemName}</td>
+                        <td className="py-2 px-4 border text-left">{item.category}</td>
+                        <td className="py-2 px-4 border text-left">{dispatch.inLocation}</td>
+                        <td className="py-2 px-4 border text-left">{dispatch.outLocation}</td>
+                        <td className="py-2 px-4 border text-left">{new Date(dispatch.createdAt).toLocaleString()}</td>
+                        {itemIndex === 0 && (
+                          <td className="py-2 px-4 border text-center" rowSpan={dispatch.items.length}>
+                            <button
+                              className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
+                              onClick={() => navigate(`/dispatch-view-In/${dispatch._id}`)}
+                            >
+                              View
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                ))}
               {filterDispatches(inLocationDispatches).length === 0 && (
                 <tr>
                   <td colSpan="7" className="text-center py-4 text-gray-500">
@@ -259,26 +321,31 @@ const Dispatch = () => {
             </tr>
           </thead>
           <tbody>
-            {filterDispatches(processedInLocation).map((item, index) => (
-              <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"}`}>
-                <td className="py-2 px-4 border text-left">{item.serialNo}</td>
-                <td className="py-2 px-4 border text-left">{item.itemName}</td>
-                <td className="py-2 px-4 border text-left">{item.category}</td>
-                <td className="py-2 px-4 border text-left">{item.inLocation}</td>
-                <td className="py-2 px-4 border text-left">{item.outLocation}</td>
-                <td className="py-2 px-4 border text-left">{new Date(item.createdAt).toLocaleString()}</td>
-                <td className={`py-2 px-4 border text-center ${getStatusStyle(item.dispatchStatusIn)}`}>
-                  {item.dispatchStatusIn}
-                </td>
-                <td className="py-2 px-4 border text-center">
-                  <button
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
-                    onClick={() => navigate(`/dispatch-view-In/${item._id}`)}
-                  >
-                    View
-                  </button>
-                </td>
-              </tr>
+            {filterDispatches(processedInLocation).map((dispatch, index) => (
+              <React.Fragment key={index}>
+                {dispatch.items.map((item, itemIndex) => (
+                  <tr key={itemIndex} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"}`}>
+                    <td className="py-2 px-4 border text-left">{item.serialNo}</td>
+                    <td className="py-2 px-4 border text-left">{item.itemName}</td>
+                    <td className="py-2 px-4 border text-left">{item.category}</td>
+                    <td className="py-2 px-4 border text-left">{dispatch.inLocation}</td>
+                    <td className="py-2 px-4 border text-left">{dispatch.outLocation}</td>
+                    <td className="py-2 px-4 border text-left">{new Date(dispatch.createdAt).toLocaleString()}</td>
+                    <td className={`py-2 px-4 border text-center ${getStatusStyle(dispatch.dispatchStatusOut)}`}>
+                      {dispatch.dispatchStatusOut}
+                    </td>
+                    {itemIndex === 0 && (
+                      <td className="py-2 px-4 border text-center" rowSpan={dispatch.items.length}>
+                        <button
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
+                          onClick={() => navigate(`/dispatch-view-In/${dispatch._id}`)}
+                        >
+                          View
+                        </button>
+                      </td>
+                    )}
+                  </tr> ))}
+              </React.Fragment>
             ))}
             {filterDispatches(processedInLocation).length === 0 && (
               <tr>

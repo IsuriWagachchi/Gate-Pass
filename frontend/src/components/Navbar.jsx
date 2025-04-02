@@ -1,21 +1,38 @@
 import React, { useState } from "react";
 import { Bell, User } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
-import logo from "/src/assets/SLTMobitel_logo.svg"; // Ensure correct path
-import PopupLogout from "../pages/PopupLogout"; // Import the PopupLogout component
+import logo from "/src/assets/SLTMobitel_logo.svg";
+import PopupLogout from "../pages/PopupLogout";
 
-const Navbar = ({ logout }) => {
+const Navbar = ({ logout, role }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [isLogoutPopupOpen, setLogoutPopupOpen] = useState(false); // State for the logout popup
+  const [isLogoutPopupOpen, setLogoutPopupOpen] = useState(false);
   const location = useLocation();
 
   const handleLogout = () => {
-    setLogoutPopupOpen(false); // Close the popup after logout
-    logout(); // Trigger the logout function passed as prop
+    setLogoutPopupOpen(false);
+    logout();
   };
 
   const handleCancelLogout = () => {
-    setLogoutPopupOpen(false); // Close the popup without logging out
+    setLogoutPopupOpen(false);
+  };
+
+  // Define navigation links based on roles
+  const getNavLinks = () => {
+    const baseLinks = [
+      { path: "/home", label: "Home", roles: ["user", "admin", "executive_officer", "duty_officer", "security_officer"] },
+      { path: "/new-request", label: "New Request", roles: ["user", "admin", "executive_officer", "duty_officer", "security_officer"] },
+      { path: "/my-request", label: "My Requests", roles: ["user", "admin", "executive_officer", "duty_officer", "security_officer"] },
+      { path: "/executive-approve", label: "Executive Approve", roles: ["admin", "executive_officer"] },
+      { path: "/verify", label: "Verify", roles: ["admin", "duty_officer"] },
+      { path: "/my-receipt", label: "My Receipt", roles: ["user", "admin", "security_officer"] },
+      { path: "/dispatch", label: "Dispatch", roles: ["admin", "security_officer"] },
+      { path: "/item-tracker", label: "Item Tracker", roles: ["admin", "security_officer"] },
+      { path: "/admin", label: "Admin", roles: ["admin"] }
+    ];
+
+    return baseLinks.filter(link => link.roles.includes(role));
   };
 
   return (
@@ -28,17 +45,7 @@ const Navbar = ({ logout }) => {
 
       {/* Navigation Links */}
       <ul className="flex ml-auto">
-        {[
-          { path: "/home", label: "Home" },
-          { path: "/new-request", label: "New Request" },
-          { path: "/my-request", label: "My Requests" },
-          { path: "/executive-approve", label: "Executive Approve" },
-          { path: "/verify", label: "Verify" },
-          { path: "/my-receipt", label: "My Receipt" },
-          { path: "/dispatch", label: "Dispatch" },
-          { path: "/item-tracker", label: "Item Tracker" },
-          { path: "/admin", label: "Admin" }
-        ].map(({ path, label }) => (
+        {getNavLinks().map(({ path, label }) => (
           <li key={path} className="h-full flex items-center">
             <NavLink
               to={path}
@@ -75,8 +82,6 @@ const Navbar = ({ logout }) => {
               <NavLink to="/profile" className="block px-4 py-2 hover:bg-gray-100 text-[#1B3D81]">
                 Profile
               </NavLink>
-
-              {/* Trigger the PopupLogout */}
               <button
                 className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-[#1B3D81]"
                 onClick={() => setLogoutPopupOpen(true)}

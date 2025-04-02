@@ -1,48 +1,44 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import laptopImage from "../assets/laptop.jpg";
 
 const DispatchView = () => {
   const [request, setRequest] = useState(null);
   const { id } = useParams();
-  const location = useLocation();
-  const [dispatchStatusOut, setStatusDispatchOut] = useState("");
+  const navigate = useNavigate();
+
+  // State for approval form
+  const [dispatchStatusOut, setDispatchStatusOut] = useState("");
   const [approverNameOut, setApproverNameOut] = useState("");
   const [serviceNoOut, setServiceNoOut] = useState("");
   const [commentOut, setCommentOut] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchRequestDetails();
   }, []);
-
-  useEffect(() => {
-    if (location.state && location.state.dispatchStatusOut) {
-      setStatusDispatchOut(location.state.dispatchStatusOut);
-    }
-  }, [location.state]);
 
   const fetchRequestDetails = async () => {
     try {
       const response = await axios.get(
         `http://localhost:5000/api/dispatch/getDispatchById/${id}`
       );
-      setRequest(response.data);
-      setStatusDispatchOut(response.data.dispatchStatusOut);
+
+      const requestData = response.data;
+      setRequest(requestData);
+      setDispatchStatusOut(requestData.dispatchStatusOut || "Pending");
     } catch (error) {
       console.error("Error fetching request details:", error);
     }
   };
 
-  const handleUpdateStatus = async (newDispatchStatus) => {
-    // Validation
+  const handleUpdateStatus = async (newStatus) => {
     if (!approverNameOut.trim() || !serviceNoOut.trim()) {
       alert("Name and Service Number are required!");
       return;
     }
-    if (newDispatchStatus === "Rejected" && !commentOut.trim()) {
-      alert("comment is required for rejection!");
+    if (newStatus === "Rejected" && !commentOut.trim()) {
+      alert("Comment is required for rejection!");
       return;
     }
 
@@ -50,19 +46,16 @@ const DispatchView = () => {
       await axios.put(
         `http://localhost:5000/api/dispatch/updateApprovalOut/${id}`,
         {
-          dispatchStatusOut: newDispatchStatus,
+          dispatchStatusOut: newStatus,
           approverNameOut,
           serviceNoOut,
-          commentOut: newDispatchStatus === "Rejected" ? commentOut : "",
+          commentOut,
         }
       );
-      setStatusDispatchOut(newDispatchStatus);
-      alert(`Request ${newDispatchStatus} successfully!`);
+      setDispatchStatusOut(newStatus);
+      alert(`Request ${newStatus} successfully!`);
     } catch (error) {
-      console.error(
-        `Error updating approval status to ${newDispatchStatus}:`,
-        error
-      );
+      console.error(`Error updating status:`, error);
     }
   };
 
@@ -100,33 +93,39 @@ const DispatchView = () => {
         <div className="p-3 rounded-lg shadow-md border border-gray-300">
           {/* Blue Header */}
           <div className="bg-[#2A6BAC] text-white px-4 py-2 rounded-t-md flex justify-between font-bold">
-            <span>Item Details</span>
+            <span>Dispatch Details</span>
             <span>Ref. No: {request._id}</span>
           </div>
 
-          {/* Item Details Box */}
+          {/* Dispatch Details Box */}
           <div className="p-3 bg-white rounded-b-md border border-gray-300">
             <div className="flex justify-between items-start space-x-4">
               {/* Left Section */}
               <div className="flex-1">
                 <p className="text-lg font-medium mb-1">
-                  Item Name:{" "}
-                  <span className="font-normal">{request.itemName}</span>
-                </p>
-                <p className="text-lg font-medium mb-1">Quantity: <span className="font-normal">{request.quantity}</span></p>
-                <p className="text-lg font-medium mb-1">
-                  Serial No:{" "}
-                  <span className="font-normal">{request.serialNo}</span>
+                  Sender Name:{" "}
+                  <span className="font-normal">{request.sender_name}</span>
                 </p>
                 <p className="text-lg font-medium mb-1">
-                  Returnable:{" "}
-                  <span className="font-normal">{request.returnable}</span>
+                  Designation:{" "}
+                  <span className="font-normal">{request.designation}</span>
                 </p>
-                <br />
+                <p className="text-lg font-medium mb-1">
+                  Contact Number:{" "}
+                  <span className="font-normal">{request.contact_number}</span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                  Out Location:{" "}
+                  <span className="font-normal">{request.outLocation}</span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                  In Location:{" "}
+                  <span className="font-normal">{request.inLocation}</span>
+                </p>
+                <br/>
 
                 {request.dispatchStatusOut !== "Pending" && (
                   <>
-                    <h4 className="text-lg font-semibold mb-2">Dispatch Out Location</h4>
                     <p className="text-lg font-medium mb-1">
                       Dispatch Out Location Status:{" "}
                       <span
@@ -151,6 +150,39 @@ const DispatchView = () => {
                     </p>
                   </>
                 )}
+
+                {/* Items List */}
+                {request.items && request.items.length > 0 && (
+                  <div className="mt-6">
+                    <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">
+                      Item Details
+                    </h4>
+                    <div className="space-y-3">
+                      {request.items.map((item, index) => (
+                        <div
+                          key={index}
+                          className="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition"
+                        >
+                          <p>
+                            <strong>Name:</strong> {item.itemName}
+                          </p>
+                          <p>
+                            <strong>Serial No:</strong> {item.serialNo}
+                          </p>
+                          <p>
+                            <strong>Category:</strong> {item.category}
+                          </p>
+                          <p>
+                            <strong>Quantity:</strong> {item.quantity}
+                          </p>
+                          <p>
+                            <strong>Returnable:</strong> {item.returnable}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Right Section (Image + Button) */}
@@ -168,6 +200,7 @@ const DispatchView = () => {
             </div>
           </div>
 
+          {/* Approval Section */}
           {dispatchStatusOut === "Pending" && (
             <>
               {/* Approver Name and Service Number */}
