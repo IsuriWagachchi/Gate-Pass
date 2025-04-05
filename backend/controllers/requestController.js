@@ -1,8 +1,5 @@
 import Request from '../models/requestModel.js';
 
-
-
-
 const createRequest = async (req, res) => {
   try {
     // Extract common fields
@@ -24,6 +21,19 @@ const createRequest = async (req, res) => {
       byHand,
       ...itemsData
     } = req.body;
+
+    // Validate byHand and vehicleNumber
+    if (byHand === "No" && !vehicleNumber?.trim()) {
+      return res.status(400).json({ 
+        message: "Vehicle number is required when not delivering by hand" 
+      });
+    }
+    
+    if (byHand === "Yes" && vehicleNumber?.trim()) {
+      return res.status(400).json({ 
+        message: "Vehicle number should be empty when delivering by hand" 
+      });
+    }
 
     // Process items array from form data
     const items = [];
@@ -73,7 +83,7 @@ const createRequest = async (req, res) => {
       receiverContact,
       receiverGroup,
       receiverServiceNumber,
-      vehicleNumber,
+      vehicleNumber: byHand === "Yes" ? "" : vehicleNumber, // Ensure empty if byHand
       byHand,
       status: 'Pending',
       verify: 'Pending',
@@ -88,7 +98,80 @@ const createRequest = async (req, res) => {
   }
 };
 
+// Update request with validation for byHand and vehicleNumber
+const updateRequest = async (req, res) => {
+  const { id } = req.params;
+  const { 
+    itemName, 
+    serialNo, 
+    category, 
+    description, 
+    returnable, 
+    outLocation, 
+    inLocation, 
+    executiveOfficer,
+    vehicleNumber,
+    byHand,
+    receiverName,
+    receiverContact,
+    receiverGroup,
+    receiverServiceNumber, 
+    status,
+    quantity 
+  } = req.body;
 
+  try {
+    // Validate byHand and vehicleNumber
+    if (byHand === "No" && !vehicleNumber?.trim()) {
+      return res.status(400).json({ 
+        message: "Vehicle number is required when not delivering by hand" 
+      });
+    }
+    
+    if (byHand === "Yes" && vehicleNumber?.trim()) {
+      return res.status(400).json({ 
+        message: "Vehicle number should be empty when delivering by hand" 
+      });
+    }
+
+    const updateData = {
+      itemName, 
+      serialNo, 
+      category, 
+      description, 
+      returnable, 
+      outLocation, 
+      inLocation, 
+      executiveOfficer,
+      vehicleNumber: byHand === "Yes" ? "" : vehicleNumber, // Ensure empty if byHand
+      byHand,
+      receiverName,
+      receiverContact,
+      receiverGroup,
+      receiverServiceNumber,
+      status,
+      quantity
+    };
+
+    // Handle image upload if available
+    if (req.file) {
+      updateData.image = req.file.path;
+    }
+
+    const updatedRequest = await Request.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true }
+    );
+
+    if (!updatedRequest) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+    res.status(200).json(updatedRequest);
+  } catch (err) {
+    res.status(500).json({ message: 'Error updating request', error: err });
+  }
+};
 
 // Get all requests
 const getRequests = async (req, res) => {
@@ -112,42 +195,6 @@ const getRequestById = async (req, res) => {
     res.status(200).json(request);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching request', error: err });
-  }
-};
-
-// Update request with new fields and image
-const updateRequest = async (req, res) => {
-  const { id } = req.params;
-  const { itemName, serialNo, category, description, returnable, outLocation, inLocation, executiveOfficer,vehicleNumber,byHand,receiverName,receiverContact,receiverGroup,receiverServiceNumber, status,quantity } = req.body;
-  const image = req.file ? req.file.path : null;
-
-  try {
-      const updatedRequest = await Request.findByIdAndUpdate(
-          id,
-          { 
-            itemName, 
-            serialNo, 
-            category, 
-            description, 
-            returnable, 
-            outLocation, 
-            inLocation, 
-            executiveOfficer,vehicleNumber,byHand,
-             receiverName
-            ,receiverContact,
-            receiverGroup,
-            receiverServiceNumber,
-            status, // Added status field here
-            ...(image && { image }) // Handle image upload if available
-          },
-          { new: true }
-      );
-      if (!updatedRequest) {
-          return res.status(404).json({ message: 'Request not found' });
-      }
-      res.status(200).json(updatedRequest);
-  } catch (err) {
-      res.status(500).json({ message: 'Error updating request', error: err });
   }
 };
 
