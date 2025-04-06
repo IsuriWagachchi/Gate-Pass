@@ -1,4 +1,4 @@
-export function getRejectionEmailHTML({ senderName, itemDetails, comment }) {
+export function getRejectionEmailHTMLOut({ senderName, itemDetails, comment }) {
   const itemsList = itemDetails
     .map(
       (item) =>
@@ -16,7 +16,8 @@ export function getRejectionEmailHTML({ senderName, itemDetails, comment }) {
 
       <p style="color: #333; font-size: 15px;">
         We regret to inform you that your request for the following item(s) has been 
-        <strong style='color: #e57373; font-size: 15px;'>rejected</strong> during the dispatch approval process:
+        <strong style='color: #e57373; font-size: 15px;'>rejected</strong> during the dispatch approval process 
+        at the out location.
       </p>
 
       <ul style="padding-left: 20px; color: #333; font-size: 15px;">
@@ -27,14 +28,21 @@ export function getRejectionEmailHTML({ senderName, itemDetails, comment }) {
 
       
       <p style="color: #333; font-size: 15px; margin-top: 20px;">
-        For more information, kindly reach out to the designated officer.
+        If you require further assistance, kindly reach out to the designated officer for more details.
       </p>
 
-      <p style="color: #333; font-size: 15px; margin-top: 10px;">
-        Regards,<br>Dispatch Team
+      <p style="color: #333; font-size: 15px; margin-top: 10px; font-weight: bold;">
+          Best regards,<br><span style="display:none;">.</span> Dispatch Team
       </p>
+
+      <hr style="border: 1px solid #e57373; margin-top: 30px;"/>
+
+      <p style="color: #777; font-size: 13px; text-align: center; margin-top: 20px;">
+        This is an auto-generated email. Please do not reply to this message.
+      </p>
+      
     </div>
   `;
 }
 
-export default getRejectionEmailHTML;
+export default getRejectionEmailHTMLOut;
