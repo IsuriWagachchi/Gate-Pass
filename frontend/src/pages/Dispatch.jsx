@@ -331,8 +331,8 @@ const Dispatch = () => {
                     <td className="py-2 px-4 border text-left">{dispatch.inLocation}</td>
                     <td className="py-2 px-4 border text-left">{dispatch.outLocation}</td>
                     <td className="py-2 px-4 border text-left">{new Date(dispatch.createdAt).toLocaleString()}</td>
-                    <td className={`py-2 px-4 border text-center ${getStatusStyle(dispatch.dispatchStatusOut)}`}>
-                      {dispatch.dispatchStatusOut}
+                    <td className={`py-2 px-4 border text-center ${getStatusStyle(dispatch.dispatchStatusIn)}`}>
+                      {dispatch.dispatchStatusIn}
                     </td>
                     {itemIndex === 0 && (
                       <td className="py-2 px-4 border text-center" rowSpan={dispatch.items.length}>
