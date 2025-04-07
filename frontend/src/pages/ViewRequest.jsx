@@ -75,8 +75,8 @@ const ViewRequest = () => {
       success: [0, 128, 0],
       danger: [255, 0, 0],
       warning: [255, 165, 0],
-      darkBlue: [0, 0, 139],
-      darkGreen: [0, 100, 0],
+      darkBlue: [27, 61, 129],
+      darkGreen: [22, 163, 74],
       gray: [209, 213, 219],
       white: [255, 255, 255]
     };
