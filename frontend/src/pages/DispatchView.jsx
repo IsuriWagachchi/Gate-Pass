@@ -378,19 +378,31 @@ const DispatchView = () => {
           <div className="p-3 bg-white rounded-b-md border border-gray-300">
             <div className="flex justify-between items-start space-x-4">
               {/* Left Section */}
+              
               <div className="flex-1">
+              <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">
+                     Sender Details
+                    </h4>
                 <p className="text-lg font-medium mb-1">
-                  Sender Name:{" "}
+                   Name:{" "}
                   <span className="font-normal">{request.sender_name}</span>
                 </p>
                 <p className="text-lg font-medium mb-1">
-                  Designation:{" "}
+                   Designation:{" "}
                   <span className="font-normal">{request.designation}</span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                 Service Number:{" "}
+                  <span className="font-normal">{request.service_no}</span>
                 </p>
                 <p className="text-lg font-medium mb-1">
                   Contact Number:{" "}
                   <span className="font-normal">{request.contact_number}</span>
                 </p>
+                <br></br>
+                <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">
+                      Request Details
+                    </h4>
                 <p className="text-lg font-medium mb-1">
                   Out Location:{" "}
                   <span className="font-normal">{request.outLocation}</span>
@@ -399,7 +411,12 @@ const DispatchView = () => {
                   In Location:{" "}
                   <span className="font-normal">{request.inLocation}</span>
                 </p>
-                <br/>
+                <p className="text-lg font-medium mb-1">
+                  Approved By:{" "}
+                  <span className="font-normal">{request.executiveOfficer}</span>
+                </p>
+                
+               
 
                 {request.dispatchStatusOut !== "Pending" && (
                   <>
@@ -455,11 +472,36 @@ const DispatchView = () => {
                           <p>
                             <strong>Returnable:</strong> {item.returnable}
                           </p>
+                          <p>
+                            <strong>By Hand:</strong> {request.byHand}
+                          </p>
+                          <p>
+                            <strong>Vehicle Number:</strong> {request.vehicleNumber || "N/A"}
+                          </p>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
+
+                <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">Receiver Details</h4>
+                    <p className="text-lg font-medium mb-1">
+                   Name:{" "}
+                  <span className="font-normal">{request.receiverName ? request.receiverName[0].toUpperCase() + request.receiverName.slice(1) : 'N/A'}</span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                   Contact Number:{" "}
+                  <span className="font-normal">{request.receiverContact ? request.receiverContact : 'N/A'}</span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                   Service Number:{" "}
+                  <span className="font-normal">{request.receiverServiceNumber ? request.receiverServiceNumber : 'N/A'}</span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                  Receiver Group:{" "}
+                  <span className="font-normal">{request.receiverGroup ? request.receiverGroup : 'N/A'}</span>
+                </p>
+                
               </div>
 
               {/* Right Section (Image + Button) */}

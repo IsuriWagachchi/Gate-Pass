@@ -58,6 +58,7 @@ const VerifyView = () => {
             {/* <p className="font-medium">Section: <span className="font-normal">{request.section}</span></p> */}
             <p className="font-medium">From Location: <span className="font-normal">{request.outLocation}</span></p>
             <p className="font-medium">To Location: <span className="font-normal">{request.inLocation}</span></p>
+            <p className="font-medium">Approved By: <span className="font-normal">{request.executiveOfficer}</span></p>
           </div>
         </div>
 
@@ -81,6 +82,12 @@ const VerifyView = () => {
                     <p className="text-lg font-medium mb-1">Category: <span className="font-normal">{item.category}</span></p>
                     <p className="text-lg font-medium mb-1">Quantity: <span className="font-normal">{item.quantity}</span></p>
                     <p className="text-lg font-medium mb-1">Description: <span className="font-normal">{item.description}</span></p>
+                    <p className="text-lg font-medium mb-1">By Hand: <span className="font-normal">{request.byHand}</span></p>
+                    <p className="text-lg font-medium mb-1">
+                      Vehicle Number: <span className="font-normal">
+                        {request.vehicleNumber ? request.vehicleNumber : "N/A"}
+                      </span>
+                    </p>
                     <p className="text-lg font-medium">Returnable: <span className="font-normal">{item.returnable}</span></p>
                   </div>
 
@@ -101,6 +108,22 @@ const VerifyView = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Receiver details */}
+        <div className="mb-6 p-3 rounded-lg shadow-md border border-gray-300">
+          <div className="bg-green-600 text-white px-4 py-2 rounded-t-md font-bold">
+            Receiver Details
+          </div>
+          <div className="p-3 bg-white rounded-b-md border border-gray-300 grid grid-cols-2 gap-2">
+            <p className="font-medium">Receiver Name: <span className="font-normal">{request.receiverName ? request.receiverName[0].toUpperCase() + request.receiverName.slice(1) : 'N/A'}
+            </span></p>
+            <p className="font-medium">Receiver Contact: <span className="font-normal">{request.receiverContact ? request.receiverContact: "N/A"}</span></p>
+            <p className="font-medium">Receiver Group: <span className="font-normal">{request.receiverGroup ? request.receiverGroup : "N/A"}</span></p>
+
+            <p className="font-medium">Service No: <span className="font-normal">{request.receiverServiceNumber ? request.receiverServiceNumber : "N/A"}</span></p>
+        
+          </div>
         </div>
 
         {/* Action Buttons */}

@@ -83,6 +83,9 @@ const App = () => {
           <Route path="/profile" element={<ProtectedRoute Component={ProfileCard} allowedRoles={["user", "admin","executive_officer","duty_officer","security_officer"]} />} />
           <Route path="/dispatch-view-In/:id" element={<ProtectedRoute Component={DispatchViewIn} allowedRoles={["admin","security_officer"]} />} />
 
+          // In your router configuration
+<Route path="/dispatch-view/:id" element={<DispatchView />} />
+<Route path="/dispatch-view-In/:id" element={<DispatchView isInLocation={true} />} />
 
 
 
