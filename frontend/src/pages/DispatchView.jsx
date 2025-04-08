@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import laptopImage from "../assets/laptop.jpg";
-import { jsPDF } from "jspdf"; // Add this import
+import { jsPDF } from "jspdf";
 
 const DispatchView = () => {
   const [request, setRequest] = useState(null);
@@ -32,7 +32,6 @@ const DispatchView = () => {
     }
   };
 
-  // Add this PDF download function
   const downloadPdf = () => {
     if (!request) return;
   
@@ -55,7 +54,7 @@ const DispatchView = () => {
       darkBlue: [27, 61, 129],
       darkGreen: [22, 163, 74],
       gray: [209, 213, 219],
-      white: [255, 255, 255]
+      white: [255, 255, 255],
     };
   
     // Draw rounded box with fill and border
@@ -70,11 +69,10 @@ const DispatchView = () => {
     const createBoxContainer = (title, content, yPos, titleColor = colors.darkBlue) => {
       let contentHeight = textPadding;
       content.forEach(item => {
-        const text = `${item.label}: ${item.value}`;
-        contentHeight += Math.max(
-          doc.splitTextToSize(text, boxWidth - textPadding * 2).length * 5.5,
-          12
-        );
+        const labelWidth = doc.getTextWidth(`${item.label}: `) + LABEL_VALUE_GAP;
+        const availableWidth = boxWidth - textPadding * 2 - labelWidth;
+        const valueLines = doc.splitTextToSize(item.value, availableWidth);
+        contentHeight += Math.max(valueLines.length * 5.5, 12);
       });
   
       const boxHeight = 15 + contentHeight + (textPadding / 2);
@@ -244,6 +242,7 @@ const DispatchView = () => {
       [
         { label: "Name", value: request.sender_name || "N/A" },
         { label: "Designation", value: request.designation || "N/A" },
+        { label: "Service Number", value: request.service_no || "N/A" },
         { label: "Contact Number", value: request.contact_number || "N/A" }
       ],
       yPosition
@@ -255,8 +254,8 @@ const DispatchView = () => {
       [
         { label: "Out Location", value: request.outLocation || "N/A" },
         { label: "In Location", value: request.inLocation || "N/A" },
-        ...(request.vehicleNumber ? [{ label: "Vehicle Number", value: request.vehicleNumber }] : []),
-        { label: "By Hand", value: request.byHand || "No" }
+        { label: "By Hand", value: request.byHand || "No" },
+        ...(request.vehicleNumber ? [{ label: "Vehicle Number", value: request.vehicleNumber }] : [])
       ],
       yPosition,
       colors.darkGreen
@@ -277,6 +276,19 @@ const DispatchView = () => {
       );
     }
   
+    // Executive Officer Approval
+    if (request.executiveOfficer) {
+      yPosition = createBoxContainer(
+        "Approval Information",
+        [
+          { label: "Approved By", value: request.executiveOfficer || "N/A" },
+          { label: "Date", value: new Date(request.createdAt).toLocaleString() || "N/A" }
+        ],
+        yPosition,
+        colors.darkBlue
+      );
+    }
+  
     // Items List
     if (request.items && request.items.length > 0) {
       doc.setFontSize(12);
@@ -287,6 +299,20 @@ const DispatchView = () => {
       request.items.forEach((item, index) => {
         yPosition = createItemBox(item, index, yPosition);
       });
+    }
+  
+    // Receiver Details
+    if (request.receiverName || request.receiverContact || request.receiverServiceNumber || request.receiverGroup) {
+      yPosition = createBoxContainer(
+        "Receiver Details",
+        [
+          { label: "Name", value: request.receiverName || "N/A" },
+          { label: "Contact Number", value: request.receiverContact || "N/A" },
+          { label: "Service Number", value: request.receiverServiceNumber || "N/A" },
+          { label: "Group", value: request.receiverGroup || "N/A" }
+        ],
+        yPosition,
+        colors.darkBlue      );
     }
   
     // Page numbers
@@ -323,6 +349,7 @@ const DispatchView = () => {
       );
       setDispatchStatusOut(newStatus);
       alert(`Request ${newStatus} successfully!`);
+      fetchRequestDetails(); // Refresh the data
     } catch (error) {
       console.error(`Error updating status:`, error);
     }
@@ -333,7 +360,7 @@ const DispatchView = () => {
   return (
     <div className="container mx-auto p-6 font-sans flex justify-center">
       <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg w-full max-w-3xl mt-6">
-        {/* Header - Added PDF button here */}
+        {/* Header */}
         <div className="flex justify-between items-center mb-4 text-blue-700 font-bold text-lg">
           <h2>
             Dispatch Out Location Details ➝{" "}
@@ -350,12 +377,14 @@ const DispatchView = () => {
             </span>
           </h2>
           <div className="flex items-center gap-4">
-            <button 
-              onClick={downloadPdf}
-              className="bg-[#2A6BAC] text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-            >
-              Download PDF
-            </button>
+            {request.dispatchStatusOut && request.dispatchStatusOut !== "Pending" && (
+              <button 
+                onClick={downloadPdf}
+                className="bg-[#2A6BAC] text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+              >
+                Download PDF
+              </button>
+            )}
             <button
               onClick={() => navigate(-1)}
               className="text-blue-500 hover:underline"
@@ -365,7 +394,6 @@ const DispatchView = () => {
           </div>
         </div>
 
-        {/* The rest of your component remains EXACTLY the same */}
         {/* Request Details Section */}
         <div className="p-3 rounded-lg shadow-md border border-gray-300">
           {/* Blue Header */}
@@ -378,21 +406,20 @@ const DispatchView = () => {
           <div className="p-3 bg-white rounded-b-md border border-gray-300">
             <div className="flex justify-between items-start space-x-4">
               {/* Left Section */}
-              
               <div className="flex-1">
-              <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">
-                     Sender Details
-                    </h4>
+                <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">
+                  Sender Details
+                </h4>
                 <p className="text-lg font-medium mb-1">
-                   Name:{" "}
+                  Name:{" "}
                   <span className="font-normal">{request.sender_name}</span>
                 </p>
                 <p className="text-lg font-medium mb-1">
-                   Designation:{" "}
+                  Designation:{" "}
                   <span className="font-normal">{request.designation}</span>
                 </p>
                 <p className="text-lg font-medium mb-1">
-                 Service Number:{" "}
+                  Service Number:{" "}
                   <span className="font-normal">{request.service_no}</span>
                 </p>
                 <p className="text-lg font-medium mb-1">
@@ -401,8 +428,8 @@ const DispatchView = () => {
                 </p>
                 <br></br>
                 <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">
-                      Request Details
-                    </h4>
+                  Request Details
+                </h4>
                 <p className="text-lg font-medium mb-1">
                   Out Location:{" "}
                   <span className="font-normal">{request.outLocation}</span>
@@ -415,8 +442,16 @@ const DispatchView = () => {
                   Approved By:{" "}
                   <span className="font-normal">{request.executiveOfficer}</span>
                 </p>
-                
-               
+                <p className="text-lg font-medium mb-1">
+                  By Hand:{" "}
+                  <span className="font-normal">{request.byHand || "No"}</span>
+                </p>
+                {request.vehicleNumber && (
+                  <p className="text-lg font-medium mb-1">
+                    Vehicle Number:{" "}
+                    <span className="font-normal">{request.vehicleNumber}</span>
+                  </p>
+                )}
 
                 {request.dispatchStatusOut !== "Pending" && (
                   <>
@@ -442,6 +477,12 @@ const DispatchView = () => {
                       Service No:{" "}
                       <span className="font-normal">{request.serviceNoOut}</span>
                     </p>
+                    {request.commentOut && (
+                      <p className="text-lg font-medium mb-1">
+                        Comment:{" "}
+                        <span className="font-normal">{request.commentOut}</span>
+                      </p>
+                    )}
                   </>
                 )}
 
@@ -473,10 +514,7 @@ const DispatchView = () => {
                             <strong>Returnable:</strong> {item.returnable}
                           </p>
                           <p>
-                            <strong>By Hand:</strong> {request.byHand}
-                          </p>
-                          <p>
-                            <strong>Vehicle Number:</strong> {request.vehicleNumber || "N/A"}
+                            <strong>Description:</strong> {item.description || "N/A"}
                           </p>
                         </div>
                       ))}
@@ -484,24 +522,33 @@ const DispatchView = () => {
                   </div>
                 )}
 
-                <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">Receiver Details</h4>
-                    <p className="text-lg font-medium mb-1">
-                   Name:{" "}
-                  <span className="font-normal">{request.receiverName ? request.receiverName[0].toUpperCase() + request.receiverName.slice(1) : 'N/A'}</span>
+                <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">
+                  Receiver Details
+                </h4>
+                <p className="text-lg font-medium mb-1">
+                  Name:{" "}
+                  <span className="font-normal">
+                    {request.receiverName ? request.receiverName[0].toUpperCase() + request.receiverName.slice(1) : 'N/A'}
+                  </span>
                 </p>
                 <p className="text-lg font-medium mb-1">
-                   Contact Number:{" "}
-                  <span className="font-normal">{request.receiverContact ? request.receiverContact : 'N/A'}</span>
+                  Contact Number:{" "}
+                  <span className="font-normal">
+                    {request.receiverContact ? request.receiverContact : 'N/A'}
+                  </span>
                 </p>
                 <p className="text-lg font-medium mb-1">
-                   Service Number:{" "}
-                  <span className="font-normal">{request.receiverServiceNumber ? request.receiverServiceNumber : 'N/A'}</span>
+                  Service Number:{" "}
+                  <span className="font-normal">
+                    {request.receiverServiceNumber ? request.receiverServiceNumber : 'N/A'}
+                  </span>
                 </p>
                 <p className="text-lg font-medium mb-1">
                   Receiver Group:{" "}
-                  <span className="font-normal">{request.receiverGroup ? request.receiverGroup : 'N/A'}</span>
+                  <span className="font-normal">
+                    {request.receiverGroup ? request.receiverGroup : 'N/A'}
+                  </span>
                 </p>
-                
               </div>
 
               {/* Right Section (Image + Button) */}
@@ -531,6 +578,7 @@ const DispatchView = () => {
                 onChange={(e) => setApproverNameOut(e.target.value)}
                 className="w-full border border-gray-300 p-2 rounded"
                 placeholder="Enter Name"
+                required
               />
 
               <label className="block font-bold mb-2 text-blue-700 mt-3">
@@ -542,6 +590,7 @@ const DispatchView = () => {
                 onChange={(e) => setServiceNoOut(e.target.value)}
                 className="w-full border border-gray-300 p-2 rounded"
                 placeholder="Enter Service Number"
+                required
               />
 
               {/* Comment (Required for Rejection) */}

@@ -162,12 +162,14 @@ const DispatchViewIn = () => {
       
       const leftColumn = [
         { label: "Serial No", value: item.serialNo || 'N/A' },
-        { label: "Category", value: item.category || 'N/A' }
+        { label: "Category", value: item.category || 'N/A' },
+        { label: "Condition", value: item.condition || 'N/A' }
       ];
       
       const rightColumn = [
         { label: "Quantity", value: item.quantity || '1' },
-        { label: "Returnable", value: item.returnable === 'yes' ? 'Yes' : 'No' }
+        { label: "Returnable", value: item.returnable === 'yes' ? 'Yes' : 'No' },
+        { label: "Remarks", value: item.remarks || 'N/A' }
       ];
       
       let currentY = yPos + 25;
@@ -241,7 +243,9 @@ const DispatchViewIn = () => {
       [
         { label: "Name", value: request.sender_name || "N/A" },
         { label: "Designation", value: request.designation || "N/A" },
-        { label: "Contact Number", value: request.contact_number || "N/A" }
+        { label: "Contact Number", value: request.contact_number || "N/A" },
+        { label: "Email", value: request.email || "N/A" },
+        { label: "Department", value: request.department || "N/A" }
       ],
       yPosition
     );
@@ -253,7 +257,9 @@ const DispatchViewIn = () => {
         { label: "Out Location", value: request.outLocation || "N/A" },
         { label: "In Location", value: request.inLocation || "N/A" },
         ...(request.vehicleNumber ? [{ label: "Vehicle Number", value: request.vehicleNumber }] : []),
-        { label: "By Hand", value: request.byHand || "No" }
+        { label: "By Hand", value: request.byHand || "No" },
+        { label: "Purpose", value: request.purpose || "N/A" },
+        { label: "Expected Return Date", value: request.expectedReturnDate || "N/A" }
       ],
       yPosition,
       colors.darkGreen
@@ -267,6 +273,7 @@ const DispatchViewIn = () => {
           { label: "Status", value: request.dispatchStatusIn },
           { label: "Approver Name", value: request.approverNameIn || "N/A" },
           { label: "Service Number", value: request.serviceNoIn || "N/A" },
+          { label: "Approval Date", value: new Date(request.updatedAt).toLocaleString() },
           ...(request.commentIn ? [{ label: "Comment", value: request.commentIn }] : [])
         ],
         yPosition,
@@ -285,6 +292,18 @@ const DispatchViewIn = () => {
         yPosition = createItemBox(item, index, yPosition);
       });
     }
+  
+    // Additional Information
+    yPosition = createBoxContainer(
+      "Additional Information",
+      [
+        { label: "Created At", value: new Date(request.createdAt).toLocaleString() },
+        { label: "Last Updated", value: new Date(request.updatedAt).toLocaleString() },
+        ...(request.notes ? [{ label: "Notes", value: request.notes }] : [])
+      ],
+      yPosition,
+      colors.darkBlue
+    );
   
     // Page numbers
     for (let i = 1; i <= pageCount; i++) {
@@ -351,12 +370,14 @@ const DispatchViewIn = () => {
             </span>
           </h2>
           <div className="flex items-center gap-4">
-            <button 
-              onClick={downloadPdf}
-              className="bg-[#2A6BAC] text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-            >
-              Download PDF
-            </button>
+            {dispatchStatusIn !== "Pending" && (
+              <button 
+                onClick={downloadPdf}
+                className="bg-[#2A6BAC] text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+              >
+                Download PDF
+              </button>
+            )}
             <button
               onClick={() => navigate(-1)}
               className="text-blue-500 hover:underline"
@@ -456,6 +477,16 @@ const DispatchViewIn = () => {
                           <p>
                             <strong>Returnable:</strong> {item.returnable}
                           </p>
+                          {item.condition && (
+                            <p>
+                              <strong>Condition:</strong> {item.condition}
+                            </p>
+                          )}
+                          {item.remarks && (
+                            <p>
+                              <strong>Remarks:</strong> {item.remarks}
+                            </p>
+                          )}
                         </div>
                       ))}
                     </div>
