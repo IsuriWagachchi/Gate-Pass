@@ -20,7 +20,7 @@ const MyRequest = () => {
   };
 
   const formatReferenceNumber = (id, createdAt) => {
-    if (!id || !createdAt) return 'REQ-XXXXXX-XXXX';
+    if (!id || !createdAt) return 'XXXXXX-XXXX';
     
     const date = new Date(createdAt);
     const dateStr = [
@@ -31,7 +31,7 @@ const MyRequest = () => {
     
     const uniquePart = id.slice(-4).toUpperCase();
     
-    return `REQ-${dateStr}-${uniquePart}`;
+    return `${dateStr}-${uniquePart}`;
   };
 
   return (
