@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import SenderDetails from "./SenderDetails";
 
 const NewRequest = () => {
+  // State declarations
   const [senderDetails, setSenderDetails] = useState({
     sender_name: "",  
     designation: "",
@@ -13,17 +14,15 @@ const NewRequest = () => {
     contact_number: "",
   });
 
-  const [items, setItems] = useState([
-    {
-      itemName: "",
-      serialNo: "",
-      category: "",
-      description: "",
-      returnable: "",
-      image: null,
-      quantity: ""
-    }
-  ]);
+  const [items, setItems] = useState([{
+    itemName: "",
+    serialNo: "",
+    category: "",
+    description: "",
+    returnable: "",
+    image: null,
+    quantity: ""
+  }]);
 
   const [commonData, setCommonData] = useState({
     inLocation: "",
@@ -39,56 +38,11 @@ const NewRequest = () => {
   });
 
   const [error, setError] = useState("");
+  const [csvFileName, setCsvFileName] = useState("");
+  const [isCSVUploaded, setIsCSVUploaded] = useState(false);
   const navigate = useNavigate();
 
-  const handleCommonChange = (e) => {
-    const { name, value } = e.target;
-    setCommonData({
-      ...commonData,
-      [name]: value
-    });
-  };
-
-  const handleItemChange = (index, e) => {
-    const { name, value } = e.target;
-    const newItems = [...items];
-    newItems[index] = {
-      ...newItems[index],
-      [name]: value
-    };
-    setItems(newItems);
-  };
-
-  const handleItemImageChange = (index, e) => {
-    const newItems = [...items];
-    newItems[index] = {
-      ...newItems[index],
-      image: e.target.files[0]
-    };
-    setItems(newItems);
-  };
-
-  const addItem = () => {
-    setItems([
-      ...items,
-      {
-        itemName: "",
-        serialNo: "",
-        category: "",
-        description: "",
-        returnable: "",
-        image: null,
-        quantity: ""
-      }
-    ]);
-  };
-
-  const removeItem = (index) => {
-    const newItems = [...items];
-    newItems.splice(index, 1);
-    setItems(newItems);
-  };
-
+  // Form submission handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -106,10 +60,12 @@ const NewRequest = () => {
     try {
       const formDataToSend = new FormData();
 
+      // Add sender details
       Object.keys(senderDetails).forEach(key => {
         formDataToSend.append(key, senderDetails[key]);
       });
 
+      // Add common data
       Object.keys(commonData).forEach(key => {
         if (!commonData.receiverAvailable && 
             ['receiverName', 'receiverContact', 'receiverGroup', 'receiverServiceNumber'].includes(key)) {
@@ -118,6 +74,7 @@ const NewRequest = () => {
         formDataToSend.append(key, commonData[key]);
       });
 
+      // Add items with their images
       items.forEach((item, index) => {
         Object.keys(item).forEach(key => {
           if (key !== 'image' && item[key] !== null) {
@@ -139,17 +96,178 @@ const NewRequest = () => {
     }
   };
 
+  // Common form field handler
+  const handleCommonChange = (e) => {
+    const { name, value } = e.target;
+    setCommonData({
+      ...commonData,
+      [name]: value
+    });
+  };
+
+  // Item field handlers
+  const handleItemChange = (index, e) => {
+    const { name, value } = e.target;
+    const newItems = [...items];
+    newItems[index] = {
+      ...newItems[index],
+      [name]: value
+    };
+    setItems(newItems);
+  };
+
+  const handleItemImageChange = (index, e) => {
+    const newItems = [...items];
+    newItems[index] = {
+      ...newItems[index],
+      image: e.target.files[0]
+    };
+    setItems(newItems);
+  };
+
+  // Item management
+  const addItem = () => {
+    setItems([
+      ...items,
+      {
+        itemName: "",
+        serialNo: "",
+        category: "",
+        description: "",
+        returnable: "",
+        image: null,
+        quantity: ""
+      }
+    ]);
+  };
+
+  const removeItem = (index) => {
+    const newItems = [...items];
+    newItems.splice(index, 1);
+    setItems(newItems);
+  };
+
+  // CSV import handler
+  const handleCSVImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setCsvFileName(file.name);
+    setError("");
+    setIsCSVUploaded(false);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const csvData = event.target.result;
+        const lines = csvData.split('\n').filter(line => line.trim() !== '');
+        
+        if (lines.length < 2) {
+          setError("CSV file is empty or has no data rows");
+          return;
+        }
+
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+        const newItems = [];
+
+        for (let i = 1; i < lines.length; i++) {
+          const currentLine = lines[i].split(',');
+          const item = {};
+
+          headers.forEach((header, index) => {
+            const value = currentLine[index] ? currentLine[index].trim() : '';
+            
+            switch(header) {
+              case 'itemname':
+              case 'item name':
+                item.itemName = value;
+                break;
+              case 'serialno':
+              case 'serial no':
+                item.serialNo = value;
+                break;
+              case 'category':
+                item.category = value;
+                break;
+              case 'quantity':
+                item.quantity = isNaN(parseInt(value)) ? 1 : parseInt(value);
+                break;
+              case 'description':
+                item.description = value;
+                break;
+              case 'returnable':
+                item.returnable = value.toLowerCase() === 'yes' ? 'yes' : 'no';
+                break;
+            }
+          });
+
+          if (!item.itemName) continue;
+          newItems.push({
+            itemName: item.itemName || '',
+            serialNo: item.serialNo || '',
+            category: item.category || '',
+            description: item.description || '',
+            returnable: item.returnable || 'no',
+            quantity: item.quantity || 1,
+            image: null
+          });
+        }
+
+        if (newItems.length > 0) {
+          setItems(newItems);
+          setIsCSVUploaded(true);
+        } else {
+          setError("No valid items found in CSV");
+        }
+      } catch (err) {
+        setError("Error processing CSV file. Please check the format.");
+        console.error("CSV processing error:", err);
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div className="min-h-screen py-8">
       <div className="container mx-auto p-4">
         {error && <p className="text-red-500 mb-4">{error}</p>}
+        {isCSVUploaded && (
+          <div className="mb-4 p-3 bg-blue-100 text-blue-800 rounded-md">
+            CSV items loaded successfully. Please review and complete all required fields.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto bg-white border-2 border-blue-200 p-6 rounded-lg">
-        
+          {/* Sender Details Section */}
           <SenderDetails 
             onSenderDetailsChange={(details) => setSenderDetails(details)}
           />
           
+          {/* CSV Import Section */}
+          <div className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
+            <h3 className="text-xl font-semibold mb-4">Import Items from CSV (Optional)</h3>
+            <div className="flex items-center space-x-4">
+              <input
+                type="file"
+                id="csvImport"
+                accept=".csv"
+                onChange={handleCSVImport}
+                className="hidden"
+              />
+              <label
+                htmlFor="csvImport"
+                className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 cursor-pointer"
+              >
+                Choose CSV File
+              </label>
+              <span className="text-gray-700">{csvFileName || 'No file chosen'}</span>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              CSV should contain: itemName, serialNo, category, quantity, description, returnable
+            </p>
+          </div>
+
+          {/* Items List */}
           {items.map((item, index) => (
             <div key={index} className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
               <div className="flex justify-between items-center mb-4">
@@ -223,6 +341,7 @@ const NewRequest = () => {
                     onChange={(e) => handleItemChange(index, e)}
                     className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                     required
+                    min="1"
                   />
                 </div>
 
@@ -270,7 +389,7 @@ const NewRequest = () => {
 
                 <div>
                   <label htmlFor={`image-${index}`} className="block text-sm font-medium text-gray-700">
-                    Upload Image
+                    Upload Image (Optional)
                   </label>
                   <input
                     type="file"
@@ -293,6 +412,7 @@ const NewRequest = () => {
             Add Another Item
           </button>
 
+          {/* Request Details Section */}
           <div className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
             <h3 className="text-xl font-semibold mb-4">Request Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -390,6 +510,7 @@ const NewRequest = () => {
             </div>
           </div>
 
+          {/* Receiver Available Section */}
           <div className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
             <div className="flex items-center mb-4">
               <input
