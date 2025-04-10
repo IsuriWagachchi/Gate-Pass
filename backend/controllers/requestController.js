@@ -121,7 +121,7 @@ const updateRequest = async (req, res) => {
   } = req.body;
 
   try {
-    // Validate byHand and vehicleNumber
+    
     if (byHand === "No" && !vehicleNumber?.trim()) {
       return res.status(400).json({ 
         message: "Vehicle number is required when not delivering by hand" 
@@ -198,7 +198,7 @@ const getRequestById = async (req, res) => {
   }
 };
 
-// Delete request
+// Delete request 
 const deleteRequest = async (req, res) => {
   const { id } = req.params;
 
