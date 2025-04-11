@@ -11,6 +11,10 @@ const DispatchViewIn = () => {
   const [approverNameIn, setapproverNameIn] = useState("");
   const [serviceNoIn, setserviceNoIn] = useState("");
   const [commentIn, setcommentIn] = useState("");
+  const [employeeTypeIn, setemployeeTypeIn] = useState("SLT");
+  const [nonSltNameIn, setNonSltNameIn] = useState("");
+  const [nicNumberIn, setNicNumberIn] = useState("");
+  const [companyNameIn, setCompanyNameIn] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -317,34 +321,52 @@ const DispatchViewIn = () => {
     doc.save(`dispatch_in_${request._id}.pdf`);
   };
 
-  const handleUpdateStatus = async (newDispatchStatus) => {
+  const handleUpdateStatus = async (newStatus) => {
     // Validation
-    if (!approverNameIn.trim() || !serviceNoIn.trim()) {
-      alert("Name and Service Number are required!");
-      return;
-    }
-    if (newDispatchStatus === "Rejected" && !commentIn.trim()) {
+    if (newStatus === "Rejected" && !commentIn.trim()) {
       alert("comment is required for rejection!");
       return;
     }
 
     try {
-      await axios.put(
-        `http://localhost:5000/api/dispatch/updateApprovalIn/${id}`,
-        {
-          dispatchStatusIn: newDispatchStatus,
-          approverNameIn,
-          serviceNoIn,
-          commentIn,
+      const payload = {
+        dispatchStatusIn: newStatus,
+        employeeTypeIn,
+        commentIn,
+      };
+    
+      if (employeeTypeIn === "SLT") {
+        payload.approverNameIn = approverNameIn;
+        payload.serviceNoIn = serviceNoIn;
+        if (!approverNameIn.trim() || !serviceNoIn.trim()) {
+          alert("Name and Service Number are required!");
+          return;
         }
-      );
-      setStatusDispatchIn(newDispatchStatus);
-      alert(`Request ${newDispatchStatus} successfully!`);
+      } else if (employeeTypeIn === "Non-SLT") {
+        payload.nonSltNameIn = nonSltNameIn;
+        payload.nicNumberIn = nicNumberIn;
+        payload.companyNameIn = companyNameIn;
+        if (!nonSltNameIn.trim() || !nicNumberIn.trim() || !companyNameIn.trim()) {
+          alert("Name, NIC Number and Company name are required!");
+          return;
+        }
+      }
+    
+      // Send PUT request
+      await axios.put(`http://localhost:5000/api/dispatch/updateApprovalIn/${id}`, payload, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    
+      setStatusDispatchIn(newStatus);
+      alert(`Request ${newStatus} successfully!`);
+      fetchRequestDetails();
     } catch (error) {
-      console.error(
-        `Error updating approval status to ${newDispatchStatus}:`,
-        error
-      );
+      console.error(`Error updating status:`, error);
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      }
     }
   };
 
@@ -352,9 +374,9 @@ const DispatchViewIn = () => {
 
   return (
     <div className="container mx-auto p-6 font-sans flex justify-center">
-      <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg w-full max-w-3xl mt-6">
+      <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg w-full max-w-5xl mt-6">
         {/* Header with PDF button */}
-        <div className="flex justify-between items-center mb-4 text-blue-700 font-bold text-lg">
+        <div className="lg:flex justify-between items-center mb-4 text-blue-700 font-bold text-lg">
           <h2>
             Dispatch In Location Details ➝{" "}
             <span
@@ -387,42 +409,119 @@ const DispatchViewIn = () => {
           </div>
         </div>
 
-        {/* The rest of your component remains exactly the same */}
         {/* Request Details Section */}
         <div className="p-3 rounded-lg shadow-md border border-gray-300">
           {/* Blue Header */}
           <div className="bg-[#2A6BAC] text-white px-4 py-2 rounded-t-md flex justify-between font-bold">
-            <span>Item Details</span>
+            <span>Dispatch Details</span>
             <span>Ref. No: {request._id}</span>
           </div>
 
           {/* Item Details Box */}
           <div className="p-3 bg-white rounded-b-md border border-gray-300">
-            <div className="flex justify-between items-start space-x-4">
+            <div className="lg:flex flex-col lg:flex-row justify-between items-start  space-y-6 lg:space-y-0 lg:space-x-6">
               {/* Left Section */}
               <div className="flex-1">
+              <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3 mt-4">
+                Sender Details
+              </h4>
+              <p className="text-lg font-medium mb-1">
+                Name:{" "}
+                <span className="font-normal">{request.sender_name}</span>
+              </p>
+              <p className="text-lg font-medium mb-1">
+                Designation:{" "}
+                <span className="font-normal">{request.designation}</span>
+              </p>
+              <p className="text-lg font-medium mb-1">
+                Service Number:{" "}
+                <span className="font-normal">{request.service_no}</span>
+              </p>
+              <p className="text-lg font-medium mb-1">
+                Contact Number:{" "}
+                <span className="font-normal">{request.contact_number}</span>
+              </p>
+              <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 my-4 mt-8">
+                  Request Details
+              </h4>
+              <p className="text-lg font-medium mb-1">
+                Out Location:{" "}
+                <span className="font-normal">{request.outLocation}</span>
+              </p>
+              <p className="text-lg font-medium mb-1">
+                In Location:{" "}
+                <span className="font-normal">{request.inLocation}</span>
+              </p>
+              <p className="text-lg font-medium mb-1">
+                Approved By:{" "}
+                <span className="font-normal">
+                  {request.executiveOfficer}
+                </span>
+              </p>
+              <p className="text-lg font-medium mb-1">
+                By Hand:{" "}
+                <span className="font-normal">{request.byHand || "No"}</span>
+              </p>
+              {request.vehicleNumber && (
                 <p className="text-lg font-medium mb-1">
-                  Sender Name:{" "}
-                  <span className="font-normal">{request.sender_name}</span>
-                </p>
-                <p className="text-lg font-medium mb-1">
-                  Designation:{" "}
-                  <span className="font-normal">{request.designation}</span>
-                </p>
-                <p className="text-lg font-medium mb-1">
-                  Contact Number:{" "}
-                  <span className="font-normal">{request.contact_number}</span>
-                </p>
-                <p className="text-lg font-medium mb-1">
-                  Out Location:{" "}
-                  <span className="font-normal">{request.outLocation}</span>
-                </p>
-                <p className="text-lg font-medium mb-1">
-                  In Location:{" "}
-                  <span className="font-normal">{request.inLocation}</span>
-                </p>
+                  Vehicle Number:{" "}
+                  <span className="font-normal">{request.vehicleNumber}</span>
+              </p>
+              )}
+              <br />
+                {request.dispatchStatusOut !== "Pending" && (
+                  <>
+                    <p className="text-lg font-medium mb-1">
+                      Dispatch Out Location Status:{" "}
+                      <span
+                        className={`px-3 py-2 rounded ${
+                          request.dispatchStatusOut === "Approved"
+                            ? "bg-green-200 text-green-800"
+                            : "bg-red-200 text-red-800"
+                        }`}
+                      >
+                        {request.dispatchStatusOut}
+                      </span>
+                    </p>
+                    <p className="text-lg font-medium mb-1">
+                      Employee Type:{" "}
+                      <span className="font-normal">
+                        {request.employeeTypeOut}
+                      </span>
+                    </p>
+                    <p className="text-lg font-medium mb-1">
+                      Processed By:{" "}
+                      <span className="font-normal">
+                        {request.approverNameOut || request.nonSltNameOut}
+                      </span>
+                    </p>
+                    {request.employeeTypeOut === "SLT" && (
+                      <>
+                        <p className="text-lg font-medium mb-1">
+                          Service No:{" "}
+                          <span className="font-normal">{request.serviceNoOut}</span>
+                        </p>
+                      </>
+                    )}
+                    {request.employeeTypeOut === "Non-SLT" && (
+                      <>
+                        <p className="text-lg font-medium mb-1">
+                          NIC Number:{" "}
+                          <span className="font-normal">{request.nicNumberOut}</span>
+                        </p>
+                      </>
+                    )}
+                    {request.commentOut && (
+                      <p className="text-lg font-medium mb-1">
+                        Comment:{" "}
+                        <span className="font-normal">
+                          {request.commentOut || "N/A"}
+                        </span>
+                      </p>
+                    )}
+                  </>
+                )}
                 <br />
-
                 {request.dispatchStatusIn !== "Pending" && (
                   <>
                     <p className="text-lg font-medium mb-1">
@@ -438,22 +537,82 @@ const DispatchViewIn = () => {
                       </span>
                     </p>
                     <p className="text-lg font-medium mb-1">
-                      Processed By:{" "}
+                      Employee Type:{" "}
                       <span className="font-normal">
-                        {request.approverNameIn}
+                        {request.employeeTypeIn}
                       </span>
                     </p>
-                    <p className="text-lg font-medium">
-                      Service No:{" "}
-                      <span className="font-normal">{request.serviceNoIn}</span>
+                    <p className="text-lg font-medium mb-1">
+                      Processed By:{" "}
+                      <span className="font-normal">
+                        {request.approverNameIn || request.nonSltNameIn}
+                      </span>
                     </p>
+                    {request.employeeTypeIn === "SLT" && (
+                      <>
+                        <p className="text-lg font-medium mb-1">
+                          Service No:{" "}
+                          <span className="font-normal">{request.serviceNoIn}</span>
+                        </p>
+                      </>
+                    )}
+                    {request.employeeTypeIn === "Non-SLT" && (
+                      <>
+                        <p className="text-lg font-medium mb-1">
+                          NIC Number:{" "}
+                          <span className="font-normal">{request.nicNumberIn}</span>
+                        </p>
+                      </>
+                    )}
+                    
+                    {request.commentIn && (
+                      <p className="text-lg font-medium mb-1">
+                        Comment:{" "}
+                        <span className="font-normal">
+                          {request.commentIn || "N/A"}
+                        </span>
+                      </p>
+                    )}
                   </>
                 )}
 
-                {/* Items List */}
+                <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mt-8 mb-3">
+                  Receiver Details
+                </h4>
+                <p className="text-lg font-medium mb-1">
+                  Name:{" "}
+                  <span className="font-normal">
+                    {request.receiverName
+                      ? request.receiverName[0].toUpperCase() +
+                        request.receiverName.slice(1)
+                      : "N/A"}
+                  </span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                  Contact Number:{" "}
+                  <span className="font-normal">
+                    {request.receiverContact || "N/A"}
+                  </span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                  Service Number:{" "}
+                  <span className="font-normal">
+                    {request.receiverServiceNumber || "N/A"}
+                  </span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                  Receiver Group:{" "}
+                  <span className="font-normal">
+                    {request.receiverGroup || "N/A"}
+                  </span>
+                </p>
+              </div>
+
+              {/* Right Section - Items */}
+              <div className="flex-1">
                 {request.items && request.items.length > 0 && (
-                  <div className="mt-6">
-                    <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">
+                  <div>
+                    <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3 mt-4">
                       Item Details
                     </h4>
                     <div className="space-y-3">
@@ -463,103 +622,176 @@ const DispatchViewIn = () => {
                           className="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition"
                         >
                           <p>
-                            <strong>Name:</strong> {item.itemName}
+                            <span className="text-lg font-medium">Name:</span> {item.itemName}
                           </p>
                           <p>
-                            <strong>Serial No:</strong> {item.serialNo}
+                            <span className="text-lg font-medium">Serial No:</span> {item.serialNo}
                           </p>
                           <p>
-                            <strong>Category:</strong> {item.category}
+                            <span className="text-lg font-medium">Category:</span> {item.category}
                           </p>
                           <p>
-                            <strong>Quantity:</strong> {item.quantity}
+                            <span className="text-lg font-medium">Quantity:</span> {item.quantity}
                           </p>
                           <p>
                             <strong>Returnable:</strong> {item.returnable}
                           </p>
-                          {item.condition && (
-                            <p>
-                              <strong>Condition:</strong> {item.condition}
-                            </p>
-                          )}
-                          {item.remarks && (
-                            <p>
-                              <strong>Remarks:</strong> {item.remarks}
-                            </p>
-                          )}
+                          <p>
+                            <span className="text-lg font-medium">Description:</span>{" "}
+                              {item.description || "N/A"}
+                          </p>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
-              </div>
 
-              {/* Right Section (Image + Button) */}
-              <div className="flex flex-col items-center">
-                <img
-                  src={laptopImage}
-                  alt="Item"
-                  className="w-24 h-24 object-cover border rounded-lg shadow-md"
-                />
-                <button className="bg-[#2A6BAC] text-white px-4 py-1 mt-2 rounded-lg shadow-md">
-                  View Photo
-                </button>
+                {/* Image and View Button Section */}
+                <div className="flex justify-start mt-6">
+                  <div className="flex flex-col items-center">
+                    <img
+                      src={laptopImage}
+                      alt="Item"
+                      className="w-24 h-24 object-cover border rounded-lg shadow-md"
+                    />
+                    <button className="bg-[#2A6BAC] text-white px-4 py-1 mt-2 rounded-lg shadow-md">
+                      View Photo
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {dispatchStatusIn === "Pending" && (
             <>
-              {/* Approver Name and Service Number */}
-              <label className="block font-bold mb-2 text-blue-700 mt-5">
-                Processed By
+            {/* Employee Type Selection (Radio Buttons) */}
+            <label className="block font-bold mb-2 text-blue-700 mt-5">
+              Employee Type
+            </label>
+            <div className="flex gap-6 mb-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="employeeType"
+                  value="SLT"
+                  checked={employeeTypeIn === "SLT"}
+                  onChange={() => setemployeeTypeIn("SLT")}
+                  className="mr-2"
+                />
+                SLT Employee
               </label>
-              <input
-                type="text"
-                value={approverNameIn}
-                onChange={(e) => setapproverNameIn(e.target.value)}
-                className="w-full border border-gray-300 p-2 rounded"
-                placeholder="Enter Name"
-              />
 
-              <label className="block font-bold mb-2 text-blue-700 mt-3">
-                Service Number
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="employeeType"
+                  value="Non-SLT"
+                  checked={employeeTypeIn === "Non-SLT"}
+                  onChange={() => setemployeeTypeIn("Non-SLT")}
+                  className="mr-2"
+                />
+                Non-SLT Employee
               </label>
-              <input
-                type="text"
-                value={serviceNoIn}
-                onChange={(e) => setserviceNoIn(e.target.value)}
-                className="w-full border border-gray-300 p-2 rounded"
-                placeholder="Enter Service Number"
-              />
+            </div>
 
-              {/* Comment (Required for Rejection) */}
-              <label className="block font-bold mb-2 text-blue-700 mt-3">
-                Comment
-              </label>
-              <textarea
-                value={commentIn}
-                onChange={(e) => setcommentIn(e.target.value)}
-                className="w-full border border-gray-300 p-2 rounded"
-                placeholder="Enter Comment Here"
-              ></textarea>
+            {/* SLT Employee Section */}
+            {employeeTypeIn === "SLT" && (
+              <>
+                <label className="block font-bold mb-2 text-blue-700">
+                  Processed By
+                </label>
+                <input
+                  type="text"
+                  value={approverNameIn}
+                  onChange={(e) => setapproverNameIn(e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded"
+                  placeholder="Enter Name"
+                  required
+                />
 
-              {/* Action Buttons */}
-              <div className="flex justify-end mt-4 space-x-2">
-                <button
-                  className="bg-green-600 text-white px-6 py-2 rounded-lg shadow-md"
-                  onClick={() => handleUpdateStatus("Approved")}
-                >
-                  Approve
-                </button>
-                <button
-                  className="bg-red-700 text-white px-6 py-2 rounded-lg shadow-md"
-                  onClick={() => handleUpdateStatus("Rejected")}
-                >
-                  Reject
-                </button>
-              </div>
-            </>
+                <label className="block font-bold mb-2 text-blue-700 mt-3">
+                  Service Number
+                </label>
+                <input
+                  type="text"
+                  value={serviceNoIn}
+                  onChange={(e) => setserviceNoIn(e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded"
+                  placeholder="Enter Service Number"
+                  required
+                />
+              </>
+            )}
+
+            {/* Non-SLT Employee Section */}
+            {employeeTypeIn === "Non-SLT" && (
+              <>
+                <label className="block font-bold mb-2 text-blue-700">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  value={nonSltNameIn}
+                  onChange={(e) => setNonSltNameIn(e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded"
+                  placeholder="Enter Full Name"
+                  required
+                />
+
+                <label className="block font-bold mb-2 text-blue-700 mt-3">
+                  NIC Number
+                </label>
+                <input
+                  type="text"
+                  value={nicNumberIn}
+                  onChange={(e) => setNicNumberIn(e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded"
+                  placeholder="Enter NIC Number"
+                  required
+                />
+
+                <label className="block font-bold mb-2 text-blue-700 mt-3">
+                  Company Name
+                </label>
+                <input
+                  type="text"
+                  value={companyNameIn}
+                  onChange={(e) => setCompanyNameIn(e.target.value)}
+                  className="w-full border border-gray-300 p-2 rounded"
+                  placeholder="Enter Company Name"
+                  required
+                />
+              </>
+            )}
+
+            {/* Comment (Required for Rejection) */}
+            <label className="block font-bold mb-2 text-blue-700 mt-3">
+              Comment
+            </label>
+            <textarea
+              value={commentIn}
+              onChange={(e) => setcommentIn(e.target.value)}
+              className="w-full border border-gray-300 p-2 rounded"
+              placeholder="Enter Comment Here"
+            ></textarea>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end mt-4 space-x-2">
+              <button
+                className="bg-green-600 text-white px-6 py-2 rounded-lg shadow-md mr-2"
+                onClick={() => handleUpdateStatus("Approved")}
+              >
+                Approve
+              </button>
+              <button
+                className="bg-red-700 text-white px-8 py-2 rounded-lg shadow-md ml-2"
+                onClick={() => handleUpdateStatus("Rejected")}
+              >
+                Reject
+              </button>
+            </div>
+          </>
           )}
         </div>
       </div>

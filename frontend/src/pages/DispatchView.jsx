@@ -14,6 +14,10 @@ const DispatchView = () => {
   const [approverNameOut, setApproverNameOut] = useState("");
   const [serviceNoOut, setServiceNoOut] = useState("");
   const [commentOut, setCommentOut] = useState("");
+  const [employeeTypeOut, setEmployeeTypeOut] = useState("SLT");
+  const [nonSltNameOut, setNonSltNameOut] = useState("");
+  const [nicNumberOut, setNicNumberOut] = useState("");
+  const [companyNameOut, setCompanyNameOut] = useState("");
 
   useEffect(() => {
     fetchRequestDetails();
@@ -328,38 +332,58 @@ const DispatchView = () => {
   };
 
   const handleUpdateStatus = async (newStatus) => {
-    if (!approverNameOut.trim() || !serviceNoOut.trim()) {
-      alert("Name and Service Number are required!");
-      return;
-    }
     if (newStatus === "Rejected" && !commentOut.trim()) {
       alert("Comment is required for rejection!");
       return;
     }
 
     try {
-      await axios.put(
-        `http://localhost:5000/api/dispatch/updateApprovalOut/${id}`,
-        {
-          dispatchStatusOut: newStatus,
-          approverNameOut,
-          serviceNoOut,
-          commentOut,
+      const payload = {
+        dispatchStatusOut: newStatus,
+        employeeTypeOut,
+        commentOut,
+      };
+    
+      if (employeeTypeOut === "SLT") {
+        payload.approverNameOut = approverNameOut;
+        payload.serviceNoOut = serviceNoOut;
+        if (!approverNameOut.trim() || !serviceNoOut.trim()) {
+          alert("Name and Service Number are required!");
+          return;
         }
-      );
+      } else if (employeeTypeOut === "Non-SLT") {
+        payload.nonSltNameOut = nonSltNameOut;
+        payload.nicNumberOut = nicNumberOut;
+        payload.companyNameOut = companyNameOut;
+        if (!nonSltNameOut.trim() || !nicNumberOut.trim() || !companyNameOut.trim()) {
+          alert("Name, NIC Number and Company name are required!");
+          return;
+        }
+      }
+    
+      // Send PUT request
+      await axios.put(`http://localhost:5000/api/dispatch/updateApprovalOut/${id}`, payload, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    
       setDispatchStatusOut(newStatus);
       alert(`Request ${newStatus} successfully!`);
-      fetchRequestDetails(); // Refresh the data
+      fetchRequestDetails();
     } catch (error) {
       console.error(`Error updating status:`, error);
-    }
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      }
+    }    
   };
 
   if (!request) return <p className="text-center text-gray-500">Loading...</p>;
 
   return (
     <div className="container mx-auto p-6 font-sans flex justify-center">
-      <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg w-full max-w-3xl mt-6">
+      <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg w-full max-w-5xl mt-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-4 text-blue-700 font-bold text-lg">
           <h2>
@@ -404,10 +428,10 @@ const DispatchView = () => {
 
           {/* Dispatch Details Box */}
           <div className="p-3 bg-white rounded-b-md border border-gray-300">
-            <div className="flex justify-between items-start space-x-4">
+            <div className="lg:flex flex-col lg:flex-row justify-between items-start space-y-6 lg:space-y-0 lg:space-x-6">
               {/* Left Section */}
               <div className="flex-1">
-                <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">
+                <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3 mt-4">
                   Sender Details
                 </h4>
                 <p className="text-lg font-medium mb-1">
@@ -426,8 +450,8 @@ const DispatchView = () => {
                   Contact Number:{" "}
                   <span className="font-normal">{request.contact_number}</span>
                 </p>
-                <br></br>
-                <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">
+
+                <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 my-4 mt-8">
                   Request Details
                 </h4>
                 <p className="text-lg font-medium mb-1">
@@ -440,7 +464,9 @@ const DispatchView = () => {
                 </p>
                 <p className="text-lg font-medium mb-1">
                   Approved By:{" "}
-                  <span className="font-normal">{request.executiveOfficer}</span>
+                  <span className="font-normal">
+                    {request.executiveOfficer}
+                  </span>
                 </p>
                 <p className="text-lg font-medium mb-1">
                   By Hand:{" "}
@@ -452,7 +478,7 @@ const DispatchView = () => {
                     <span className="font-normal">{request.vehicleNumber}</span>
                   </p>
                 )}
-
+                <br />
                 {request.dispatchStatusOut !== "Pending" && (
                   <>
                     <p className="text-lg font-medium mb-1">
@@ -468,28 +494,81 @@ const DispatchView = () => {
                       </span>
                     </p>
                     <p className="text-lg font-medium mb-1">
-                      Processed By:{" "}
+                      Employee Type:{" "}
                       <span className="font-normal">
-                        {request.approverNameOut}
+                        {request.employeeTypeOut}
                       </span>
                     </p>
-                    <p className="text-lg font-medium">
-                      Service No:{" "}
-                      <span className="font-normal">{request.serviceNoOut}</span>
+                    <p className="text-lg font-medium mb-1">
+                      Processed By:{" "}
+                      <span className="font-normal">
+                        {request.approverNameOut || request.nonSltNameOut}
+                      </span>
                     </p>
+                    {request.employeeTypeOut === "SLT" && (
+                      <>
+                        <p className="text-lg font-medium mb-1">
+                          Service No:{" "}
+                          <span className="font-normal">{request.serviceNoOut}</span>
+                        </p>
+                      </>
+                    )}
+                    {request.employeeTypeOut === "Non-SLT" && (
+                      <>
+                        <p className="text-lg font-medium mb-1">
+                          NIC Number:{" "}
+                          <span className="font-normal">{request.nicNumberOut}</span>
+                        </p>
+                      </>
+                    )}
                     {request.commentOut && (
                       <p className="text-lg font-medium mb-1">
                         Comment:{" "}
-                        <span className="font-normal">{request.commentOut}</span>
+                        <span className="font-normal">
+                          {request.commentOut || "N/A"}
+                        </span>
                       </p>
                     )}
                   </>
                 )}
 
-                {/* Items List */}
+                <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mt-8 mb-3">
+                  Receiver Details
+                </h4>
+                <p className="text-lg font-medium mb-1">
+                  Name:{" "}
+                  <span className="font-normal">
+                    {request.receiverName
+                      ? request.receiverName[0].toUpperCase() +
+                        request.receiverName.slice(1)
+                      : "N/A"}
+                  </span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                  Contact Number:{" "}
+                  <span className="font-normal">
+                    {request.receiverContact || "N/A"}
+                  </span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                  Service Number:{" "}
+                  <span className="font-normal">
+                    {request.receiverServiceNumber || "N/A"}
+                  </span>
+                </p>
+                <p className="text-lg font-medium mb-1">
+                  Receiver Group:{" "}
+                  <span className="font-normal">
+                    {request.receiverGroup || "N/A"}
+                  </span>
+                </p>
+              </div>
+
+              {/* Right Section - Items */}
+              <div className="flex-1">
                 {request.items && request.items.length > 0 && (
-                  <div className="mt-6">
-                    <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">
+                  <div>
+                    <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3 mt-4">
                       Item Details
                     </h4>
                     <div className="space-y-3">
@@ -499,22 +578,23 @@ const DispatchView = () => {
                           className="p-3 border rounded-lg shadow-sm bg-gray-50 hover:bg-gray-100 transition"
                         >
                           <p>
-                            <strong>Name:</strong> {item.itemName}
+                            <span className="text-lg font-medium">Name:</span> {item.itemName}
                           </p>
                           <p>
-                            <strong>Serial No:</strong> {item.serialNo}
+                            <span className="text-lg font-medium">Serial No:</span> {item.serialNo}
                           </p>
                           <p>
-                            <strong>Category:</strong> {item.category}
+                            <span className="text-lg font-medium">Category:</span> {item.category}
                           </p>
                           <p>
-                            <strong>Quantity:</strong> {item.quantity}
+                            <span className="text-lg font-medium">Quantity:</span> {item.quantity}
                           </p>
                           <p>
-                            <strong>Returnable:</strong> {item.returnable}
+                            <span className="text-lg font-medium">Returnable:</span> {item.returnable}
                           </p>
                           <p>
-                            <strong>Description:</strong> {item.description || "N/A"}
+                            <span className="text-lg font-medium">Description:</span>{" "}
+                            {item.description || "N/A"}
                           </p>
                         </div>
                       ))}
@@ -522,45 +602,19 @@ const DispatchView = () => {
                   </div>
                 )}
 
-                <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3">
-                  Receiver Details
-                </h4>
-                <p className="text-lg font-medium mb-1">
-                  Name:{" "}
-                  <span className="font-normal">
-                    {request.receiverName ? request.receiverName[0].toUpperCase() + request.receiverName.slice(1) : 'N/A'}
-                  </span>
-                </p>
-                <p className="text-lg font-medium mb-1">
-                  Contact Number:{" "}
-                  <span className="font-normal">
-                    {request.receiverContact ? request.receiverContact : 'N/A'}
-                  </span>
-                </p>
-                <p className="text-lg font-medium mb-1">
-                  Service Number:{" "}
-                  <span className="font-normal">
-                    {request.receiverServiceNumber ? request.receiverServiceNumber : 'N/A'}
-                  </span>
-                </p>
-                <p className="text-lg font-medium mb-1">
-                  Receiver Group:{" "}
-                  <span className="font-normal">
-                    {request.receiverGroup ? request.receiverGroup : 'N/A'}
-                  </span>
-                </p>
-              </div>
-
-              {/* Right Section (Image + Button) */}
-              <div className="flex flex-col items-center">
-                <img
-                  src={laptopImage}
-                  alt="Item"
-                  className="w-24 h-24 object-cover border rounded-lg shadow-md"
-                />
-                <button className="bg-[#2A6BAC] text-white px-4 py-1 mt-2 rounded-lg shadow-md">
-                  View Photo
-                </button>
+                {/* Image and View Button Section */}
+                <div className="flex justify-start mt-6">
+                  <div className="flex flex-col items-center">
+                    <img
+                      src={laptopImage}
+                      alt="Item"
+                      className="w-24 h-24 object-cover border rounded-lg shadow-md"
+                    />
+                    <button className="bg-[#2A6BAC] text-white px-4 py-1 mt-2 rounded-lg shadow-md">
+                      View Photo
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -568,30 +622,105 @@ const DispatchView = () => {
           {/* Approval Section */}
           {dispatchStatusOut === "Pending" && (
             <>
-              {/* Approver Name and Service Number */}
+              {/* Employee Type Selection (Radio Buttons) */}
               <label className="block font-bold mb-2 text-blue-700 mt-5">
-                Processed By
+                Employee Type
               </label>
-              <input
-                type="text"
-                value={approverNameOut}
-                onChange={(e) => setApproverNameOut(e.target.value)}
-                className="w-full border border-gray-300 p-2 rounded"
-                placeholder="Enter Name"
-                required
-              />
+              <div className="flex gap-6 mb-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="employeeType"
+                    value="SLT"
+                    checked={employeeTypeOut === "SLT"}
+                    onChange={() => setEmployeeTypeOut("SLT")}
+                    className="mr-2"
+                  />
+                  SLT Employee
+                </label>
 
-              <label className="block font-bold mb-2 text-blue-700 mt-3">
-                Service Number
-              </label>
-              <input
-                type="text"
-                value={serviceNoOut}
-                onChange={(e) => setServiceNoOut(e.target.value)}
-                className="w-full border border-gray-300 p-2 rounded"
-                placeholder="Enter Service Number"
-                required
-              />
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="employeeType"
+                    value="Non-SLT"
+                    checked={employeeTypeOut === "Non-SLT"}
+                    onChange={() => setEmployeeTypeOut("Non-SLT")}
+                    className="mr-2"
+                  />
+                  Non-SLT Employee
+                </label>
+              </div>
+
+              {/* SLT Employee Section */}
+              {employeeTypeOut === "SLT" && (
+                <>
+                  <label className="block font-bold mb-2 text-blue-700">
+                    Processed By
+                  </label>
+                  <input
+                    type="text"
+                    value={approverNameOut}
+                    onChange={(e) => setApproverNameOut(e.target.value)}
+                    className="w-full border border-gray-300 p-2 rounded"
+                    placeholder="Enter Name"
+                    required
+                  />
+
+                  <label className="block font-bold mb-2 text-blue-700 mt-3">
+                    Service Number
+                  </label>
+                  <input
+                    type="text"
+                    value={serviceNoOut}
+                    onChange={(e) => setServiceNoOut(e.target.value)}
+                    className="w-full border border-gray-300 p-2 rounded"
+                    placeholder="Enter Service Number"
+                    required
+                  />
+                </>
+              )}
+
+              {/* Non-SLT Employee Section */}
+              {employeeTypeOut === "Non-SLT" && (
+                <>
+                  <label className="block font-bold mb-2 text-blue-700">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    value={nonSltNameOut}
+                    onChange={(e) => setNonSltNameOut(e.target.value)}
+                    className="w-full border border-gray-300 p-2 rounded"
+                    placeholder="Enter Full Name"
+                    required
+                  />
+
+                  <label className="block font-bold mb-2 text-blue-700 mt-3">
+                    NIC Number
+                  </label>
+                  <input
+                    type="text"
+                    value={nicNumberOut}
+                    onChange={(e) => setNicNumberOut(e.target.value)}
+                    className="w-full border border-gray-300 p-2 rounded"
+                    placeholder="Enter NIC Number"
+                    required
+                  />
+
+                  <label className="block font-bold mb-2 text-blue-700 mt-3">
+                    Company Name
+                  </label>
+                  <input
+                    type="text"
+                    value={companyNameOut}
+                    onChange={(e) => setCompanyNameOut(e.target.value)}
+                    className="w-full border border-gray-300 p-2 rounded"
+                    placeholder="Enter Company Name"
+                    required
+                  />
+                </>
+              )}
 
               {/* Comment (Required for Rejection) */}
               <label className="block font-bold mb-2 text-blue-700 mt-3">
@@ -607,13 +736,13 @@ const DispatchView = () => {
               {/* Action Buttons */}
               <div className="flex justify-end mt-4 space-x-2">
                 <button
-                  className="bg-green-600 text-white px-6 py-2 rounded-lg shadow-md"
+                  className="bg-green-600 text-white px-6 py-2 rounded-lg shadow-md mr-2"
                   onClick={() => handleUpdateStatus("Approved")}
                 >
                   Approve
                 </button>
                 <button
-                  className="bg-red-700 text-white px-6 py-2 rounded-lg shadow-md"
+                  className="bg-red-700 text-white px-8 py-2 rounded-lg shadow-md ml-2"
                   onClick={() => handleUpdateStatus("Rejected")}
                 >
                   Reject

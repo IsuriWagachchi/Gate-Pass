@@ -56,11 +56,28 @@ export const getDispatchById = async(req, res) => {
 // update dispatch status
 export const updateDispatchStatusOut = async (req, res) => {
   const { id } = req.params;
-  const { dispatchStatusOut, approverNameOut, serviceNoOut, commentOut } = req.body;
+  const {
+    dispatchStatusOut,
+    employeeTypeOut,
+    approverNameOut,
+    serviceNoOut,
+    nonSltNameOut,
+    nicNumberOut,
+    companyNameOut,
+    commentOut,
+  } = req.body;
 
-  // Validation
-  if (!approverNameOut || !serviceNoOut) {
-    return res.status(400).json({ message: "Name and Service Number are required!" });
+  // Validate based on employee type
+  if (employeeTypeOut === "SLT") {
+    if (!approverNameOut || !serviceNoOut) {
+      return res.status(400).json({ message: "Name and Service Number are required for SLT Employee!" });
+    }
+  } else if (employeeTypeOut === "Non-SLT") {
+    if (!nonSltNameOut || !nicNumberOut || !companyNameOut) {
+      return res.status(400).json({ message: "Name, NIC Number, and Company Name are required for Non-SLT Employee!" });
+    }
+  } else {
+    return res.status(400).json({ message: "Invalid employee type!" });
   }
   if (dispatchStatusOut === "Rejected" && !commentOut) {
     return res.status(400).json({ message: "Comment is required for rejection!" });
@@ -78,10 +95,20 @@ export const updateDispatchStatusOut = async (req, res) => {
       return res.status(404).json({ message: "Sender not found" });
     }
 
+    // Common updates
     request.dispatchStatusOut = dispatchStatusOut;
-    request.approverNameOut = approverNameOut;
-    request.serviceNoOut = serviceNoOut;
-    request.commentOut = commentOut || ""; 
+    request.commentOut = commentOut || "";
+    request.employeeTypeOut = employeeTypeOut;
+
+    // SLT or Non-SLT specific fields
+    if (employeeTypeOut === "SLT") {
+      request.approverNameOut = approverNameOut;
+      request.serviceNoOut = serviceNoOut;
+    } else {
+      request.nonSltNameOut = nonSltNameOut;
+      request.nicNumberOut = nicNumberOut;
+      request.companyNameOut = companyNameOut;
+    }
 
     await request.save();
 
@@ -110,11 +137,28 @@ export const updateDispatchStatusOut = async (req, res) => {
 
 export const updateDispatchStatusIn = async (req, res) => {
   const { id } = req.params;
-  const { dispatchStatusIn, approverNameIn, serviceNoIn, commentIn } = req.body;
+  const {
+    dispatchStatusIn,
+    employeeTypeIn,
+    approverNameIn,
+    serviceNoIn,
+    nonSltNameIn,
+    nicNumberIn,
+    companyNameIn,
+    commentIn,
+  } = req.body;
 
   // Validation
-  if (!approverNameIn || !serviceNoIn) {
-    return res.status(400).json({ message: "Name and Service Number are required!" });
+  if (employeeTypeIn === "SLT") {
+    if (!approverNameIn || !serviceNoIn) {
+      return res.status(400).json({ message: "Name and Service Number are required for SLT Employee!" });
+    }
+  } else if (employeeTypeIn === "Non-SLT") {
+    if (!nonSltNameIn || !nicNumberIn || !companyNameIn) {
+      return res.status(400).json({ message: "Name, NIC Number, and Company Name are required for Non-SLT Employee!" });
+    }
+  } else {
+    return res.status(400).json({ message: "Invalid employee type!" });
   }
   if (dispatchStatusIn === "Rejected" && !commentIn) {
     return res.status(400).json({ message: "Comment is required for rejection!" });
@@ -132,10 +176,20 @@ export const updateDispatchStatusIn = async (req, res) => {
       return res.status(404).json({ message: "Sender not found" });
     }
 
+    // Common updates
     request.dispatchStatusIn = dispatchStatusIn;
-    request.approverNameIn = approverNameIn;
-    request.serviceNoIn = serviceNoIn;
-    request.commentIn = commentIn || ""; 
+    request.commentIn = commentIn || "";
+    request.employeeTypeIn = employeeTypeIn;
+
+    // SLT or Non-SLT specific fields
+    if (employeeTypeIn === "SLT") {
+      request.approverNameIn = approverNameIn;
+      request.serviceNoIn = serviceNoIn;
+    } else {
+      request.nonSltNameIn = nonSltNameIn;
+      request.nicNumberIn = nicNumberIn;
+      request.companyNameIn = companyNameIn;
+    } 
 
     await request.save();
 
