@@ -7,6 +7,7 @@ import {
   updateRequest,
   deleteRequest
 } from '../controllers/requestController.js';
+import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ router.post('/create', uploadMultipleItems, createRequest);
 router.put('/:id', uploadMultipleItems, updateRequest);
 
 // Other routes remain the same
-router.get('/', getRequests);
+router.get('/', verifyToken, getRequests);
 router.get('/:id', getRequestById);
 router.delete('/:id', deleteRequest);
 
