@@ -176,7 +176,8 @@ const updateRequest = async (req, res) => {
 // Get all requests
 const getRequests = async (req, res) => {
   try {
-    const requests = await Request.find();
+    const serviceNo = req.user.service_no;
+    const requests = await Request.find({ service_no: serviceNo });
     res.status(200).json(requests);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching requests', error: err });

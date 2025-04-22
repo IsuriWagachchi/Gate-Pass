@@ -47,6 +47,7 @@ export const login = async (req, res) => {
                 id: user._id,
                 role: user.role,
                 branch_location: user.branch_location,
+                service_no: user.service_no,
             },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }

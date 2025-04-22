@@ -13,12 +13,12 @@ const itemSchema = new mongoose.Schema({
 const requestSchema = new mongoose.Schema({
 
   // Add these fields for sender details
-  sender_name: { type: String, required: true },
-  designation: { type: String, required: true },
-  service_no: { type: String, required: true },
-  section: { type: String, required: true },
-  group_number: { type: String, required: true },
-  contact_number: { type: String, required: true },
+  sender_name: { type: String },
+  designation: { type: String },
+  service_no: { type: String },
+  section: { type: String },
+  group_number: { type: String },
+  contact_number: { type: String },
   
   items: [itemSchema], // Array of items
   outLocation: { type: String, required: true },
@@ -56,8 +56,18 @@ const requestSchema = new mongoose.Schema({
 
   approverNameIn: {  type: String },
   serviceNoIn: {  type: String },
-  commentIn: { type: String 
-  }
+  commentIn: { type: String },
+
+  employeeTypeOut: {type: String},
+  employeeTypeIn: {type: String},
+
+  nonSltNameOut: {type: String},
+  nicNumberOut: {type: String},
+  companyNameOut: {type: String},
+
+  nonSltNameIn: {type: String},
+  nicNumberIn: {type: String},
+  companyNameIn: {type: String},
 
 }, {
 

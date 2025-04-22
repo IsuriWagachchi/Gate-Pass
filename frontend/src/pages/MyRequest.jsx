@@ -12,7 +12,12 @@ const MyRequest = () => {
 
   const fetchRequests = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/requests');
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/api/requests', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setRequests(response.data);
     } catch (error) {
       console.error('Error fetching requests:', error);
