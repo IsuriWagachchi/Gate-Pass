@@ -12,7 +12,12 @@ const ItemTracker = () => {
 
   const fetchRequests = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/requests');
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/api/requests', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       // Filter requests that have at least one returnable item
       const returnableRequests = response.data.filter(request => 
         request.items.some(item => item.returnable === "yes")

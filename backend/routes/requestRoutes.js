@@ -16,7 +16,7 @@ router.post('/create', uploadMultipleItems, createRequest);
 router.put('/:id', uploadMultipleItems, updateRequest);
 
 // Other routes remain the same
-router.get('/', verifyToken, getRequests);
+router.get('/',verifyToken , getRequests);
 router.get('/:id', getRequestById);
 router.delete('/:id', deleteRequest);
 
