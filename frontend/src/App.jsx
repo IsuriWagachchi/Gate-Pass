@@ -7,7 +7,13 @@ import UpdateRequest from "./pages/UpdateRequest";
 import ItemTracker from "./pages/ItemTracker";
 import ViewRequest from "./pages/ViewRequest";
 import ExecutiveApprovePage from "./pages/ExecutiveApprove";
+
+import AdminView from "./pages/AdminView";
 import AdminPage from "./pages/AdminPage";
+import AdminLocations from "./pages/AdminLocations";
+import AdminCategories from "./pages/AdminCategories";
+
+
 import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
 import Signup from "./pages/SignUp";
@@ -90,7 +96,10 @@ const App = () => {
 
 
           {/* Admin-only route */}
-          <Route path="/admin" element={<ProtectedRoute Component={AdminPage} allowedRoles={["admin"]} />} />
+          <Route path="/admin" element={<ProtectedRoute Component={AdminView} allowedRoles={["admin"]} />} />
+          <Route path="/admin-page" element={<ProtectedRoute Component={AdminPage} allowedRoles={["admin"]} />} />
+          <Route path="/admin-locations" element={<ProtectedRoute Component={AdminLocations} allowedRoles={["admin"]} />} />
+          <Route path="/admin-categories" element={<ProtectedRoute Component={AdminCategories} allowedRoles={["admin"]} />} />
 
           
 
