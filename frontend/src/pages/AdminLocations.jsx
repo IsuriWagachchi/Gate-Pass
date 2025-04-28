@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 
-const AdminPage = () => {
+const AdminLocations = () => {
   const [csvFile, setCsvFile] = useState(null);
   const navigate = useNavigate();
 
@@ -73,4 +73,4 @@ const AdminPage = () => {
   );
 };
 
-export default AdminPage;
+export default AdminLocations;
