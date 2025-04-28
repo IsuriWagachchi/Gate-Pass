@@ -1,4 +1,4 @@
-
+import User from '../models/userModel.js';
 import Request from '../models/requestModel.js';
 
 // Get all requests for executive approval
@@ -47,8 +47,34 @@ const getRequestById = async (req, res) => {
       res.status(500).json({ message: "Error fetching request", error: error.message });
     }
   };
+
+  const assignRequestToOfficer = async (req, res) => {
+    const { id } = req.params;
+    const { assignedOfficer, assignedOfficerName, assignedOfficerServiceNo } = req.body;
+  
+    try {
+      const updatedRequest = await Request.findByIdAndUpdate(
+        id,
+        { 
+          assignedOfficer,
+          assignedOfficerName,
+          assignedOfficerServiceNo,
+          assignedAt: new Date()
+        },
+        { new: true }
+      );
+  
+      if (!updatedRequest) {
+        return res.status(404).json({ message: "Request not found" });
+      }
+  
+      res.status(200).json(updatedRequest);
+    } catch (error) {
+      res.status(500).json({ message: "Error assigning request", error: error.message });
+    }
+  };
   
 
-export { getAllRequests, updateRequestVerification, getRequestById };
+export { getAllRequests, updateRequestVerification, getRequestById, assignRequestToOfficer };
 
 

@@ -69,6 +69,11 @@ const requestSchema = new mongoose.Schema({
   nicNumberIn: {type: String},
   companyNameIn: {type: String},
 
+  assignedOfficer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  assignedOfficerName: { type: String },
+  assignedOfficerServiceNo: { type: String },
+  assignedAt: { type: Date }
+
 }, {
 
   timestamps: true,

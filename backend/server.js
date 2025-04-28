@@ -9,6 +9,7 @@ import verifyRoutes from './routes/verifyRoutes.js';
 import dispatchRoutes from "./routes/dispatchRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import receiverRoutes from "./routes/receiverRoutes.js";
+import userRoutes from "./routes/userRoutes.js"; // User routes
 
 dotenv.config();
 const app = express();
@@ -28,7 +29,7 @@ app.use('/api/verify', verifyRoutes);
 app.use('/api/dispatch', dispatchRoutes);
 app.use('/api/upload', uploadRoutes); // CSV upload route
 app.use('/api/receiver', receiverRoutes);
-
+app.use('/api/users', userRoutes); // User routes
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
     // useNewUrlParser: true,
