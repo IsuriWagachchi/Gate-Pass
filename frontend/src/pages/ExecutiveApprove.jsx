@@ -13,8 +13,12 @@ const ExecutiveApprove = () => {
 
   const fetchRequests = async () => {
     try {
-      console.log("Fetching requests...");
-      const response = await axios.get('http://localhost:5000/api/executive'); 
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/api/executive', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setRequests(response.data);
     } catch (error) {
       console.error("Error fetching requests:", error.response ? error.response.data : error.message);
