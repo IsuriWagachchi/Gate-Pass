@@ -195,7 +195,8 @@ const Verify = () => {
             {requests.filter(req => req.verify === filter).map((request, index) => (
               <tr key={request._id} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
                 <td className="py-2 px-4 border text-left">{request._id}</td>
-                <td className="py-2 px-4 border text-left">{request.items && request.items.length > 0 ? (
+                <td className="py-2 px-4 border text-left">
+                  {request.items && request.items.length > 0 ? (
                     <ul className="list-disc list-inside">
                       {request.items.map((item, itemIndex) => (
                         <li key={itemIndex}>
@@ -205,7 +206,8 @@ const Verify = () => {
                     </ul>
                   ) : (
                     <span>No items</span>
-                  )}</td>
+                  )}
+                </td>
                 <td className="py-2 px-4 border text-left">{request.inLocation}</td>
                 <td className="py-2 px-4 border text-left">{request.outLocation}</td>
                 <td className="py-2 px-4 border text-left">{request.createdAt}</td>
@@ -216,16 +218,20 @@ const Verify = () => {
                   >
                     View
                   </button>
-                  <button
-                    className={`${
-                      request.assignedOfficerName 
-                        ? 'bg-orange-700 hover:bg-orange-800' 
-                        : 'bg-blue-600 hover:bg-blue-700'
-                    } text-white px-4 py-1 rounded transition-all duration-200`}
-                    onClick={() => handleAssignClick(request)}
-                  >
-                    {request.assignedOfficerName ? 'Assigned' : 'Assign'}
-                  </button>
+                  
+                  {/* Only show Assign button for Pending requests */}
+                  {request.verify === 'Pending' && (
+                    <button
+                      className={`${
+                        request.assignedOfficerName 
+                          ? 'bg-orange-700 hover:bg-orange-800' 
+                          : 'bg-blue-600 hover:bg-blue-700'
+                      } text-white px-4 py-1 rounded transition-all duration-200`}
+                      onClick={() => handleAssignClick(request)}
+                    >
+                      {request.assignedOfficerName ? 'Assigned' : 'Assign'}
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
