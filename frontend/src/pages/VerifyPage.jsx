@@ -84,6 +84,19 @@ const Verify = () => {
       alert("Failed to remove assignment");
     }
   };
+  
+  //change Ref format 
+  const formatReferenceNumber = (id, createdAt) => {
+    if (!id || !createdAt) return 'XXXXXX-XXXX';
+    const date = new Date(createdAt);
+    const dateStr = [
+      date.getFullYear(),
+      (date.getMonth() + 1).toString().padStart(2, '0'),
+      date.getDate().toString().padStart(2, '0')
+    ].join('');
+    const uniquePart = id.slice(-4).toUpperCase();
+    return `${dateStr}-${uniquePart}`;
+  };
 
   return (
     <div className="container mx-auto p-6 border-4 border-blue-200 rounded-lg shadow-lg bg-white w-full mt-12">
@@ -194,7 +207,9 @@ const Verify = () => {
           <tbody>
             {requests.filter(req => req.verify === filter).map((request, index) => (
               <tr key={request._id} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
-                <td className="py-2 px-4 border text-left">{request._id}</td>
+                <td className="py-2 px-4 border text-left font-mono">
+                  {formatReferenceNumber(request._id, request.createdAt)}
+                </td>
                 <td className="py-2 px-4 border text-left">
                   {request.items && request.items.length > 0 ? (
                     <ul className="list-disc list-inside">
