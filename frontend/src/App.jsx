@@ -32,6 +32,8 @@ import SenderDetails from "./pages/SenderDetails";
 import ProfileCard from "./pages/ProfileCard";
 import DispatchViewIn from "./pages/DispatchViewIn";
 
+import ReturnItemsDetails from "./pages/ReturnItemsDetails";
+
 const App = () => {
   const [role, setRole] = useState(null);
   const [username, setUsername] = useState(null);
@@ -88,6 +90,7 @@ const App = () => {
           <Route path="/dispatch-view/:id" element={<ProtectedRoute Component={DispatchView} allowedRoles={["admin","security_officer"]} />} />
           <Route path="/profile" element={<ProtectedRoute Component={ProfileCard} allowedRoles={["user", "admin","executive_officer","duty_officer","security_officer"]} />} />
           <Route path="/dispatch-view-In/:id" element={<ProtectedRoute Component={DispatchViewIn} allowedRoles={["admin","security_officer"]} />} />
+          <Route path="/return-items" element={<ProtectedRoute Component={ReturnItemsDetails} allowedRoles={["admin","security_officer"]} />} />
 
           // In your router configuration
 <Route path="/dispatch-view/:id" element={<DispatchView />} />

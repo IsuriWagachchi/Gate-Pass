@@ -733,21 +733,31 @@ const DispatchView = () => {
                 placeholder="Enter Comment Here"
               ></textarea>
 
-              {/* Action Buttons */}
-              <div className="flex justify-end mt-4 space-x-2">
-                <button
-                  className="bg-green-600 text-white px-6 py-2 rounded-lg shadow-md mr-2"
-                  onClick={() => handleUpdateStatus("Approved")}
-                >
-                  Approve
-                </button>
-                <button
-                  className="bg-red-700 text-white px-8 py-2 rounded-lg shadow-md ml-2"
-                  onClick={() => handleUpdateStatus("Rejected")}
-                >
-                  Reject
-                </button>
-              </div>
+             {/* Action Buttons */}
+<div className="flex justify-between mt-4">
+  <div>
+    <button
+      className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md"
+      onClick={() => navigate('/return-items')}
+    >
+      Has Returnable Items
+    </button>
+  </div>
+  <div className="flex space-x-2">
+    <button
+      className="bg-green-600 text-white px-6 py-2 rounded-lg shadow-md"
+      onClick={() => handleUpdateStatus("Approved")}
+    >
+      Approve
+    </button>
+    <button
+      className="bg-red-700 text-white px-8 py-2 rounded-lg shadow-md"
+      onClick={() => handleUpdateStatus("Rejected")}
+    >
+      Reject
+    </button>
+  </div>
+</div>
             </>
           )}
         </div>
