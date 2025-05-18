@@ -72,7 +72,13 @@ const requestSchema = new mongoose.Schema({
   assignedOfficer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   assignedOfficerName: { type: String },
   assignedOfficerServiceNo: { type: String },
-  assignedAt: { type: Date }
+  assignedAt: { type: Date },
+
+  returnedItems: [
+  {
+    item: Object,
+    returnQuantity: Number,
+  }],
 
 }, {
 
