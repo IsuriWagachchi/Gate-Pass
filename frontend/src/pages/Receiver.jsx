@@ -4,7 +4,6 @@ import axios from 'axios';
 
 const Receiver = () => {
   const [requests, setRequests] = useState([]);
-  const [userServiceNo, setUserServiceNo] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -87,7 +86,7 @@ const Receiver = () => {
                   <td className="py-2 px-4 border">
                     <button
                       className="bg-green-500 hover:bg-green-700 text-white px-4 py-1 rounded"
-                      onClick={() => navigate(`/view-request/${request._id}`)}
+                      onClick={() => navigate(`/view-receiver/${request._id}`)}
                     >
                       View Details
                     </button>
