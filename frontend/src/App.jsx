@@ -32,6 +32,9 @@ import SenderDetails from "./pages/SenderDetails";
 import ProfileCard from "./pages/ProfileCard";
 import DispatchViewIn from "./pages/DispatchViewIn";
 
+import ReturnItemsDetails from "./pages/ReturnItemsDetails";
+import ViewReceiver from "./pages/viewReceiver";
+
 const App = () => {
   const [role, setRole] = useState(null);
   const [username, setUsername] = useState(null);
@@ -88,12 +91,9 @@ const App = () => {
           <Route path="/dispatch-view/:id" element={<ProtectedRoute Component={DispatchView} allowedRoles={["admin","security_officer"]} />} />
           <Route path="/profile" element={<ProtectedRoute Component={ProfileCard} allowedRoles={["user", "admin","executive_officer","duty_officer","security_officer"]} />} />
           <Route path="/dispatch-view-In/:id" element={<ProtectedRoute Component={DispatchViewIn} allowedRoles={["admin","security_officer"]} />} />
-
-          // In your router configuration
-<Route path="/dispatch-view/:id" element={<DispatchView />} />
-<Route path="/dispatch-view-In/:id" element={<DispatchView isInLocation={true} />} />
-
-
+          <Route path="/return-items" element={<ProtectedRoute Component={ReturnItemsDetails} allowedRoles={["admin","security_officer"]} />} />
+          <Route path="/view-receiver/:id" element={<ProtectedRoute Component={ViewReceiver} allowedRoles={["admin","security_officer"]} />} />
+          
 
           {/* Admin-only route */}
           <Route path="/admin" element={<ProtectedRoute Component={AdminView} allowedRoles={["admin"]} />} />
@@ -102,7 +102,6 @@ const App = () => {
           <Route path="/admin-categories" element={<ProtectedRoute Component={AdminCategories} allowedRoles={["admin"]} />} />
 
           
-
           {/* Login Route */}
           <Route
             path="/login"
@@ -115,18 +114,17 @@ const App = () => {
             }
           />
 
-           {/* Signup Route */}
-  <Route
-    path="/signup"
-    element={
-      isAuthenticated ? (
-        <Navigate to={role === "admin" ? "/home" : "/admin"} />
-      ) : (
-        <Signup setRole={setRole} setUsername={setUsername} setIsAuthenticated={setIsAuthenticated} />
-      )
-    }
-  />
-
+          {/* Signup Route */}
+          <Route
+            path="/signup"
+            element={
+              isAuthenticated ? (
+                <Navigate to={role === "admin" ? "/home" : "/admin"} />
+              ) : (
+                <Signup setRole={setRole} setUsername={setUsername} setIsAuthenticated={setIsAuthenticated} />
+              )
+            }
+          />
 
           {/* Home Redirect based on Role */}
           <Route path="/" element={isAuthenticated ? <Navigate to={role === "admin" ? "/login" : "/home"} /> : <Navigate to="/login" />} />
