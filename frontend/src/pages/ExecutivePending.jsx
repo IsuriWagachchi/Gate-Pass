@@ -14,7 +14,11 @@ const ViewExecutivePending = () => {
   useEffect(() => {
     const fetchRequest = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/executive/${id}`);
+        const token = localStorage.getItem('token'); const response = await axios.get(`http://localhost:5000/api/executive/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}` 
+          }
+        })
         setRequest(response.data);
       } catch (error) {
         console.error("Error fetching request details:", error);

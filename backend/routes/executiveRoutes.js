@@ -1,3 +1,4 @@
+
 // routes/executiveRoutes.js
 import express from 'express';
 import {
@@ -5,15 +6,17 @@ import {
   updateRequestStatus,
   getRequestById
 } from '../controllers/executiveController.js';
+import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Get all requests for executive approval
-router.get('/', getAllRequests);
+router.get('/', verifyToken, getAllRequests);
 
 // Update request status
-router.put('/:id/status', updateRequestStatus);
+router.put('/:id/status', verifyToken, updateRequestStatus);
 
-router.get('/:id', getRequestById);
+// Get request details by ID
+router.get('/:id', verifyToken, getRequestById);
 
 export default router;
