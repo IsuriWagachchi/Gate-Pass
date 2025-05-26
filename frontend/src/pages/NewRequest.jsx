@@ -467,7 +467,7 @@ const NewRequest = () => {
                   required
                 >
                   <option value="">Select Executive Officer</option>
-                  <option value="Mr. Gunawardana">Mr. Gunawardana</option>
+                  <option value="Kasun Gunawardhane">Mr. Gunawardana</option>
                   <option value="Mr. Perera">Mr. Perera</option>
                   <option value="Ms. Silva">Ms. Silva</option>
                 </select>
