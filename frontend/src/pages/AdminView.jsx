@@ -40,16 +40,26 @@ const AdminView = () => {
             {/* Add Users Button */}
             <button
               onClick={() => navigate('/admin-page')}
-              className="flex items-center justify-center gap-3 w-full px-8 py-4 bg-blue-400 text-white text-xl font-semibold rounded-lg hover:bg-gray-700 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 transition-transform"
+              className="flex items-center justify-center gap-3 w-full px-8 py-4 bg-blue-900 text-white text-xl font-semibold rounded-lg hover:bg-gray-700 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 transition-transform"
             >
               <FaUserPlus className="text-xl" />
               Add Users
             </button>
 
+            {user.role === 'super admin' && (
+              <button
+                onClick={() => navigate('/user-management')}
+                className="flex items-center justify-center gap-3 w-full px-8 py-4 bg-blue-900 text-white text-xl font-semibold rounded-lg hover:bg-gray-700 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 transition-transform"
+              >
+                <FaUserPlus className="text-xl" />
+                user Management
+              </button>
+            )}
+
             {/* Add Location Button */}
             <button
               onClick={() => navigate('/admin-locations')}
-              className="flex items-center justify-center gap-3 w-full px-8 py-4 bg-blue-800 text-white text-xl font-semibold rounded-lg hover:bg-gray-700 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 transition-transform"
+              className="flex items-center justify-center gap-3 w-full px-8 py-4 bg-blue-900 text-white text-xl font-semibold rounded-lg hover:bg-gray-700 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 transition-transform"
             >
               <FaMapMarkerAlt className="text-xl" />
               Add Locations
@@ -58,7 +68,7 @@ const AdminView = () => {
             {/* Add Categories Button */}
             <button
               onClick={() => navigate('/admin-categories')}
-              className="flex items-center justify-center gap-3 w-full px-8 py-4 bg-green-800 text-white text-xl font-semibold rounded-lg hover:bg-gray-700 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 transition-transform"
+              className="flex items-center justify-center gap-3 w-full px-8 py-4 bg-blue-900 text-white text-xl font-semibold rounded-lg hover:bg-gray-700 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 transition-transform"
             >
               <FaTags className="text-xl" />
               Add Categories
