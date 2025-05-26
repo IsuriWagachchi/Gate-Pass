@@ -16,12 +16,28 @@ const getAllRequests = async (req, res) => {
 
 
 // Update request status
+// Update request status
 const updateRequestStatus = async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { status, comment } = req.body;
 
   try {
-    const updatedRequest = await Request.findByIdAndUpdate(id, { status }, { new: true });
+    // Validate that comment exists if status is Rejected
+    if (status === "Rejected" && (!comment || comment.trim() === "")) {
+      return res.status(400).json({ message: 'Executive comment is required when rejecting a request' });
+    }
+
+    const updateData = { 
+      status,
+      ...(comment && { executiveComment: comment }) // Store in executiveComment field
+    };
+
+    const updatedRequest = await Request.findByIdAndUpdate(
+      id, 
+      updateData, 
+      { new: true }
+    );
+    
     if (!updatedRequest) {
       return res.status(404).json({ message: 'Request not found' });
     }
