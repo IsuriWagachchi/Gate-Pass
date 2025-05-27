@@ -79,7 +79,10 @@ const ViewExecutivePending = () => {
             <p className="font-medium">Service No: <span className="font-normal">{request.service_no}</span></p>
             <p className="font-medium">From Location: <span className="font-normal">{request.outLocation}</span></p>
             <p className="font-medium">To Location: <span className="font-normal">{request.inLocation}</span></p>
-            <p className="font-medium">Executive Officer Comment: <span className="font-normal">{request.executiveComment}</span></p>
+            
+            {status !== "Pending" &&  (
+              <p className="font-medium">Executive Officer's Comment: <span className="font-normal">{request.executiveComment}</span></p>
+            )}
                
             
           </div>
