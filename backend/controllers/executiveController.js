@@ -4,17 +4,12 @@ import Request from '../models/requestModel.js';
 // Get all requests for executive approval
 const getAllRequests = async (req, res) => {
   try {
-    
 
-    const requests = await Request.find();
-
-    // console.log("Requests found:", requests.length);
-    
-
+    const executiveOfficer = req.user.sender_name; 
+    const requests = await Request.find({ executiveOfficer: executiveOfficer });
     res.status(200).json(requests);
-  } catch (error) {
-    console.error(" Error fetching requests:", error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching requests', error: err });
   }
 };
 

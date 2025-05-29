@@ -21,15 +21,15 @@ const Navbar = ({ logout, role }) => {
   // Define navigation links based on roles
   const getNavLinks = () => {
     const baseLinks = [
-      { path: "/home", label: "Home", roles: ["user", "admin", "executive_officer", "duty_officer", "security_officer"] },
-      { path: "/new-request", label: "New Request", roles: ["user", "admin", "executive_officer", "duty_officer", "security_officer"] },
-      { path: "/my-request", label: "My Requests", roles: ["user", "admin", "executive_officer", "duty_officer", "security_officer"] },
-      { path: "/executive-approve", label: "Executive Approve", roles: ["admin", "executive_officer"] },
-      { path: "/verify", label: "Verify", roles: ["admin", "duty_officer"] },
-      { path: "/receiver", label: "Receiver", roles: ["user", "admin", "security_officer","duty_officer","executive_officer"] },
-      { path: "/dispatch", label: "Dispatch", roles: ["admin", "security_officer"] },
-      { path: "/item-tracker", label: "Item Tracker", roles: ["admin", "security_officer"] },
-      { path: "/admin", label: "Admin", roles: ["admin"] }
+      { path: "/home", label: "Home", roles: ["user", "admin", "executive_officer", "duty_officer", "security_officer","super admin"] },
+      { path: "/new-request", label: "New Request", roles: ["user", "admin", "executive_officer", "duty_officer", "security_officer","super admin"] },
+      { path: "/my-request", label: "My Requests", roles: ["user", "admin", "executive_officer", "duty_officer", "security_officer","super admin"] },
+      { path: "/executive-approve", label: "Executive Approve", roles: ["admin", "executive_officer","super admin"] },
+      { path: "/verify", label: "Verify", roles: ["admin", "duty_officer","super admin"] },
+      { path: "/receiver", label: "Receiver", roles: ["user", "admin", "security_officer","duty_officer","executive_officer","super admin"] },
+      { path: "/dispatch", label: "Dispatch", roles: ["admin", "security_officer","super admin"] },
+      { path: "/item-tracker", label: "Item Tracker", roles: ["admin", "security_officer","super admin"] },
+      { path: "/admin", label: "Admin", roles: ["admin","super admin"] }
     ];
 
     return baseLinks.filter(link => link.roles.includes(role));
@@ -44,15 +44,15 @@ const Navbar = ({ logout, role }) => {
       </div>
 
       {/* Navigation Links */}
-      <ul className="flex ml-auto">
+      <ul className={`flex-col md:flex-row md:flex md:items-center gap-2 md:gap-4 mt-4 md:mt-0`}>
         {getNavLinks().map(({ path, label }) => (
-          <li key={path} className="h-full flex items-center">
+          <li key={path}>
             <NavLink
               to={path}
-              className={`px-6 py-3 text-lg font-medium shadow-md transition-all ${
+              className={`block px-4 py-2 rounded text-center font-medium shadow-md transition-all text-sm md:text-base ${
                 location.pathname === path
                   ? "bg-[#1B3D81] text-white"
-                  : "bg-white text-[#1B3D81] hover:bg-[#1B3D81] hover:text-white"
+                  : "bg-white text-[#1b3d81] hover:bg-[#1B3D81] hover:text-white"
               }`}
             >
               {label}
