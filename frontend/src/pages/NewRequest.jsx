@@ -227,6 +227,22 @@ const NewRequest = () => {
     reader.readAsText(file);
   };
 
+  // Function to download CSV template
+  const downloadCSVTemplate = () => {
+    const csvContent = "data:text/csv;charset=utf-8," +
+      "itemName,serialNo,category,quantity,description,returnable\n" +
+      "Sample Item,S12345,Electronics,1,This is a sample item,yes\n" +
+      "Another Item,7890,Stationery,2,Another sample item,no";
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "items_template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="min-h-screen py-8">
       <div className="container mx-auto p-4">
@@ -258,8 +274,15 @@ const NewRequest = () => {
                 htmlFor="csvImport"
                 className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 cursor-pointer"
               >
-                Choose CSV File
+                Choose Items CSV File
               </label>
+              <button
+                type="button"
+                onClick={downloadCSVTemplate}
+                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+              >
+                Download Items CSV Template
+              </button>
               <span className="text-gray-700">{csvFileName || 'No file chosen'}</span>
             </div>
             <p className="text-sm text-gray-500 mt-2">
