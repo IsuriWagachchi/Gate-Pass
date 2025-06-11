@@ -93,7 +93,7 @@ const App = () => {
           <Route path="/profile" element={<ProtectedRoute Component={ProfileCard} allowedRoles={["user", "admin","executive_officer","duty_officer","security_officer","super admin"]} />} />
           <Route path="/dispatch-view-In/:id" element={<ProtectedRoute Component={DispatchViewIn} allowedRoles={["admin","security_officer","super admin"]} />} />
           <Route path="/return-items" element={<ProtectedRoute Component={ReturnItemsDetails} allowedRoles={["admin","security_officer","super admin"]} />} />
-          <Route path="/view-receiver/:id" element={<ProtectedRoute Component={ViewReceiver} allowedRoles={["admin","security_officer","super admin"]} />} />
+          <Route path="/view-receiver/:id" element={<ProtectedRoute Component={ViewReceiver} allowedRoles={["admin","security_officer","super admin","user"]} />} />
           
 
           {/* Admin-only route */}

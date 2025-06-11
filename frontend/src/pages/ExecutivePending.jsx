@@ -29,13 +29,31 @@ const ViewExecutivePending = () => {
 
   const handleUpdateStatus = async (newStatus) => {
     try {
-      await axios.put(`http://localhost:5000/api/executive/${id}/status`, { 
-        status: newStatus,
-        comment: comment
-      });
+      // Validate that comment exists if status is Rejected
+      if (newStatus === "Rejected" && (!comment || comment.trim() === "")) {
+        alert("Executive comment is required when rejecting a request");
+        return;
+      }
+  
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `http://localhost:5000/api/executive/${id}/status`, 
+        { 
+          status: newStatus,
+          comment: comment // This will be stored as executiveComment in DB
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
       setStatus(newStatus);
     } catch (error) {
       console.error("Error updating status:", error);
+      if (error.response && error.response.data.message) {
+        alert(error.response.data.message);
+      }
     }
   };
 
@@ -51,17 +69,22 @@ const ViewExecutivePending = () => {
         </div>
 
         {/* Request Information */}
+        
         <div className="mb-6 p-3 rounded-lg shadow-md border border-gray-300">
           <div className="bg-[#2A6BAC] text-white px-4 py-2 rounded-t-md font-bold">
             Request Information
           </div>
           <div className="p-3 bg-white rounded-b-md border border-gray-300 grid grid-cols-2 gap-2">
             <p className="font-medium">Requested by: <span className="font-normal">{request.sender_name}</span></p>
-            {/* <p className="font-medium">Designation: <span className="font-normal">{request.designation}</span></p> */}
             <p className="font-medium">Service No: <span className="font-normal">{request.service_no}</span></p>
-            {/* <p className="font-medium">Section: <span className="font-normal">{request.section}</span></p> */}
             <p className="font-medium">From Location: <span className="font-normal">{request.outLocation}</span></p>
             <p className="font-medium">To Location: <span className="font-normal">{request.inLocation}</span></p>
+            
+            {status !== "Pending" &&  (
+              <p className="font-medium">Executive Officer's Comment: <span className="font-normal">{request.executiveComment}</span></p>
+            )}
+               
+            
           </div>
         </div>
 

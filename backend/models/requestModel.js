@@ -40,6 +40,7 @@ const requestSchema = new mongoose.Schema({
     enum: ['Pending', 'Verified', 'Rejected'],
     default: 'Pending'
   },
+  executiveComment: { type: String },
   dispatchStatusOut: {
     type: String,
     enum: ["Pending", "Approved", "Rejected"],
