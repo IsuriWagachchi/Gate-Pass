@@ -35,6 +35,7 @@ import DispatchViewIn from "./pages/DispatchViewIn";
 import ReturnItemsDetails from "./pages/ReturnItemsDetails";
 import ViewReceiver from "./pages/viewReceiver";
 import userManagement from "./pages/userManagement";
+import AdminRequestHistory from "./pages/AdminRequestHistory";
 
 const App = () => {
   const [role, setRole] = useState(null);
@@ -102,6 +103,7 @@ const App = () => {
           <Route path="/admin-locations" element={<ProtectedRoute Component={AdminLocations} allowedRoles={["admin","super admin"]} />} />
           <Route path="/admin-categories" element={<ProtectedRoute Component={AdminCategories} allowedRoles={["admin","super admin"]} />} />
           <Route path="/user-management" element={<ProtectedRoute Component={userManagement} allowedRoles={["admin","super admin"]} />} />
+          <Route path="/admin-request-history" element={<ProtectedRoute Component={AdminRequestHistory} allowedRoles={["admin","super admin"]} />} />
 
           
           {/* Login Route */}
