@@ -73,6 +73,15 @@ const AdminView = () => {
               <FaTags className="text-xl" />
               Add Categories
             </button>
+
+            {/* Add Request History Button */}
+            <button
+              onClick={() => navigate('/admin-request-history')}
+              className="flex items-center justify-center gap-3 w-full px-8 py-4 bg-blue-900 text-white text-xl font-semibold rounded-lg hover:bg-gray-700 transition-colors shadow-md hover:shadow-lg transform hover:scale-105 transition-transform"
+            >
+              <FaTags className="text-xl" />
+              Request History
+            </button>
           </div>
         </div>
       </div>

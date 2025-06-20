@@ -10,16 +10,15 @@ const ViewReceiver = () => {
 
   const [request, setRequest] = useState(null);
 
-  useEffect(() => {
-    const fetchRequest = async () => {
+  const fetchRequest = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/requests/${id}`);
         setRequest(response.data);
       } catch (err) {
         console.error("Failed to fetch request:", err);
       }
-    };
-
+  };
+  useEffect(() => {
     fetchRequest();
   }, [id]);
 
@@ -77,6 +76,19 @@ const ViewReceiver = () => {
                     </li>
                 ))}
                 </ul>
+                <br/>
+                <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-2">Return Item List</h4>
+                {request.returnedItems?.length > 0 ? (
+                  <ul className="list-disc list-inside ml-4">
+                    {request.returnedItems.map((returnedItem, index) => (
+                      <li key={index}>
+                        {returnedItem.item.itemName} {returnedItem.returnQuantity ? `(Qty: ${returnedItem.returnQuantity})` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-600">No items in returned list.</p>
+                )}
             </section>
             )}
 
@@ -145,7 +157,7 @@ const ViewReceiver = () => {
             {showModal && (
             <ItemListModal
                 id={id}
-                onClose={() => setShowModal(false)}
+                onClose={() => { setShowModal(false); fetchRequest(); }}
             />
             )}
         </div>
