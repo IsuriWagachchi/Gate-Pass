@@ -5,7 +5,8 @@ import {
   getRequests,
   getRequestById,
   updateRequest,
-  deleteRequest
+  deleteRequest,
+  getAllRequests
 } from '../controllers/requestController.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 
@@ -15,8 +16,8 @@ const router = express.Router();
 router.post('/create', uploadMultipleItems, createRequest);
 router.put('/:id', uploadMultipleItems, updateRequest);
 
-// Other routes remain the same
 router.get('/',verifyToken , getRequests);
+router.get('/all', verifyToken, getAllRequests); // For admin to get all requests
 router.get('/:id', getRequestById);
 router.delete('/:id', deleteRequest);
 

@@ -184,6 +184,16 @@ const getRequests = async (req, res) => {
   }
 };
 
+// Get all requests for admin
+const getAllRequests = async (req, res) => {
+  try {
+    const requests = await Request.find().sort({ createdAt: -1 });
+    res.status(200).json(requests);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching requests', error: err });
+  }
+};
+
 // Get request by ID
 const getRequestById = async (req, res) => {
   const { id } = req.params;
@@ -219,5 +229,6 @@ export {
   getRequests,
   getRequestById,
   updateRequest,
-  deleteRequest
+  deleteRequest,
+  getAllRequests
 };
