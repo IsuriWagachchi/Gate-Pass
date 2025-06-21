@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { FaArrowLeft, FaFilePdf } from "react-icons/fa";
@@ -57,6 +57,23 @@ const ViewRequest = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  const formatReferenceNumber = (id, createdAt) => {
+    if (!id) return 'XXXXXX-XXXX';
+    
+    // Use current date if createdAt is not provided
+    const date = createdAt ? new Date(createdAt) : new Date();
+    
+    const dateStr = [
+      date.getFullYear(),
+      (date.getMonth() + 1).toString().padStart(2, '0'),
+      date.getDate().toString().padStart(2, '0')
+    ].join('');
+    
+    const uniquePart = id.slice(-4).toUpperCase();
+    
+    return `${dateStr}-${uniquePart}`;
+  };
+
   const downloadPdf = async () => {
     if (!request || !user) return;
 
@@ -86,7 +103,7 @@ const ViewRequest = () => {
         // Reference Number
         doc.setFontSize(14);
         doc.setTextColor(42, 107, 172); // Blue color
-        doc.text(`Ref. No: ${request._id}`, 105, 50, { align: "center" });
+        doc.text(`Ref. No: ${formatReferenceNumber(request._id, request.createdAt)}`, 105, 50, { align: "center" });
 
         // Status
         doc.setFontSize(12);
@@ -174,7 +191,7 @@ const ViewRequest = () => {
         doc.text(`By Hand: ${request.byHand || "No"}`, 14, yPosition);
 
         // Save the PDF
-        doc.save(`request_${request._id}.pdf`);
+        doc.save(`request_${formatReferenceNumber(request._id, request.createdAt)}.pdf`);
       };
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -195,7 +212,7 @@ const ViewRequest = () => {
     // Reference Number
     doc.setFontSize(14);
     doc.setTextColor(42, 107, 172); // Blue color
-    doc.text(`Ref. No: ${request._id}`, 105, 25, { align: "center" });
+    doc.text(`Ref. No: ${formatReferenceNumber(request._id, request.createdAt)}`, 105, 25, { align: "center" });
 
     // Status
     doc.setFontSize(12);
@@ -217,7 +234,7 @@ const ViewRequest = () => {
     // Rest of the content (same as above)
     // ... [rest of the PDF generation code]
     
-    doc.save(`request_${request._id}.pdf`);
+    doc.save(`request_${formatReferenceNumber(request._id, request.createdAt)}.pdf`);
   };
 
   if (!request || !user) return <p className="text-center text-gray-500">Loading...</p>;
@@ -239,7 +256,7 @@ const ViewRequest = () => {
         
         {/* Reference Number as Title */}
         <div className="bg-[#2A6BAC] text-white text-center font-bold text-lg py-2 rounded-t-md">
-          Ref. No: {request._id}
+          Ref. No: {formatReferenceNumber(request._id, request.createdAt)}
         </div>
 
         {/* Status Badge */}
@@ -315,12 +332,7 @@ const ViewRequest = () => {
             <FaFilePdf className="text-lg" />
             Download PDF
           </button>
-          <button 
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md transition-colors"
-            onClick={handleUpdate}
-          >
-            Update
-          </button>
+          
           <button 
             className="bg-red-700 hover:bg-red-800 text-white px-6 py-2 rounded-lg shadow-md transition-colors" 
             onClick={handleDelete}
