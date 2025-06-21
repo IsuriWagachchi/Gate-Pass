@@ -59,11 +59,37 @@ const updateRequestStatus = async (req, res) => {
     // Send email notifications
     try {
       if (status === "Approved") {
-        // Email to sender
+        // HTML email template for approval
+        const senderHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #2A6BAC;">Your Request Has Been Approved</h2>
+            <p>Your item transfer request has been approved by the executive officer.</p>
+            
+            <h3 style="color: #2A6BAC;">Request Details</h3>
+            <p><strong>Request ID:</strong> ${id}</p>
+            <p><strong>From Location:</strong> ${request.outLocation}</p>
+            <p><strong>To Location:</strong> ${request.inLocation}</p>
+            
+            <h3 style="color: #2A6BAC; margin-top: 20px;">Items</h3>
+            ${generateItemsHTML(request.items)}
+            
+            <p style="margin-top: 20px;">Thank you for using our system.</p>
+          </div>
+        `;
+
+        // Text version for fallback
+        const senderText = `Your item transfer request (ID: ${id}) has been approved.\n\n` +
+          `From: ${request.outLocation}\n` +
+          `To: ${request.inLocation}\n\n` +
+          `Items:\n${request.items.map(item => 
+            `- ${item.itemName} (Serial: ${item.serialNo}, Qty: ${item.quantity})`
+          ).join('\n')}\n\nThank you.`;
+
         await sendEmail(
           senderUser.email,
           'Your Request Has Been Approved',
-          `Your item transfer request has been approved by the executive officer.\n\nRequest ID: ${id}\n\nThank you.`
+          senderText,
+          senderHtml
         );
 
         // Find duty officer in the sender's branch location
@@ -72,20 +98,73 @@ const updateRequestStatus = async (req, res) => {
           role: 'duty_officer'
         });
 
+        // Duty officer email template
+        const officerHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #2A6BAC;">New Approved Transfer Request</h2>
+            <p>A new item transfer request has been approved and requires your attention.</p>
+            
+            <h3 style="color: #2A6BAC;">Request Details</h3>
+            <p><strong>Request ID:</strong> ${id}</p>
+            <p><strong>Sender:</strong> ${request.sender_name}</p>
+            <p><strong>Service No:</strong> ${request.service_no}</p>
+            <p><strong>From Location:</strong> ${request.outLocation}</p>
+            <p><strong>To Location:</strong> ${request.inLocation}</p>
+            
+            <h3 style="color: #2A6BAC; margin-top: 20px;">Items</h3>
+            ${generateItemsHTML(request.items)}
+            
+            <p style="margin-top: 20px;">Please review the request in the system.</p>
+          </div>
+        `;
+
+        const officerText = `A new item transfer request (ID: ${id}) has been approved.\n\n` +
+          `Sender: ${request.sender_name}\n` +
+          `Service No: ${request.service_no}\n` +
+          `From: ${request.outLocation}\n` +
+          `To: ${request.inLocation}\n\n` +
+          `Items:\n${request.items.map(item => 
+            `- ${item.itemName} (Serial: ${item.serialNo}, Qty: ${item.quantity})`
+          ).join('\n')}\n\nPlease review the request in the system.`;
+
         // Email to all duty officers in the branch
         for (const officer of dutyOfficers) {
           await sendEmail(
             officer.email,
             'New Approved Transfer Request',
-            `A new item transfer request has been approved by the executive officer and requires your attention.\n\nRequest ID: ${id}\nSender: ${request.sender_name}\n\nPlease review the request in the system.`
+            officerText,
+            officerHtml
           );
         }
       } else if (status === "Rejected") {
-        // Email to sender for rejection
+        // HTML email template for rejection
+        const rejectionHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #d9534f;">Your Request Has Been Rejected</h2>
+            <p>Your item transfer request has been rejected by the executive officer.</p>
+            
+            <h3 style="color: #2A6BAC;">Request Details</h3>
+            <p><strong>Request ID:</strong> ${id}</p>
+            <p><strong>Reason for Rejection:</strong> ${comment}</p>
+            
+            <h3 style="color: #2A6BAC; margin-top: 20px;">Items</h3>
+            ${generateItemsHTML(request.items)}
+            
+            <p style="margin-top: 20px;">Please contact the executive officer for more information.</p>
+          </div>
+        `;
+
+        const rejectionText = `Your item transfer request (ID: ${id}) has been rejected.\n\n` +
+          `Reason: ${comment}\n\n` +
+          `Items:\n${request.items.map(item => 
+            `- ${item.itemName} (Serial: ${item.serialNo}, Qty: ${item.quantity})`
+          ).join('\n')}\n\nPlease contact the executive officer for more information.`;
+
         await sendEmail(
           senderUser.email,
           'Your Request Has Been Rejected',
-          `Your item transfer request has been rejected by the executive officer.\n\nRequest ID: ${id}\nReason: ${comment}\n\nPlease contact the executive officer for more information.`
+          rejectionText,
+          rejectionHtml
         );
       }
     } catch (emailError) {
@@ -110,6 +189,19 @@ const getRequestById = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error fetching request", error });
   }
+};
+
+const generateItemsHTML = (items) => {
+  return items.map(item => `
+    <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+      <h3 style="margin-top: 0; color: #2A6BAC;">${item.itemName}</h3>
+      <p><strong>Serial No:</strong> ${item.serialNo}</p>
+      <p><strong>Category:</strong> ${item.category}</p>
+      <p><strong>Quantity:</strong> ${item.quantity}</p>
+      <p><strong>Description:</strong> ${item.description}</p>
+      <p><strong>Returnable:</strong> ${item.returnable}</p>
+    </div>
+  `).join('');
 };
 
 export { getAllRequests, updateRequestStatus, getRequestById };
