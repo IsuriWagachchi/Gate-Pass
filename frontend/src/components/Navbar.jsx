@@ -113,7 +113,7 @@ const Navbar = ({ logout, role, username }) => {
                   setLogoutPopupOpen(true);
                 }}
               >
-                Logout
+                Sign Out
               </button>
             </div>
           )}
