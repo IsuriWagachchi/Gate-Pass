@@ -1,13 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Bell, User } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import logo from "/src/assets/SLTMobitel_logo.svg";
 import PopupLogout from "../pages/PopupLogout";
 
-const Navbar = ({ logout, role }) => {
+const Navbar = ({ logout, role, username }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isLogoutPopupOpen, setLogoutPopupOpen] = useState(false);
   const location = useLocation();
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleLogout = () => {
     setLogoutPopupOpen(false);
@@ -69,22 +84,34 @@ const Navbar = ({ logout, role }) => {
         </NavLink>
 
         {/* User Profile & Dropdown */}
-        <div className="relative">
+        <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100"
+            className="p-2 rounded-full bg-white shadow-md hover:bg-gray-100 flex items-center gap-2"
           >
             <User size={20} className="text-[#1B3D81]" />
+            <span className="text-[#1B3D81] font-medium hidden md:inline">{username}</span>
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-40">
-              <NavLink to="/profile" className="block px-4 py-2 hover:bg-gray-100 text-[#1B3D81]">
+            <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-48" style={{ zIndex: 100 }}>
+              <div className="px-4 py-2 border-b border-gray-200">
+                <p className="text-sm text-gray-500">Logged in as</p>
+                <p className="font-medium text-[#1B3D81]">{username}</p>
+              </div>
+              <NavLink 
+                to="/profile" 
+                className="block px-4 py-2 hover:bg-gray-100 text-[#1B3D81]"
+                onClick={() => setDropdownOpen(false)}
+              >
                 Profile
               </NavLink>
               <button
                 className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-[#1B3D81]"
-                onClick={() => setLogoutPopupOpen(true)}
+                onClick={() => {
+                  setDropdownOpen(false);
+                  setLogoutPopupOpen(true);
+                }}
               >
                 Logout
               </button>

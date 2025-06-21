@@ -1,16 +1,16 @@
 import React from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { useNavigate } from "react-router-dom";
 import sltHome from "../assets/sltHome.webp";
 
 const HomePage = () => {
-  const navigate = useNavigate(); // Initialize navigation function
+  const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    navigate("/new-request"); // Navigate to the new-request page
+    navigate("/new-request");
   };
 
   return (
-    <div className="relative w-full h-screen">
+    <div className="relative w-full h-screen" style={{ zIndex: 1 }}> {/* Only added style={{ zIndex: 1 }} */}
       {/* Full-width Image */}
       <img 
         src={sltHome} 
