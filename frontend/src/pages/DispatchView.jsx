@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import laptopImage from "../assets/laptop.jpg";
+import companylogo from "../assets/companylogo.png";
 import { jsPDF } from "jspdf";
 
 const DispatchView = () => {
@@ -18,6 +19,8 @@ const DispatchView = () => {
   const [nonSltNameOut, setNonSltNameOut] = useState("");
   const [nicNumberOut, setNicNumberOut] = useState("");
   const [companyNameOut, setCompanyNameOut] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchRequestDetails();
@@ -25,310 +28,168 @@ const DispatchView = () => {
 
   const fetchRequestDetails = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(
         `http://localhost:5000/api/dispatch/getDispatchById/${id}`
       );
       const requestData = response.data;
       setRequest(requestData);
       setDispatchStatusOut(requestData.dispatchStatusOut || "Pending");
+      setError(null);
     } catch (error) {
       console.error("Error fetching request details:", error);
+      setError(error.response?.data?.message || "Failed to load request details");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const downloadPdf = () => {
+  const downloadPdf = async () => {
     if (!request) return;
-  
+
     const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 14;
-    const boxWidth = pageWidth - 2 * margin;
-    const columnWidth = (boxWidth - 20) / 2;
-    const textPadding = 6;
-    const LABEL_VALUE_GAP = 0.5;
-    let pageCount = 1;
-  
-    // Colors
-    const colors = {
-      primary: [42, 107, 172],
-      success: [0, 128, 0],
-      danger: [255, 0, 0],
-      warning: [255, 165, 0],
-      darkBlue: [27, 61, 129],
-      darkGreen: [22, 163, 74],
-      gray: [209, 213, 219],
-      white: [255, 255, 255],
-    };
-  
-    // Draw rounded box with fill and border
-    const roundedRectWithBorder = (x, y, width, height, radius, fillColor, borderColor = colors.gray) => {
-      doc.setDrawColor(...borderColor);
-      doc.setFillColor(...fillColor);
-      doc.setLineWidth(0.5);
-      doc.roundedRect(x, y, width, height, radius, radius, 'FD');
-    };
-  
-    // Create standard box container with consistent title style
-    const createBoxContainer = (title, content, yPos, titleColor = colors.darkBlue) => {
-      let contentHeight = textPadding;
-      content.forEach(item => {
-        const labelWidth = doc.getTextWidth(`${item.label}: `) + LABEL_VALUE_GAP;
-        const availableWidth = boxWidth - textPadding * 2 - labelWidth;
-        const valueLines = doc.splitTextToSize(item.value, availableWidth);
-        contentHeight += Math.max(valueLines.length * 5.5, 12);
-      });
-  
-      const boxHeight = 15 + contentHeight + (textPadding / 2);
+    
+    // Add logo to the PDF
+    try {
+      // Convert logo image to base64
+      const response = await fetch(companylogo);
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
       
-      if (yPos + boxHeight > pageHeight - margin - 10) {
-        doc.addPage();
-        pageCount++;
-        yPos = margin;
+      reader.onloadend = function() {
+        const logoDataUrl = reader.result;
+        
+        // Set font styles
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+
+        // Add logo (width: 50, height: auto maintains aspect ratio)
+        doc.addImage(logoDataUrl, 'PNG', 80, 10, 50, 20);
+
+        // Add title below logo
         doc.setFontSize(18);
-        doc.setTextColor(...colors.primary);
-        doc.text("DISPATCH DETAILS", pageWidth / 2, 20, { align: 'center' });
-      }
-  
-      roundedRectWithBorder(margin, yPos, boxWidth, boxHeight, 3, colors.white);
-      roundedRectWithBorder(margin, yPos, boxWidth, 12, 3, titleColor, titleColor);
-      doc.setTextColor(...colors.white);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(12);
-      doc.text(title, margin + textPadding, yPos + 8);
-      
-      let currentY = yPos + 17;
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(10);
-      
-      content.forEach((item, index) => {
-        const fullText = `${item.label}: ${item.value}`;
-        const lines = doc.splitTextToSize(fullText, boxWidth - textPadding * 2);
+        doc.text("DISPATCH DETAILS", 105, 40, { align: "center" });
+
+        // Add reference number
+        doc.setFontSize(14);
+        doc.text(`Reference: ${request._id}`, 105, 50, { align: "center" });
+
+        // Add request information section
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.text("Request Information", 14, 65);
+        doc.setFont("helvetica", "normal");
         
-        doc.setFont('helvetica', 'bold');
-        doc.text(`${item.label}:`, margin + textPadding, currentY);
-        
-        const labelWidth = doc.getTextWidth(`${item.label}: `) + LABEL_VALUE_GAP;
-        
-        doc.setFont('helvetica', 'normal');
-        const valueLines = doc.splitTextToSize(item.value, boxWidth - textPadding * 2 - labelWidth);
-        
-        doc.text(valueLines[0], margin + textPadding + labelWidth, currentY);
-        
-        let yOffset = 0;
-        for (let i = 1; i < valueLines.length; i++) {
-          yOffset += 5;
-          doc.text(valueLines[i], margin + textPadding + labelWidth, currentY + yOffset);
+        // Request information details
+        doc.text(`Status: ${request.dispatchStatusOut || "Pending"}`, 14, 75);
+        doc.text(`Requested by: ${request.sender_name || "N/A"}`, 14, 85);
+        doc.text(`Service No: ${request.service_no || "N/A"}`, 105, 85);
+        doc.text(`Designation: ${request.designation || "N/A"}`, 14, 95);
+        doc.text(`Contact: ${request.contact_number || "N/A"}`, 105, 95);
+        doc.text(`Out Location: ${request.outLocation || "N/A"}`, 14, 105);
+        doc.text(`In Location: ${request.inLocation || "N/A"}`, 105, 105);
+        doc.text(`By Hand: ${request.byHand || "No"}`, 14, 115);
+        doc.text(`Vehicle No: ${request.vehicleNumber || "N/A"}`, 105, 115);
+        doc.text(`Approved By: ${request.executiveOfficer || "N/A"}`, 14, 125);
+
+        // Add dispatch approval details if available
+        if (request.dispatchStatusOut && request.dispatchStatusOut !== "Pending") {
+          doc.setFont("helvetica", "bold");
+          doc.text("Dispatch Approval Details", 14, 140);
+          doc.setFont("helvetica", "normal");
+          
+          doc.text(`Status: ${request.dispatchStatusOut}`, 14, 150);
+          doc.text(`Processed By: ${request.approverNameOut || request.nonSltNameOut || "N/A"}`, 14, 160);
+          doc.text(`Employee Type: ${request.employeeTypeOut || "N/A"}`, 105, 160);
+          
+          if (request.employeeTypeOut === "SLT") {
+            doc.text(`Service No: ${request.serviceNoOut || "N/A"}`, 14, 170);
+          } else if (request.employeeTypeOut === "Non-SLT") {
+            doc.text(`NIC No: ${request.nicNumberOut || "N/A"}`, 14, 170);
+            doc.text(`Company: ${request.companyNameOut || "N/A"}`, 105, 170);
+          }
+          
+          doc.text(`Comment: ${request.commentOut || "N/A"}`, 14, 180);
         }
+
+        // Add items section
+        doc.setFont("helvetica", "bold");
+        doc.text(`Items (${request.items?.length || 0})`, 14, 195);
+        doc.setFont("helvetica", "normal");
+
+        let yPosition = 205;
         
-        currentY += Math.max(valueLines.length * 5.5, 12);
-        
-        if (index < content.length - 1) {
-          doc.setDrawColor(...colors.gray);
-          doc.setLineWidth(0.1);
-          doc.line(
-            margin + textPadding, 
-            currentY - 0.5, 
-            margin + boxWidth - textPadding, 
-            currentY - 0.5
-          );
-          currentY += 2;
-        }
-      });
-  
-      return yPos + boxHeight + 8;
-    };
-  
-    // Create item box with consistent title style
-    const createItemBox = (item, index, yPos) => {
-      const itemTitle = `Item ${index + 1}`;
-      const itemHeight = 70;
-      
-      if (yPos + itemHeight > pageHeight - margin - 10) {
-        doc.addPage();
-        pageCount++;
-        yPos = margin;
-        doc.setFontSize(18);
-        doc.setTextColor(...colors.primary);
-        doc.text("DISPATCH DETAILS", pageWidth / 2, 20, { align: 'center' });
-      }
-  
-      roundedRectWithBorder(margin, yPos, boxWidth, itemHeight, 3, colors.white);
-      roundedRectWithBorder(margin, yPos, boxWidth, 12, 3, colors.darkBlue, colors.darkBlue);
-      doc.setTextColor(...colors.white);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(12);
-      doc.text(itemTitle, margin + textPadding, yPos + 8);
-      
-      doc.setTextColor(0, 0, 0);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
-      doc.text(item.itemName, margin + textPadding, yPos + 20);
-      
-      const leftColumn = [
-        { label: "Serial No", value: item.serialNo || 'N/A' },
-        { label: "Category", value: item.category || 'N/A' }
-      ];
-      
-      const rightColumn = [
-        { label: "Quantity", value: item.quantity || '1' },
-        { label: "Returnable", value: item.returnable === 'yes' ? 'Yes' : 'No' }
-      ];
-      
-      let currentY = yPos + 25;
-      doc.setFontSize(10);
-      
-      leftColumn.forEach((field, i) => {
-        doc.setFont('helvetica', 'bold');
-        doc.text(`${field.label}:`, margin + 10, currentY + (i * 15));
-        
-        doc.setFont('helvetica', 'normal');
-        const labelWidth = doc.getTextWidth(`${field.label}: `) + LABEL_VALUE_GAP;
-        const valueLines = doc.splitTextToSize(field.value, columnWidth - labelWidth - 5);
-        
-        let yOffset = 0;
-        valueLines.forEach((line, lineIndex) => {
-          doc.text(line, margin + 10 + labelWidth, currentY + (i * 15) + yOffset);
-          yOffset += 5;
+        // Add each item
+        request.items?.forEach((item, index) => {
+          if (yPosition > 250) {
+            doc.addPage();
+            yPosition = 20;
+          }
+
+          // Item header
+          doc.setFont("helvetica", "bold");
+          doc.text(`Item #${index + 1}`, 14, yPosition);
+          doc.text(`Ref: ${item.serialNo || "N/A"}`, 180, yPosition, { align: "right" });
+          yPosition += 5;
+
+          // Item details
+          doc.setFont("helvetica", "normal");
+          doc.text(`Name: ${item.itemName || "N/A"}`, 14, yPosition);
+          doc.text(`Category: ${item.category || "N/A"}`, 105, yPosition);
+          yPosition += 7;
+
+          doc.text(`Quantity: ${item.quantity || "N/A"}`, 14, yPosition);
+          doc.text(`Returnable: ${item.returnable || "N/A"}`, 105, yPosition);
+          yPosition += 7;
+
+          doc.text(`Description: ${item.description || "N/A"}`, 14, yPosition);
+          yPosition += 10;
         });
-      });
-      
-      rightColumn.forEach((field, i) => {
-        doc.setFont('helvetica', 'bold');
-        doc.text(`${field.label}:`, margin + 10 + columnWidth, currentY + (i * 15));
+
+        // Add receiver details section
+        doc.setFont("helvetica", "bold");
+        doc.text("Receiver Details", 14, yPosition);
+        yPosition += 7;
         
-        doc.setFont('helvetica', 'normal');
-        const labelWidth = doc.getTextWidth(`${field.label}: `) + LABEL_VALUE_GAP;
-        const valueLines = doc.splitTextToSize(field.value, columnWidth - labelWidth - 5);
-        
-        let yOffset = 0;
-        valueLines.forEach((line, lineIndex) => {
-          doc.text(line, margin + 10 + columnWidth + labelWidth, currentY + (i * 15) + yOffset);
-          yOffset += 5;
-        });
-      });
-      
-      doc.setFont('helvetica', 'bold');
-      doc.text("Description:", margin + 10, yPos + 50);
-      
-      doc.setFont('helvetica', 'normal');
-      const descLabelWidth = doc.getTextWidth("Description:") + LABEL_VALUE_GAP;
-      const descLines = doc.splitTextToSize(item.description || 'N/A', boxWidth - 20 - descLabelWidth);
-      
-      descLines.forEach((line, i) => {
-        doc.text(line, margin + 10 + descLabelWidth, yPos + 50 + (i * 5));
-      });
-      
-      return yPos + itemHeight + 10;
-    };
-  
-    // Header
-    doc.setFontSize(18);
-    doc.setTextColor(...colors.primary);
-    doc.text("DISPATCH DETAILS", pageWidth / 2, 20, { align: 'center' });
-  
-    // Reference Number
-    doc.setFontSize(14);
-    doc.setTextColor(...colors.white);
-    roundedRectWithBorder(margin, 30, boxWidth, 12, 3, colors.primary);
-    doc.text(`Ref. No: ${request._id}`, pageWidth / 2, 37, { align: 'center' });
-  
-    // Status
-    doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Name: ${request.receiverName || "N/A"}`, 14, yPosition);
+        doc.text(`Contact: ${request.receiverContact || "N/A"}`, 105, yPosition);
+        yPosition += 7;
+
+        doc.text(`Service No: ${request.receiverServiceNumber || "N/A"}`, 14, yPosition);
+        doc.text(`Group: ${request.receiverGroup || "N/A"}`, 105, yPosition);
+        yPosition += 7;
+
+        // Add creation date
+        doc.text(`Created At: ${request.createdAt ? new Date(request.createdAt).toLocaleString() : "N/A"}`, 14, yPosition);
+
+        // Save the PDF
+        doc.save(`dispatch-details-${id}.pdf`);
+      };
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      // Fallback PDF without logo if there's an error
+      generatePdfWithoutLogo(doc);
+    }
+  };
+
+  // Fallback PDF generation without logo
+  const generatePdfWithoutLogo = (doc) => {
+    // Set font styles
+    doc.setFont("helvetica", "normal");
     doc.setTextColor(0, 0, 0);
-    doc.text(`Status: ${request.dispatchStatusOut || 'Pending'}`, margin + doc.getTextWidth("Status: ") + LABEL_VALUE_GAP, 55);
-  
-    let yPosition = 65;
-  
-    // Sender Details
-    yPosition = createBoxContainer(
-      "Sender Details",
-      [
-        { label: "Name", value: request.sender_name || "N/A" },
-        { label: "Designation", value: request.designation || "N/A" },
-        { label: "Service Number", value: request.service_no || "N/A" },
-        { label: "Contact Number", value: request.contact_number || "N/A" }
-      ],
-      yPosition
-    );
-  
-    // Location Details
-    yPosition = createBoxContainer(
-      "Location Details",
-      [
-        { label: "Out Location", value: request.outLocation || "N/A" },
-        { label: "In Location", value: request.inLocation || "N/A" },
-        { label: "By Hand", value: request.byHand || "No" },
-        ...(request.vehicleNumber ? [{ label: "Vehicle Number", value: request.vehicleNumber }] : [])
-      ],
-      yPosition,
-      colors.darkGreen
-    );
-  
-    // Approval Details (if approved/rejected)
-    if (request.dispatchStatusOut && request.dispatchStatusOut !== "Pending") {
-      yPosition = createBoxContainer(
-        "Dispatch Approval Details",
-        [
-          { label: "Status", value: request.dispatchStatusOut },
-          { label: "Approver Name", value: request.approverNameOut || "N/A" },
-          { label: "Service Number", value: request.serviceNoOut || "N/A" },
-          ...(request.commentOut ? [{ label: "Comment", value: request.commentOut }] : [])
-        ],
-        yPosition,
-        request.dispatchStatusOut === "Approved" ? colors.success : colors.danger
-      );
-    }
-  
-    // Executive Officer Approval
-    if (request.executiveOfficer) {
-      yPosition = createBoxContainer(
-        "Approval Information",
-        [
-          { label: "Approved By", value: request.executiveOfficer || "N/A" },
-          { label: "Date", value: new Date(request.createdAt).toLocaleString() || "N/A" }
-        ],
-        yPosition,
-        colors.darkBlue
-      );
-    }
-  
-    // Items List
-    if (request.items && request.items.length > 0) {
-      doc.setFontSize(12);
-      doc.setTextColor(...colors.darkBlue);
-      doc.text("ITEMS LIST", margin, yPosition);
-      yPosition += 8;
-      
-      request.items.forEach((item, index) => {
-        yPosition = createItemBox(item, index, yPosition);
-      });
-    }
-  
-    // Receiver Details
-    if (request.receiverName || request.receiverContact || request.receiverServiceNumber || request.receiverGroup) {
-      yPosition = createBoxContainer(
-        "Receiver Details",
-        [
-          { label: "Name", value: request.receiverName || "N/A" },
-          { label: "Contact Number", value: request.receiverContact || "N/A" },
-          { label: "Service Number", value: request.receiverServiceNumber || "N/A" },
-          { label: "Group", value: request.receiverGroup || "N/A" }
-        ],
-        yPosition,
-        colors.darkBlue      );
-    }
-  
-    // Page numbers
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(9);
-      doc.setTextColor(100, 100, 100);
-      doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
-    }
-  
+
+    // Add title
+    doc.setFontSize(18);
+    doc.text("DISPATCH DETAILS", 105, 15, { align: "center" });
+
+    // Add reference number
+    doc.setFontSize(14);
+    doc.text(`Reference: ${request._id}`, 105, 25, { align: "center" });
+
     // Save the PDF
-    doc.save(`dispatch_${request._id}.pdf`);
+    doc.save(`dispatch-details-${id}.pdf`);
   };
 
   const handleUpdateStatus = async (newStatus) => {
@@ -379,7 +240,51 @@ const DispatchView = () => {
     }    
   };
 
-  if (!request) return <p className="text-center text-gray-500">Loading...</p>;
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6 font-sans flex justify-center">
+        <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg w-full max-w-5xl mt-6">
+          <p className="text-center">Loading request details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-6 font-sans flex justify-center">
+        <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg w-full max-w-5xl mt-6">
+          <p className="text-red-500 text-center">{error}</p>
+          <div className="flex justify-center mt-4">
+            <button 
+              onClick={() => navigate(-1)} 
+              className="text-blue-500 hover:underline"
+            >
+              ← Back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!request) {
+    return (
+      <div className="container mx-auto p-6 font-sans flex justify-center">
+        <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg w-full max-w-5xl mt-6">
+          <p className="text-center">No request data found.</p>
+          <div className="flex justify-center mt-4">
+            <button 
+              onClick={() => navigate(-1)} 
+              className="text-blue-500 hover:underline"
+            >
+              ← Back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-6 font-sans flex justify-center">
@@ -401,14 +306,12 @@ const DispatchView = () => {
             </span>
           </h2>
           <div className="flex items-center gap-4">
-            {request.dispatchStatusOut && request.dispatchStatusOut !== "Pending" && (
-              <button 
-                onClick={downloadPdf}
-                className="bg-[#2A6BAC] text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-              >
-                Download PDF
-              </button>
-            )}
+            <button 
+              onClick={downloadPdf}
+              className="bg-[#2A6BAC] text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+            >
+              Download PDF
+            </button>
             <button
               onClick={() => navigate(-1)}
               className="text-blue-500 hover:underline"
@@ -518,6 +421,10 @@ const DispatchView = () => {
                         <p className="text-lg font-medium mb-1">
                           NIC Number:{" "}
                           <span className="font-normal">{request.nicNumberOut}</span>
+                        </p>
+                        <p className="text-lg font-medium mb-1">
+                          Company Name:{" "}
+                          <span className="font-normal">{request.companyNameOut}</span>
                         </p>
                       </>
                     )}
