@@ -5,6 +5,19 @@ import laptopImage from "../assets/laptop.jpg";
 import companylogo from "../assets/companylogo.png";
 import { jsPDF } from "jspdf";
 
+// Added this format function - ONLY CHANGE
+const formatReferenceNumber = (id, createdAt) => {
+  if (!id) return 'XXXXXX-XXXX';
+  const date = createdAt ? new Date(createdAt) : new Date();
+  const dateStr = [
+    date.getFullYear(),
+    (date.getMonth() + 1).toString().padStart(2, '0'),
+    date.getDate().toString().padStart(2, '0')
+  ].join('');
+  const uniquePart = id.slice(-4).toUpperCase();
+  return `${dateStr}-${uniquePart}`;
+};
+
 const DispatchView = () => {
   const [request, setRequest] = useState(null);
   const { id } = useParams();
@@ -49,9 +62,7 @@ const DispatchView = () => {
 
     const doc = new jsPDF();
     
-    // Add logo to the PDF
     try {
-      // Convert logo image to base64
       const response = await fetch(companylogo);
       const blob = await response.blob();
       const reader = new FileReader();
@@ -60,28 +71,22 @@ const DispatchView = () => {
       reader.onloadend = function() {
         const logoDataUrl = reader.result;
         
-        // Set font styles
         doc.setFont("helvetica", "normal");
         doc.setTextColor(0, 0, 0);
 
-        // Add logo (width: 50, height: auto maintains aspect ratio)
         doc.addImage(logoDataUrl, 'PNG', 80, 10, 50, 20);
 
-        // Add title below logo
         doc.setFontSize(18);
         doc.text("DISPATCH DETAILS", 105, 40, { align: "center" });
 
-        // Add reference number
-        doc.setFontSize(14);
-        doc.text(`Reference: ${request._id}`, 105, 50, { align: "center" });
+        // Changed this line for reference number format
+        doc.text(`Reference: ${formatReferenceNumber(request._id, request.createdAt)}`, 105, 50, { align: "center" });
 
-        // Add request information section
         doc.setFontSize(12);
         doc.setFont("helvetica", "bold");
         doc.text("Request Information", 14, 65);
         doc.setFont("helvetica", "normal");
         
-        // Request information details
         doc.text(`Status: ${request.dispatchStatusOut || "Pending"}`, 14, 75);
         doc.text(`Requested by: ${request.sender_name || "N/A"}`, 14, 85);
         doc.text(`Service No: ${request.service_no || "N/A"}`, 105, 85);
@@ -93,7 +98,6 @@ const DispatchView = () => {
         doc.text(`Vehicle No: ${request.vehicleNumber || "N/A"}`, 105, 115);
         doc.text(`Approved By: ${request.executiveOfficer || "N/A"}`, 14, 125);
 
-        // Add dispatch approval details if available
         if (request.dispatchStatusOut && request.dispatchStatusOut !== "Pending") {
           doc.setFont("helvetica", "bold");
           doc.text("Dispatch Approval Details", 14, 140);
@@ -113,27 +117,23 @@ const DispatchView = () => {
           doc.text(`Comment: ${request.commentOut || "N/A"}`, 14, 180);
         }
 
-        // Add items section
         doc.setFont("helvetica", "bold");
         doc.text(`Items (${request.items?.length || 0})`, 14, 195);
         doc.setFont("helvetica", "normal");
 
         let yPosition = 205;
         
-        // Add each item
         request.items?.forEach((item, index) => {
           if (yPosition > 250) {
             doc.addPage();
             yPosition = 20;
           }
 
-          // Item header
           doc.setFont("helvetica", "bold");
           doc.text(`Item #${index + 1}`, 14, yPosition);
           doc.text(`Ref: ${item.serialNo || "N/A"}`, 180, yPosition, { align: "right" });
           yPosition += 5;
 
-          // Item details
           doc.setFont("helvetica", "normal");
           doc.text(`Name: ${item.itemName || "N/A"}`, 14, yPosition);
           doc.text(`Category: ${item.category || "N/A"}`, 105, yPosition);
@@ -147,7 +147,6 @@ const DispatchView = () => {
           yPosition += 10;
         });
 
-        // Add receiver details section
         doc.setFont("helvetica", "bold");
         doc.text("Receiver Details", 14, yPosition);
         yPosition += 7;
@@ -161,34 +160,26 @@ const DispatchView = () => {
         doc.text(`Group: ${request.receiverGroup || "N/A"}`, 105, yPosition);
         yPosition += 7;
 
-        // Add creation date
         doc.text(`Created At: ${request.createdAt ? new Date(request.createdAt).toLocaleString() : "N/A"}`, 14, yPosition);
 
-        // Save the PDF
         doc.save(`dispatch-details-${id}.pdf`);
       };
     } catch (error) {
       console.error("Error generating PDF:", error);
-      // Fallback PDF without logo if there's an error
       generatePdfWithoutLogo(doc);
     }
   };
 
-  // Fallback PDF generation without logo
   const generatePdfWithoutLogo = (doc) => {
-    // Set font styles
     doc.setFont("helvetica", "normal");
     doc.setTextColor(0, 0, 0);
 
-    // Add title
     doc.setFontSize(18);
     doc.text("DISPATCH DETAILS", 105, 15, { align: "center" });
 
-    // Add reference number
-    doc.setFontSize(14);
-    doc.text(`Reference: ${request._id}`, 105, 25, { align: "center" });
+    // Changed this line for reference number format
+    doc.text(`Reference: ${formatReferenceNumber(request._id, request.createdAt)}`, 105, 25, { align: "center" });
 
-    // Save the PDF
     doc.save(`dispatch-details-${id}.pdf`);
   };
 
@@ -222,7 +213,6 @@ const DispatchView = () => {
         }
       }
     
-      // Send PUT request
       await axios.put(`http://localhost:5000/api/dispatch/updateApprovalOut/${id}`, payload, {
         headers: {
           'Content-Type': 'application/json'
@@ -289,7 +279,6 @@ const DispatchView = () => {
   return (
     <div className="container mx-auto p-6 font-sans flex justify-center">
       <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg w-full max-w-5xl mt-6">
-        {/* Header */}
         <div className="flex justify-between items-center mb-4 text-blue-700 font-bold text-lg">
           <h2>
             Dispatch Out Location Details ➝{" "}
@@ -321,18 +310,15 @@ const DispatchView = () => {
           </div>
         </div>
 
-        {/* Request Details Section */}
         <div className="p-3 rounded-lg shadow-md border border-gray-300">
-          {/* Blue Header */}
           <div className="bg-[#2A6BAC] text-white px-4 py-2 rounded-t-md flex justify-between font-bold">
             <span>Dispatch Details</span>
-            <span>Ref. No: {request._id}</span>
+            {/* Changed this line for reference number format */}
+            <span>Ref. No: {formatReferenceNumber(request._id, request.createdAt)}</span>
           </div>
 
-          {/* Dispatch Details Box */}
           <div className="p-3 bg-white rounded-b-md border border-gray-300">
             <div className="lg:flex flex-col lg:flex-row justify-between items-start space-y-6 lg:space-y-0 lg:space-x-6">
-              {/* Left Section */}
               <div className="flex-1">
                 <h4 className="text-lg font-semibold text-blue-700 border-b pb-2 mb-3 mt-4">
                   Sender Details
@@ -471,7 +457,6 @@ const DispatchView = () => {
                 </p>
               </div>
 
-              {/* Right Section - Items */}
               <div className="flex-1">
                 {request.items && request.items.length > 0 && (
                   <div>
@@ -509,7 +494,6 @@ const DispatchView = () => {
                   </div>
                 )}
 
-                {/* Image and View Button Section */}
                 <div className="flex justify-start mt-6">
                   <div className="flex flex-col items-center">
                     <img
@@ -526,10 +510,8 @@ const DispatchView = () => {
             </div>
           </div>
 
-          {/* Approval Section */}
           {dispatchStatusOut === "Pending" && (
             <>
-              {/* Employee Type Selection (Radio Buttons) */}
               <label className="block font-bold mb-2 text-blue-700 mt-5">
                 Employee Type
               </label>
@@ -559,7 +541,6 @@ const DispatchView = () => {
                 </label>
               </div>
 
-              {/* SLT Employee Section */}
               {employeeTypeOut === "SLT" && (
                 <>
                   <label className="block font-bold mb-2 text-blue-700">
@@ -588,7 +569,6 @@ const DispatchView = () => {
                 </>
               )}
 
-              {/* Non-SLT Employee Section */}
               {employeeTypeOut === "Non-SLT" && (
                 <>
                   <label className="block font-bold mb-2 text-blue-700">
@@ -629,7 +609,6 @@ const DispatchView = () => {
                 </>
               )}
 
-              {/* Comment (Required for Rejection) */}
               <label className="block font-bold mb-2 text-blue-700 mt-3">
                 Comment
               </label>
@@ -640,7 +619,6 @@ const DispatchView = () => {
                 placeholder="Enter Comment Here"
               ></textarea>
 
-              {/* Action Buttons */}
               <div className="flex justify-between mt-4">
                 <div className="flex space-x-2">
                   <button
