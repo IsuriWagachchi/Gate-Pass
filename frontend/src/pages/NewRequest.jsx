@@ -41,24 +41,32 @@ const NewRequest = () => {
   const [csvFileName, setCsvFileName] = useState("");
   const [isCSVUploaded, setIsCSVUploaded] = useState(false);
   const [locations, setLocations] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loadingLocations, setLoadingLocations] = useState(true);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch locations on component mount
+  // Fetch locations and categories on component mount
   useEffect(() => {
-    const fetchLocations = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/locations");
-        setLocations(response.data.data);
+        // Fetch locations
+        const locationsResponse = await axios.get("http://localhost:5000/api/locations");
+        setLocations(locationsResponse.data.data);
+        
+        // Fetch categories
+        const categoriesResponse = await axios.get("http://localhost:5000/api/categories");
+        setCategories(categoriesResponse.data.data);
       } catch (error) {
-        console.error("Error fetching locations:", error);
-        setError("Failed to load locations. Using default options.");
+        console.error("Error fetching data:", error);
+        setError("Failed to load required data. Please try again later.");
       } finally {
         setLoadingLocations(false);
+        setLoadingCategories(false);
       }
     };
 
-    fetchLocations();
+    fetchData();
   }, []);
 
   // Form submission handler
@@ -294,7 +302,6 @@ const NewRequest = () => {
                 className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 cursor-pointer"
               >
                 Choose Items CSV File
-                
               </label>
               <button
                 type="button"
@@ -361,15 +368,30 @@ const NewRequest = () => {
                   <label htmlFor={`category-${index}`} className="block text-sm font-medium text-gray-700">
                     Category
                   </label>
-                  <input
-                    type="text"
-                    name="category"
-                    id={`category-${index}`}
-                    value={item.category}
-                    onChange={(e) => handleItemChange(index, e)}
-                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                    required
-                  />
+                  {loadingCategories ? (
+                    <select
+                      disabled
+                      className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
+                    >
+                      <option>Loading categories...</option>
+                    </select>
+                  ) : (
+                    <select
+                      name="category"
+                      id={`category-${index}`}
+                      value={item.category}
+                      onChange={(e) => handleItemChange(index, e)}
+                      className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                      required
+                    >
+                      <option value="">Select Category</option>
+                      {categories.map(cat => (
+                        <option key={cat.category_id} value={cat.category_name}>
+                          {cat.category_name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
                 <div>
