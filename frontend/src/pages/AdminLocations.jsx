@@ -174,7 +174,14 @@ const AdminLocation = () => {
             </div>
           </div>
 
-          <div className="flex justify-end mt-6">
+          <div className="flex justify-end mt-6 space-x-4">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="px-6 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+            >
+              Back
+            </button>
             <button
               type="submit"
               className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
