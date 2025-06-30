@@ -2,6 +2,7 @@
 import Request from '../models/requestModel.js';
 import User from '../models/userModel.js';
 import { sendEmail } from '../../frontend/src/components/emails/emailService.js';
+import ArchivedRequest from '../models/archivedRequestModel.js';
 
 // Get all requests for executive approval
 const getAllRequests = async (req, res) => {
@@ -204,6 +205,95 @@ const generateItemsHTML = (items) => {
   `).join('');
 };
 
-export { getAllRequests, updateRequestStatus, getRequestById };
+
+
+// cancel function at the bottom (before exports)
+const archiveRequest = async (req, res) => {
+  const { id } = req.params;
+  const { reason } = req.body;
+  const archivedBy = req.user.sender_name;
+
+  try {
+    // Get the request first
+    const request = await Request.findById(id);
+    if (!request) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+
+    // Create archived copy
+    const archivedRequest = new ArchivedRequest({
+      originalId: id,
+      archivedBy,
+      reason,
+      requestData: request.toObject()
+    });
+
+    await archivedRequest.save();
+
+    // Delete the original request
+    await Request.findByIdAndDelete(id);
+
+    // Get sender user details for notification
+    const senderUser = await User.findOne({ sender_name: request.sender_name });
+    if (senderUser) {
+      // Send email notification
+      const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #d9534f;">Your Request Has Been Cancelled</h2>
+          <p>Your item transfer request has been cancelled by the executive officer.</p>
+          
+          <h3 style="color: #2A6BAC;">Request Details</h3>
+          <p><strong>Request ID:</strong> ${id}</p>
+          <p><strong>Reason for Cancellation:</strong> ${reason}</p>
+          
+          <h3 style="color: #2A6BAC; margin-top: 20px;">Items</h3>
+          ${generateItemsHTML(request.items)}
+          
+          <p style="margin-top: 20px;">Please contact the executive officer for more information.</p>
+        </div>
+      `;
+
+      const text = `Your item transfer request (ID: ${id}) has been cancelled.\n\n` +
+        `Reason: ${reason}\n\n` +
+        `Items:\n${request.items.map(item => 
+          `- ${item.itemName} (Serial: ${item.serialNo}, Qty: ${item.quantity})`
+        ).join('\n')}\n\nPlease contact the executive officer for more information.`;
+
+      await sendEmail(
+        senderUser.email,
+        'Your Request Has Been Cancelled',
+        text,
+        html
+      );
+    }
+
+    res.status(200).json({ message: 'Request archived successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error archiving request', error });
+  }
+};
+
+//get cancel request from db
+const getArchivedRequests = async (req, res) => {
+  try {
+    const archivedRequests = await ArchivedRequest.find()
+      .sort({ archivedAt: -1 }) // Sort by most recent first
+      .populate({
+        path: 'originalId',
+        select: 'sender_name service_no outLocation inLocation createdAt items'
+      });
+    
+    res.status(200).json(archivedRequests);
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'Error fetching archived requests', 
+      error: error.message 
+    });
+  }
+};
+
+
+
+export { getAllRequests, updateRequestStatus, getRequestById ,archiveRequest,getArchivedRequests};
 
 

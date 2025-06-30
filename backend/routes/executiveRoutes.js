@@ -4,7 +4,9 @@ import express from 'express';
 import {
   getAllRequests,
   updateRequestStatus,
-  getRequestById
+  getRequestById,
+  archiveRequest,
+  getArchivedRequests
 } from '../controllers/executiveController.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 
@@ -19,4 +21,6 @@ router.put('/:id/status', verifyToken, updateRequestStatus);
 // Get request details by ID
 router.get('/:id', verifyToken, getRequestById);
 
+router.delete('/:id/archive', verifyToken, archiveRequest);
+router.get('/archived/all', verifyToken, getArchivedRequests);
 export default router;

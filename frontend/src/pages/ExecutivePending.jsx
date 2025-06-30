@@ -14,7 +14,8 @@ const ViewExecutivePending = () => {
   useEffect(() => {
     const fetchRequest = async () => {
       try {
-        const token = localStorage.getItem('token'); const response = await axios.get(`http://localhost:5000/api/executive/${id}`, {
+        const token = localStorage.getItem('token'); 
+        const response = await axios.get(`http://localhost:5000/api/executive/${id}`, {
           headers: {
             Authorization: `Bearer ${token}` 
           }
@@ -57,6 +58,33 @@ const ViewExecutivePending = () => {
     }
   };
 
+  const handleArchiveRequest = async () => {
+    if (!comment || comment.trim() === "") {
+      alert("Please provide a reason for cancelling this request");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(
+        `http://localhost:5000/api/executive/${id}/archive`, 
+        { 
+          data: { reason: comment },
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      alert("Request cancelled successfully");
+      navigate('/executive-approve');
+    } catch (error) {
+      console.error("Error cancelling request:", error);
+      if (error.response && error.response.data.message) {
+        alert(error.response.data.message);
+      }
+    }
+  };
+
   if (!request) return <p className="text-center text-gray-500">Loading...</p>;
 
   return (
@@ -69,7 +97,6 @@ const ViewExecutivePending = () => {
         </div>
 
         {/* Request Information */}
-        
         <div className="mb-6 p-3 rounded-lg shadow-md border border-gray-300">
           <div className="bg-[#2A6BAC] text-white px-4 py-2 rounded-t-md font-bold">
             Request Information
@@ -83,8 +110,6 @@ const ViewExecutivePending = () => {
             {status !== "Pending" &&  (
               <p className="font-medium">Executive Officer's Comment: <span className="font-normal">{request.executiveComment}</span></p>
             )}
-               
-            
           </div>
         </div>
 
@@ -114,7 +139,6 @@ const ViewExecutivePending = () => {
                         {request.vehicleNumber ? request.vehicleNumber : "N/A"}
                       </span>
                     </p>
-
                     <p className="text-lg font-medium">Returnable: <span className="font-normal">{item.returnable}</span></p>
                   </div>
 
@@ -143,13 +167,10 @@ const ViewExecutivePending = () => {
             Receiver Details
           </div>
           <div className="p-3 bg-white rounded-b-md border border-gray-300 grid grid-cols-2 gap-2">
-            <p className="font-medium">Receiver Name: <span className="font-normal">{request.receiverName ? request.receiverName[0].toUpperCase() + request.receiverName.slice(1) : 'N/A'}
-            </span></p>
+            <p className="font-medium">Receiver Name: <span className="font-normal">{request.receiverName ? request.receiverName[0].toUpperCase() + request.receiverName.slice(1) : 'N/A'}</span></p>
             <p className="font-medium">Receiver Contact: <span className="font-normal">{request.receiverContact ? request.receiverContact: "N/A"}</span></p>
             <p className="font-medium">Receiver Group: <span className="font-normal">{request.receiverGroup ? request.receiverGroup : "N/A"}</span></p>
-
             <p className="font-medium">Service No: <span className="font-normal">{request.receiverServiceNumber ? request.receiverServiceNumber : "N/A"}</span></p>
-        
           </div>
         </div>
 
@@ -169,6 +190,12 @@ const ViewExecutivePending = () => {
                 onClick={() => handleUpdateStatus("Approved")}
               >
                 Approve
+              </button>
+              <button 
+                className="bg-gray-500 text-white px-6 py-2 rounded-lg shadow-md hover:bg-gray-600 transition-colors" 
+                onClick={handleArchiveRequest}
+              >
+                Cancel
               </button>
               <button 
                 className="bg-red-700 text-white px-6 py-2 rounded-lg shadow-md hover:bg-red-800 transition-colors" 
