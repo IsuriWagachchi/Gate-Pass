@@ -337,7 +337,7 @@ const ViewRequest = () => {
             className="bg-red-700 hover:bg-red-800 text-white px-6 py-2 rounded-lg shadow-md transition-colors" 
             onClick={handleDelete}
           >
-            Delete
+            Cancel
           </button>
         </div>
       </div>
