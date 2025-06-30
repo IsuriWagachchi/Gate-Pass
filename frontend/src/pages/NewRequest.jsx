@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import SenderDetails from "./SenderDetails";
@@ -40,7 +40,34 @@ const NewRequest = () => {
   const [error, setError] = useState("");
   const [csvFileName, setCsvFileName] = useState("");
   const [isCSVUploaded, setIsCSVUploaded] = useState(false);
+  const [locations, setLocations] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loadingLocations, setLoadingLocations] = useState(true);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const navigate = useNavigate();
+
+  // Fetch locations and categories on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch locations
+        const locationsResponse = await axios.get("http://localhost:5000/api/locations");
+        setLocations(locationsResponse.data.data);
+        
+        // Fetch categories
+        const categoriesResponse = await axios.get("http://localhost:5000/api/categories");
+        setCategories(categoriesResponse.data.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError("Failed to load required data. Please try again later.");
+      } finally {
+        setLoadingLocations(false);
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Form submission handler
   const handleSubmit = async (e) => {
@@ -275,7 +302,6 @@ const NewRequest = () => {
                 className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 cursor-pointer"
               >
                 Choose Items CSV File
-                
               </label>
               <button
                 type="button"
@@ -342,15 +368,30 @@ const NewRequest = () => {
                   <label htmlFor={`category-${index}`} className="block text-sm font-medium text-gray-700">
                     Category
                   </label>
-                  <input
-                    type="text"
-                    name="category"
-                    id={`category-${index}`}
-                    value={item.category}
-                    onChange={(e) => handleItemChange(index, e)}
-                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                    required
-                  />
+                  {loadingCategories ? (
+                    <select
+                      disabled
+                      className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
+                    >
+                      <option>Loading categories...</option>
+                    </select>
+                  ) : (
+                    <select
+                      name="category"
+                      id={`category-${index}`}
+                      value={item.category}
+                      onChange={(e) => handleItemChange(index, e)}
+                      className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                      required
+                    >
+                      <option value="">Select Category</option>
+                      {categories.map(cat => (
+                        <option key={cat.category_id} value={cat.category_name}>
+                          {cat.category_name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
                 <div>
@@ -444,38 +485,60 @@ const NewRequest = () => {
                 <label htmlFor="inLocation" className="block text-sm font-medium text-gray-700">
                   In Location
                 </label>
-                <select
-                  name="inLocation"
-                  id="inLocation"
-                  value={commonData.inLocation}
-                  onChange={handleCommonChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                >
-                  <option value="">Select In Location</option>
-                  <option value="Gampaha Office">Gampaha Office</option>
-                  <option value="Kandy Office">Kandy Office</option>
-                  <option value="Matara Office">Matara Office</option>
-                </select>
+                {loadingLocations ? (
+                  <select
+                    disabled
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
+                  >
+                    <option>Loading locations...</option>
+                  </select>
+                ) : (
+                  <select
+                    name="inLocation"
+                    id="inLocation"
+                    value={commonData.inLocation}
+                    onChange={handleCommonChange}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  >
+                    <option value="">Select In Location</option>
+                    {locations.map(location => (
+                      <option key={`in-${location.location_id}`} value={location.location_name}>
+                        {location.location_name}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
 
               <div>
                 <label htmlFor="outLocation" className="block text-sm font-medium text-gray-700">
                   Out Location
                 </label>
-                <select
-                  name="outLocation"
-                  id="outLocation"
-                  value={commonData.outLocation}
-                  onChange={handleCommonChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                >
-                  <option value="">Select Out Location</option>
-                  <option value="Colombo Office">Colombo Office</option>
-                  <option value="Galle Office">Galle Office</option>
-                  <option value="Kurunegala Office">Kurunegala Office</option>
-                </select>
+                {loadingLocations ? (
+                  <select
+                    disabled
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
+                  >
+                    <option>Loading locations...</option>
+                  </select>
+                ) : (
+                  <select
+                    name="outLocation"
+                    id="outLocation"
+                    value={commonData.outLocation}
+                    onChange={handleCommonChange}
+                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                    required
+                  >
+                    <option value="">Select Out Location</option>
+                    {locations.map(location => (
+                      <option key={`out-${location.location_id}`} value={location.location_name}>
+                        {location.location_name}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
 
               <div>
