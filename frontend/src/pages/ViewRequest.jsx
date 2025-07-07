@@ -38,7 +38,7 @@ const ViewRequest = () => {
   };
 
   const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete this request?")) {
+    if (window.confirm("Are you sure you want to cancel this request?")) {
       try {
         await axios.delete(`http://localhost:5000/api/requests/${id}`);
         navigate("/my-request");
@@ -334,8 +334,13 @@ const ViewRequest = () => {
           </button>
           
           <button 
-            className="bg-red-700 hover:bg-red-800 text-white px-6 py-2 rounded-lg shadow-md transition-colors" 
-            onClick={handleDelete}
+            className={`px-6 py-2 rounded-lg shadow-md transition-colors ${
+              request.status === 'Approved' || request.status === 'Rejected' 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-red-700 hover:bg-red-800'
+            } text-white`} 
+            onClick={request.status === 'Approved' || request.status === 'Rejected' ? undefined : handleDelete}
+            disabled={request.status === 'Approved' || request.status === 'Rejected'}
           >
             Cancel
           </button>
