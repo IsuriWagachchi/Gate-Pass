@@ -1,15 +1,16 @@
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState, useEffect } from "react";
-import laptopImage from '../assets/laptop.jpg';
+import { FaTimes } from "react-icons/fa";
 
 const ViewExecutivePending = () => {
-  const { id } = useParams();  // Get request ID from URL
+  const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const [request, setRequest] = useState(null);
-  const [status, setStatus] = useState(location.state?.status || "Pending");  // Get status from navigation
+  const [status, setStatus] = useState(location.state?.status || "Pending");
   const [comment, setComment] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -19,7 +20,7 @@ const ViewExecutivePending = () => {
           headers: {
             Authorization: `Bearer ${token}` 
           }
-        })
+        });
         setRequest(response.data);
       } catch (error) {
         console.error("Error fetching request details:", error);
@@ -30,7 +31,6 @@ const ViewExecutivePending = () => {
 
   const handleUpdateStatus = async (newStatus) => {
     try {
-      // Validate that comment exists if status is Rejected
       if (newStatus === "Rejected" && (!comment || comment.trim() === "")) {
         alert("Executive comment is required when rejecting a request");
         return;
@@ -41,7 +41,7 @@ const ViewExecutivePending = () => {
         `http://localhost:5000/api/executive/${id}/status`, 
         { 
           status: newStatus,
-          comment: comment // This will be stored as executiveComment in DB
+          comment: comment
         },
         {
           headers: {
@@ -89,6 +89,25 @@ const ViewExecutivePending = () => {
 
   return (
     <div className="container mx-auto p-6 font-sans flex justify-center">
+      {/* Image Modal */}
+      {selectedImage && (
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
+          <div className="relative bg-white p-4 rounded-lg">
+            <button 
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-2 right-2 text-xl"
+            >
+              <FaTimes className="text-2xl" />
+            </button>
+            <img 
+              src={selectedImage} 
+              alt="Enlarged" 
+              className="max-w-[80vw] max-h-[80vh]"
+            />
+          </div>
+        </div>
+      )}
+
       <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg w-full max-w-3xl mt-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-4 text-blue-700 font-bold text-lg">
@@ -107,7 +126,7 @@ const ViewExecutivePending = () => {
             <p className="font-medium">From Location: <span className="font-normal">{request.outLocation}</span></p>
             <p className="font-medium">To Location: <span className="font-normal">{request.inLocation}</span></p>
             
-            {status !== "Pending" &&  (
+            {status !== "Pending" && (
               <p className="font-medium">Executive Officer's Comment: <span className="font-normal">{request.executiveComment}</span></p>
             )}
           </div>
@@ -142,17 +161,20 @@ const ViewExecutivePending = () => {
                     <p className="text-lg font-medium">Returnable: <span className="font-normal">{item.returnable}</span></p>
                   </div>
 
-                  {/* Right Section (Image + Button) */}
+                  {/* Right Section (Images) */}
                   <div className="flex flex-col items-center">
-                    <img 
-                      src={item.image || laptopImage} 
-                      alt="Item" 
-                      className="w-24 h-24 object-cover border rounded-lg shadow-md" 
-                    />
-                    {item.image && (
-                      <button className="bg-[#2A6BAC] text-white px-4 py-1 mt-2 rounded-lg shadow-md">
-                        View Photo
-                      </button>
+                    {item.images && item.images.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {item.images.map((image, imgIndex) => (
+                          <img
+                            key={imgIndex}
+                            src={image}
+                            alt={`Item ${index + 1}`}
+                            className="w-24 h-24 object-cover rounded border border-gray-300 cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => setSelectedImage(image)}
+                          />
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>

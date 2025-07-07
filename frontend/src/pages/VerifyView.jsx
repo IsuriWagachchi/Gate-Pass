@@ -14,7 +14,8 @@ const VerifyView = () => {
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [selectedImage, setSelectedImage] = useState(null);
+  
   useEffect(() => {
     const fetchRequest = async () => {
       try {
