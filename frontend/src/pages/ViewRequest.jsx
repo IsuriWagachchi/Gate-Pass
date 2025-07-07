@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { FaArrowLeft, FaFilePdf } from "react-icons/fa";
+import { FaArrowLeft, FaFilePdf, FaTimes } from "react-icons/fa";
 import { jsPDF } from "jspdf";
 import companylogo from "../assets/companylogo.png";
 
 const ViewRequest = () => {
   const [request, setRequest] = useState(null);
   const [user, setUser] = useState(null);
+
+ const [selectedImage, setSelectedImage] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -60,7 +62,6 @@ const ViewRequest = () => {
   const formatReferenceNumber = (id, createdAt) => {
     if (!id) return 'XXXXXX-XXXX';
     
-    // Use current date if createdAt is not provided
     const date = createdAt ? new Date(createdAt) : new Date();
     
     const dateStr = [
@@ -80,7 +81,6 @@ const ViewRequest = () => {
     const doc = new jsPDF();
     
     try {
-      // Convert logo image to base64
       const response = await fetch(companylogo);
       const blob = await response.blob();
       const reader = new FileReader();
@@ -89,40 +89,33 @@ const ViewRequest = () => {
       reader.onloadend = function() {
         const logoDataUrl = reader.result;
         
-        // Set font styles
         doc.setFont("helvetica", "normal");
         doc.setTextColor(0, 0, 0);
 
-        // Add logo (width: 50, height: auto maintains aspect ratio)
         doc.addImage(logoDataUrl, 'PNG', 80, 10, 50, 20);
 
-        // Add title below logo
         doc.setFontSize(18);
         doc.text("REQUEST DETAILS", 105, 40, { align: "center" });
 
-        // Reference Number
         doc.setFontSize(14);
-        doc.setTextColor(42, 107, 172); // Blue color
+        doc.setTextColor(42, 107, 172);
         doc.text(`Ref. No: ${formatReferenceNumber(request._id, request.createdAt)}`, 105, 50, { align: "center" });
 
-        // Status
         doc.setFontSize(12);
         let statusColor;
         if (request.status === 'Approved') {
-          statusColor = [0, 128, 0]; // Green
+          statusColor = [0, 128, 0];
         } else if (request.status === 'Rejected') {
-          statusColor = [255, 0, 0]; // Red
+          statusColor = [255, 0, 0];
         } else {
-          statusColor = [255, 165, 0]; // Orange
+          statusColor = [255, 165, 0];
         }
         doc.setTextColor(...statusColor);
         doc.text(`Status: ${request.status}`, 105, 58, { align: "center" });
 
-        // Date
         doc.setTextColor(0, 0, 0);
         doc.text(`Date: ${formatDate(request.createdAt)}`, 14, 70);
 
-        // Sender Details
         doc.setFont("helvetica", "bold");
         doc.text("Sender Details", 14, 85);
         doc.setFont("helvetica", "normal");
@@ -130,7 +123,6 @@ const ViewRequest = () => {
         doc.text(`Email: ${user.email}`, 14, 105);
         doc.text(`Contact: ${user.contact_number}`, 14, 115);
 
-        // Receiver Details
         doc.setFont("helvetica", "bold");
         doc.text("Receiver Details", 14, 130);
         doc.setFont("helvetica", "normal");
@@ -143,7 +135,6 @@ const ViewRequest = () => {
 
         let yPosition = request.receiverServiceNumber ? 180 : 170;
 
-        // Items section
         doc.setFont("helvetica", "bold");
         doc.text(`Items (${request.items.length})`, 14, yPosition);
         yPosition += 10;
@@ -154,13 +145,11 @@ const ViewRequest = () => {
             yPosition = 20;
           }
 
-          // Item header
           doc.setFont("helvetica", "bold");
           doc.text(`Item #${index + 1}`, 14, yPosition);
           doc.text(`Ref: ${item.serialNo || "N/A"}`, 180, yPosition, { align: "right" });
           yPosition += 7;
 
-          // Item details
           doc.setFont("helvetica", "normal");
           doc.text(`Name: ${item.itemName || "N/A"}`, 14, yPosition);
           doc.text(`Category: ${item.category || "N/A"}`, 105, yPosition);
@@ -174,7 +163,6 @@ const ViewRequest = () => {
           yPosition += 10;
         });
 
-        // Location & Officer Details
         doc.setFont("helvetica", "bold");
         doc.text("Location & Officer Details", 14, yPosition);
         yPosition += 7;
@@ -190,50 +178,40 @@ const ViewRequest = () => {
 
         doc.text(`By Hand: ${request.byHand || "No"}`, 14, yPosition);
 
-        // Save the PDF
         doc.save(`request_${formatReferenceNumber(request._id, request.createdAt)}.pdf`);
       };
     } catch (error) {
       console.error("Error generating PDF:", error);
-      // Fallback PDF without logo if there's an error
       generatePdfWithoutLogo(doc);
     }
   };
 
   const generatePdfWithoutLogo = (doc) => {
-    // Set font styles
     doc.setFont("helvetica", "normal");
     doc.setTextColor(0, 0, 0);
 
-    // Add title
     doc.setFontSize(18);
     doc.text("REQUEST DETAILS", 105, 15, { align: "center" });
 
-    // Reference Number
     doc.setFontSize(14);
-    doc.setTextColor(42, 107, 172); // Blue color
+    doc.setTextColor(42, 107, 172);
     doc.text(`Ref. No: ${formatReferenceNumber(request._id, request.createdAt)}`, 105, 25, { align: "center" });
 
-    // Status
     doc.setFontSize(12);
     let statusColor;
     if (request.status === 'Approved') {
-      statusColor = [0, 128, 0]; // Green
+      statusColor = [0, 128, 0];
     } else if (request.status === 'Rejected') {
-      statusColor = [255, 0, 0]; // Red
+      statusColor = [255, 0, 0];
     } else {
-      statusColor = [255, 165, 0]; // Orange
+      statusColor = [255, 165, 0];
     }
     doc.setTextColor(...statusColor);
     doc.text(`Status: ${request.status}`, 105, 33, { align: "center" });
 
-    // Date
     doc.setTextColor(0, 0, 0);
     doc.text(`Date: ${formatDate(request.createdAt)}`, 14, 45);
 
-    // Rest of the content (same as above)
-    // ... [rest of the PDF generation code]
-    
     doc.save(`request_${formatReferenceNumber(request._id, request.createdAt)}.pdf`);
   };
 
@@ -241,8 +219,26 @@ const ViewRequest = () => {
 
   return (
     <div className="container mx-auto p-6 font-sans flex justify-center">
+      {/* Image Modal */}
+     {selectedImage && (
+  <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
+    <div className="relative bg-white p-4 rounded-lg">
+      <button 
+        onClick={() => setSelectedImage(null)}
+        className="absolute top-2 right-2 text-xl"
+      >
+        ×
+      </button>
+      <img 
+        src={selectedImage} 
+        alt="Enlarged" 
+        className="max-w-[80vw] max-h-[80vh]"
+      />
+    </div>
+  </div>
+)}
+
       <div className="bg-white border-2 border-blue-500 p-6 rounded-lg shadow-lg w-full max-w-3xl mt-6 relative">
-        {/* Back Arrow Button */}
         <button 
           onClick={() => navigate("/my-request")}
           className="absolute top-4 right-4 bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded-full transition-colors"
@@ -251,15 +247,12 @@ const ViewRequest = () => {
           <FaArrowLeft className="text-lg" />
         </button>
         
-        {/* Request Details Heading */}
         <div className="text-blue-700 font-bold text-lg text-center my-4">Request Details</div>
         
-        {/* Reference Number as Title */}
         <div className="bg-[#2A6BAC] text-white text-center font-bold text-lg py-2 rounded-t-md">
           Ref. No: {formatReferenceNumber(request._id, request.createdAt)}
         </div>
 
-        {/* Status Badge */}
         <div className={`text-center my-2 p-2 rounded-md font-bold ${
           request.status === 'Approved' ? 'bg-green-200 text-green-800' :
           request.status === 'Rejected' ? 'bg-red-200 text-red-800' :
@@ -268,7 +261,6 @@ const ViewRequest = () => {
           Status: {request.status}
         </div>
 
-        {/* Sender Details Box */}
         <div className="p-3 rounded-lg shadow-md border border-gray-300 mb-4">
           <div className="text-blue-700 px-4 py-2 rounded-t-md font-bold">Sender Details</div>
           <div className="p-3 bg-white rounded-b-md border border-gray-300">
@@ -278,7 +270,6 @@ const ViewRequest = () => {
           </div>
         </div>
 
-        {/* Receiver Details Box */}
         <div className="p-3 rounded-lg shadow-md border border-gray-300 mb-4">
           <div className="text-green-700 px-4 py-2 rounded-t-md font-bold">Receiver Details</div>
           <div className="p-3 bg-white rounded-b-md border border-gray-300">
@@ -291,7 +282,6 @@ const ViewRequest = () => {
           </div>
         </div>
 
-        {/* Items List */}
         <div className="p-3 rounded-lg shadow-md border border-gray-300 mb-4">
           <div className="text-blue-700 px-4 py-2 rounded-t-md font-bold">Items ({request.items.length})</div>
           <div className="p-3 bg-white rounded-b-md border border-gray-300">
@@ -305,13 +295,33 @@ const ViewRequest = () => {
                   <p className="text-lg font-medium">Quantity: <span className="font-normal">{item.quantity || '1'}</span></p>
                   <p className="text-lg font-medium">Description: <span className="font-normal">{item.description || 'N/A'}</span></p>
                   <p className="text-lg font-medium">Returnable: <span className="font-normal">{item.returnable === 'yes' ? 'Yes' : 'No'}</span></p>
+                  
+                  {/* NEW: Image display section */}
+                  {item.images && item.images.length > 0 && (
+                    <div className="col-span-full">
+                      <p className="text-lg font-medium mb-2">Images:</p>
+                      <div className="flex flex-wrap gap-2">
+                       {item.images?.map((image, imgIndex) => (
+                        <img
+                          key={imgIndex}
+                          src={image}
+                          alt="Thumbnail"
+                          className="w-24 h-24 object-cover cursor-pointer"
+                          onClick={() => {
+                            console.log('Clicked image:', image); // Verify in console
+                            setSelectedImage(image);
+                          }}
+                        />
+                      ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Location & Officer Details Box */}
         <div className="p-3 rounded-lg shadow-md border border-gray-300 mb-4">
           <div className="text-blue-700 px-4 py-2 rounded-t-md font-bold">Location & Officer Details</div>
           <div className="p-3 bg-white rounded-b-md border border-gray-300">
@@ -323,7 +333,6 @@ const ViewRequest = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex justify-end mt-4 space-x-2">
           <button 
             className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg shadow-md transition-colors flex items-center gap-2"

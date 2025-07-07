@@ -235,7 +235,7 @@ const Verify = () => {
                   </button>
                   
                   {/* Only show Assign button for Pending requests */}
-                  {request.verify === 'Pending' && (
+                  {/* {request.verify === 'Pending' && (
                     <button
                       className={`${
                         request.assignedOfficerName 
@@ -246,7 +246,7 @@ const Verify = () => {
                     >
                       {request.assignedOfficerName ? 'Assigned' : 'Assign'}
                     </button>
-                  )}
+                  )} */}
                 </td>
               </tr>
             ))}
