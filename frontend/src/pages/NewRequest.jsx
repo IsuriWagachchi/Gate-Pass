@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import SenderDetails from "./SenderDetails";
-
+import { uploadToCloudinary } from '../utils/uploadToCloudinary';
 const NewRequest = () => {
   // State declarations
   const [senderDetails, setSenderDetails] = useState({
@@ -20,7 +20,7 @@ const NewRequest = () => {
     category: "",
     description: "",
     returnable: "",
-    image: null,
+    images: [],
     quantity: ""
   }]);
 
@@ -71,57 +71,71 @@ const NewRequest = () => {
 
   // Form submission handler
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Validate byHand and vehicleNumber
-    if (commonData.byHand === "No" && !commonData.vehicleNumber.trim()) {
-      setError("Vehicle number is required when not delivering by hand");
-      return;
-    }
-    
-    if (commonData.byHand === "Yes" && commonData.vehicleNumber.trim()) {
-      setError("Vehicle number should be empty when delivering by hand");
-      return;
-    }
+  e.preventDefault();
+  
+  // Validate byHand and vehicleNumber
+  if (commonData.byHand === "No" && !commonData.vehicleNumber.trim()) {
+    setError("Vehicle number is required when not delivering by hand");
+    return;
+  }
+  
+  if (commonData.byHand === "Yes" && commonData.vehicleNumber.trim()) {
+    setError("Vehicle number should be empty when delivering by hand");
+    return;
+  }
 
-    try {
-      const formDataToSend = new FormData();
+  try {
+    const formDataToSend = new FormData();
 
-      // Add sender details
-      Object.keys(senderDetails).forEach(key => {
-        formDataToSend.append(key, senderDetails[key]);
-      });
+    // Add sender details
+    Object.keys(senderDetails).forEach(key => {
+      formDataToSend.append(key, senderDetails[key]);
+    });
 
-      // Add common data
-      Object.keys(commonData).forEach(key => {
-        if (!commonData.receiverAvailable && 
-            ['receiverName', 'receiverContact', 'receiverGroup', 'receiverServiceNumber'].includes(key)) {
-          return;
-        }
-        formDataToSend.append(key, commonData[key]);
-      });
+    // Add common data
+    Object.keys(commonData).forEach(key => {
+      if (!commonData.receiverAvailable && 
+          ['receiverName', 'receiverContact', 'receiverGroup', 'receiverServiceNumber'].includes(key)) {
+        return;
+      }
+      formDataToSend.append(key, commonData[key]);
+    });
 
-      // Add items with their images
-      items.forEach((item, index) => {
-        Object.keys(item).forEach(key => {
-          if (key !== 'image' && item[key] !== null) {
-            formDataToSend.append(`items[${index}][${key}]`, item[key]);
-          } else if (key === 'image' && item[key]) {
-            formDataToSend.append(`items[${index}][image]`, item[key]);
+    // Upload images to Cloudinary and add items
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      
+      // Upload each image (up to 5) for this item
+      const imageUrls = [];
+      if (item.images && item.images.length > 0) {
+        for (let j = 0; j < item.images.length; j++) {
+          const uploadedUrl = await uploadToCloudinary(item.images[j]);
+          if (uploadedUrl) {
+            imageUrls.push(uploadedUrl);
           }
-        });
-      });
+        }
+      }
 
-      await axios.post("http://localhost:5000/api/requests/create", formDataToSend, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      navigate("/my-request");
-    } catch (error) {
-      setError("Failed to create request. Please try again.");
-      console.error("Error creating request:", error);
+      // Add item data to formData
+      formDataToSend.append(`items[${i}][itemName]`, item.itemName);
+      formDataToSend.append(`items[${i}][serialNo]`, item.serialNo);
+      formDataToSend.append(`items[${i}][category]`, item.category);
+      formDataToSend.append(`items[${i}][description]`, item.description);
+      formDataToSend.append(`items[${i}][returnable]`, item.returnable);
+      formDataToSend.append(`items[${i}][quantity]`, item.quantity);
+      formDataToSend.append(`items[${i}][images]`, JSON.stringify(imageUrls));
     }
-  };
+
+    await axios.post("http://localhost:5000/api/requests/create", formDataToSend, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    navigate("/my-request");
+  } catch (error) {
+    setError("Failed to create request. Please try again.");
+    console.error("Error creating request:", error);
+  }
+};
 
   // Common form field handler
   const handleCommonChange = (e) => {
@@ -144,13 +158,11 @@ const NewRequest = () => {
   };
 
   const handleItemImageChange = (index, e) => {
-    const newItems = [...items];
-    newItems[index] = {
-      ...newItems[index],
-      image: e.target.files[0]
-    };
-    setItems(newItems);
-  };
+  const files = Array.from(e.target.files).slice(0, 5); // Limit to 5 files
+  const newItems = [...items];
+  newItems[index].images = files; // Store File objects temporarily
+  setItems(newItems);
+};
 
   // Item management
   const addItem = () => {
@@ -453,17 +465,25 @@ const NewRequest = () => {
                 </div>
 
                 <div>
-                  <label htmlFor={`image-${index}`} className="block text-sm font-medium text-gray-700">
-                    Upload Image (Optional)
+                  <label htmlFor={`images-${index}`} className="block text-sm font-medium text-gray-700">
+                    Upload Images (Max 5, Optional)
                   </label>
                   <input
                     type="file"
-                    name="image"
-                    id={`image-${index}`}
+                    name="images"
+                    id={`images-${index}`}
                     accept="image/*"
+                    multiple
                     onChange={(e) => handleItemImageChange(index, e)}
                     className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                   />
+                  {item.images.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        Selected {item.images.length} image(s)
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
