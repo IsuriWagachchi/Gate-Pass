@@ -98,20 +98,33 @@ const NewRequest = () => {
           ['receiverName', 'receiverContact', 'receiverGroup', 'receiverServiceNumber'].includes(key)) {
         return;
       }
-      formDataToSend.append(key, commonData[key]);
+      
+      // Convert boolean fields properly
+      let value = commonData[key];
+      if (key === 'receiverAvailable') {
+        value = value === true || value === 'true';
+      }
+      formDataToSend.append(key, value);
     });
 
-    // Upload images to Cloudinary and add items
+    // Process items - handle both CSV-imported and manually added items
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       
-      // Upload each image (up to 5) for this item
+      // Upload images to Cloudinary if they exist (for both CSV and manually added items)
       const imageUrls = [];
       if (item.images && item.images.length > 0) {
+        // Handle case where images might be File objects or already uploaded URLs
         for (let j = 0; j < item.images.length; j++) {
-          const uploadedUrl = await uploadToCloudinary(item.images[j]);
-          if (uploadedUrl) {
-            imageUrls.push(uploadedUrl);
+          // Check if it's already a URL (from CSV import)
+          if (typeof item.images[j] === 'string') {
+            imageUrls.push(item.images[j]);
+          } else {
+            // It's a File object, upload to Cloudinary
+            const uploadedUrl = await uploadToCloudinary(item.images[j]);
+            if (uploadedUrl) {
+              imageUrls.push(uploadedUrl);
+            }
           }
         }
       }
@@ -123,6 +136,17 @@ const NewRequest = () => {
       formDataToSend.append(`items[${i}][description]`, item.description);
       formDataToSend.append(`items[${i}][returnable]`, item.returnable);
       formDataToSend.append(`items[${i}][quantity]`, item.quantity);
+      
+      // Handle both legacy single image and new multiple images
+      if (item.image) {
+        // Legacy single image support
+        const uploadedUrl = await uploadToCloudinary(item.image);
+        if (uploadedUrl) {
+          formDataToSend.append(`items[${i}][image]`, uploadedUrl);
+        }
+      }
+      
+      // Add processed images (could be from CSV or manual upload)
       formDataToSend.append(`items[${i}][images]`, JSON.stringify(imageUrls));
     }
 
@@ -248,7 +272,7 @@ const NewRequest = () => {
             description: item.description || '',
             returnable: item.returnable || 'no',
             quantity: item.quantity || 1,
-            image: null
+            images: item.image ? [item.image] : [] // Convert single image to array
           });
         }
 
