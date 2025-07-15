@@ -42,7 +42,7 @@ const Navbar = ({ logout, role, username }) => {
       { path: "/executive-approve", label: "Executive Approve", roles: ["admin", "executive_officer","super admin"] },
       { path: "/verify", label: "Verify", roles: ["admin", "duty_officer","super admin"] },
       { path: "/receiver", label: "Receiver", roles: ["user", "admin", "security_officer","duty_officer","executive_officer","super admin"] },
-      { path: "/dispatch", label: "Dispatch", roles: ["admin", "security_officer","super admin"] },
+      { path: "/dispatch", label: "Dispatch", roles: ["admin", "duty_officer","super admin"] },
       { path: "/item-tracker", label: "Item Tracker", roles: ["admin", "security_officer","super admin"] },
       { path: "/admin", label: "Admin", roles: ["admin","super admin"] }
     ];
