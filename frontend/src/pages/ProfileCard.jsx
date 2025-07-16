@@ -37,6 +37,7 @@ const ProfileCard = () => {
                     <p><strong>Group Number:</strong> {user.group_number}</p>
                     <p><strong>Contact:</strong> {user.contact_number}</p>
                     <p><strong>Role:</strong> {user.role}</p>
+                    <p><strong>Branch Location:</strong> {user.branch_location}</p>
                 </div>
             </div>
         </div>
