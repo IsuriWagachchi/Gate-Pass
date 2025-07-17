@@ -4,6 +4,7 @@ import nodemailer from "nodemailer";
 import { getRejectionEmailHTMLOut } from "../../frontend/src/components/emails/RejectionEmail.js";
 import dotenv from 'dotenv';
 import { getRejectionEmailHTMLIn } from '../../frontend/src/components/emails/RejectionEmailIn.js';
+import { getApprovedDispatchEmailHTMLOut } from '../../frontend/src/components/emails/ApprovedDispatchEmailOut.js';
 dotenv.config();
 
 // Configure email transporter
@@ -127,6 +128,30 @@ export const updateDispatchStatusOut = async (req, res) => {
         subject: "Dispatch Request Rejected",
         html: emailHtml,
       });
+    }
+
+    if (dispatchStatusOut === "Approved") {
+      const dutyOfficer = await User.findOne({
+        branch_location: request.inLocation,
+        role: "duty_officer",
+      });
+
+      if (dutyOfficer) {
+        const approvalEmail = getApprovedDispatchEmailHTMLOut({
+          outLocation: request.outLocation,
+          inLocation: request.inLocation,
+          itemDetails: request.items,
+        });
+
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: dutyOfficer.email,
+          subject: "Dispatch Approved to Your Location",
+          html: approvalEmail,
+        });
+      } else {
+        console.warn(`No duty officer found for ${request.inLocation}`);
+      }
     }
 
     res.status(200).json({ message: `Request ${dispatchStatusOut} successfully!` });

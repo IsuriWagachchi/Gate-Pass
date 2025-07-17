@@ -2,6 +2,8 @@ import Request from '../models/requestModel.js';
 
 const createRequest = async (req, res) => {
   try {
+    //console.log("📦 RAW req.body:", req.body);
+    
     // Extract common fields
     const {
       sender_name,
@@ -22,6 +24,10 @@ const createRequest = async (req, res) => {
       ...itemsData
     } = req.body;
 
+    // Convert receiverAvailable to boolean
+    const receiverAvailable = req.body.receiverAvailable === true || 
+                            req.body.receiverAvailable === 'true';
+
     // Validate byHand and vehicleNumber
     if (byHand === "No" && !vehicleNumber?.trim()) {
       return res.status(400).json({ 
@@ -35,39 +41,56 @@ const createRequest = async (req, res) => {
       });
     }
 
-    // Process items array from form data
-    const items = [];
-    const files = req.files || [];
+    // Process items array - NEW IMPROVED VERSION
+    let items = [];
     
-    // Determine if we have multiple items or single item
-    if (Array.isArray(itemsData.items)) {
-      // Multiple items case
-      itemsData.items.forEach((item, index) => {
-        const newItem = {
-          itemName: item.itemName,
-          serialNo: item.serialNo,
-          category: item.category,
-          quantity: item.quantity,
-          description: item.description,
-          returnable: item.returnable,
-          image: files.find(f => f.fieldname === `items[${index}][image]`)?.path || null
-        };
-        items.push(newItem);
-      });
-    } else if (itemsData.itemName) {
-      // Single item case (legacy support)
-      items.push({
-        itemName: itemsData.itemName,
-        serialNo: itemsData.serialNo,
-        category: itemsData.category,
-        quantity: itemsData.quantity,
-        description: itemsData.description,
-        returnable: itemsData.returnable,
-        image: req.file?.path || null
-      });
+    // Handle both array-style items and direct items object
+    if (Array.isArray(req.body.items)) {
+      // If items is already an array (from frontend)
+      items = req.body.items.map(item => ({
+        itemName: item.itemName,
+        serialNo: item.serialNo,
+        category: item.category,
+        description: item.description,
+        returnable: item.returnable,
+        quantity: item.quantity,
+        images: typeof item.images === 'string' ? JSON.parse(item.images) : item.images || []
+      }));
+    } else {
+      // Parse items from FormData-style fields
+      items = Object.entries(req.body)
+        .filter(([key]) => key.startsWith('items['))
+        .reduce((acc, [key, value]) => {
+          const match = key.match(/^items\[(\d+)\]\[(\w+)\]$/);
+          if (match) {
+            const index = parseInt(match[1]);
+            const field = match[2];
+            
+            if (!acc[index]) acc[index] = {};
+            
+            if (field === "images") {
+              try {
+                acc[index][field] = typeof value === 'string' ? JSON.parse(value) : value;
+              } catch {
+                acc[index][field] = [];
+              }
+            } else {
+              acc[index][field] = value;
+            }
+          }
+          return acc;
+        }, [])
+        .filter(item => item); // Remove empty slots
     }
 
-    // Create new request with items array
+    
+
+    // Validate we have at least one item
+    if (items.length === 0) {
+      return res.status(400).json({ message: "At least one item is required" });
+    }
+
+    // Create new request
     const newRequest = new Request({
       sender_name,
       designation,
@@ -79,11 +102,12 @@ const createRequest = async (req, res) => {
       outLocation,
       inLocation,
       executiveOfficer,
+      receiverAvailable,
       receiverName,
       receiverContact,
       receiverGroup,
       receiverServiceNumber,
-      vehicleNumber: byHand === "Yes" ? "" : vehicleNumber, // Ensure empty if byHand
+      vehicleNumber: byHand === "Yes" ? "" : vehicleNumber,
       byHand,
       status: 'Pending',
       verify: 'Pending',
@@ -94,7 +118,12 @@ const createRequest = async (req, res) => {
     
     res.status(201).json(newRequest);
   } catch (error) {
-    res.status(500).json({ message: 'Error creating request', error: error.message });
+    console.error("Error creating request:", error);
+    res.status(500).json({ 
+      message: 'Error creating request', 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 

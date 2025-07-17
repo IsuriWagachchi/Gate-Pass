@@ -7,7 +7,7 @@ const itemSchema = new mongoose.Schema({
   quantity: { type: Number, required: true },
   description: { type: String, required: true },
   returnable: { type: String, required: true },
-  image: { type: String }
+  images: [{ type: String }]
 });
 
 const requestSchema = new mongoose.Schema({
