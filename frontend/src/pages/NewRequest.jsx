@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import SenderDetails from "./SenderDetails";
 import { uploadToCloudinary } from '../utils/uploadToCloudinary';
+
 const NewRequest = () => {
   // State declarations
   const [senderDetails, setSenderDetails] = useState({
@@ -29,10 +30,12 @@ const NewRequest = () => {
     outLocation: "",
     executiveOfficer: "",
     receiverAvailable: false,
+    receiverType: "",
     receiverName: "",
     receiverContact: "",
     receiverGroup: "",
     receiverServiceNumber: "",
+    receiverIdNumber: "",
     vehicleNumber: "",
     byHand: ""
   });
@@ -71,95 +74,107 @@ const NewRequest = () => {
 
   // Form submission handler
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  
-  // Validate byHand and vehicleNumber
-  if (commonData.byHand === "No" && !commonData.vehicleNumber.trim()) {
-    setError("Vehicle number is required when not delivering by hand");
-    return;
-  }
-  
-  if (commonData.byHand === "Yes" && commonData.vehicleNumber.trim()) {
-    setError("Vehicle number should be empty when delivering by hand");
-    return;
-  }
+    e.preventDefault();
+    
+    // Validate byHand and vehicleNumber
+    if (commonData.byHand === "No" && !commonData.vehicleNumber.trim()) {
+      setError("Vehicle number is required when not delivering by hand");
+      return;
+    }
+    
+    if (commonData.byHand === "Yes" && commonData.vehicleNumber.trim()) {
+      setError("Vehicle number should be empty when delivering by hand");
+      return;
+    }
 
-  try {
-    const formDataToSend = new FormData();
-
-    // Add sender details
-    Object.keys(senderDetails).forEach(key => {
-      formDataToSend.append(key, senderDetails[key]);
-    });
-
-    // Add common data
-    Object.keys(commonData).forEach(key => {
-      if (!commonData.receiverAvailable && 
-          ['receiverName', 'receiverContact', 'receiverGroup', 'receiverServiceNumber'].includes(key)) {
+    // Validate receiver details if receiver is available
+    if (commonData.receiverAvailable) {
+      if (!commonData.receiverType) {
+        setError("Please select receiver type (SLT/Non-SLT)");
         return;
       }
-      
-      // Convert boolean fields properly
-      let value = commonData[key];
-      if (key === 'receiverAvailable') {
-        value = value === true || value === 'true';
-      }
-      formDataToSend.append(key, value);
-    });
 
-    // Process items - handle both CSV-imported and manually added items
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      
-      // Upload images to Cloudinary if they exist (for both CSV and manually added items)
-      const imageUrls = [];
-      if (item.images && item.images.length > 0) {
-        // Handle case where images might be File objects or already uploaded URLs
-        for (let j = 0; j < item.images.length; j++) {
-          // Check if it's already a URL (from CSV import)
-          if (typeof item.images[j] === 'string') {
-            imageUrls.push(item.images[j]);
-          } else {
-            // It's a File object, upload to Cloudinary
-            const uploadedUrl = await uploadToCloudinary(item.images[j]);
-            if (uploadedUrl) {
-              imageUrls.push(uploadedUrl);
+      if (commonData.receiverType === "SLT" && !commonData.receiverServiceNumber) {
+        setError("Service number is required for SLT receivers");
+        return;
+      }
+
+      if (commonData.receiverType === "Non-SLT" && (!commonData.receiverIdNumber || !commonData.receiverContact)) {
+        setError("ID number and telephone are required for Non-SLT receivers");
+        return;
+      }
+    }
+
+    try {
+      const formDataToSend = new FormData();
+
+      // Add sender details
+      Object.keys(senderDetails).forEach(key => {
+        formDataToSend.append(key, senderDetails[key]);
+      });
+
+      // Add common data
+      Object.keys(commonData).forEach(key => {
+        if (!commonData.receiverAvailable && 
+            ['receiverName', 'receiverContact', 'receiverGroup', 'receiverServiceNumber', 'receiverIdNumber'].includes(key)) {
+          return;
+        }
+        
+        // Convert boolean fields properly
+        let value = commonData[key];
+        if (key === 'receiverAvailable') {
+          value = value === true || value === 'true';
+        }
+        formDataToSend.append(key, value);
+      });
+
+      // Process items - handle both CSV-imported and manually added items
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        
+        // Upload images to Cloudinary if they exist
+        const imageUrls = [];
+        if (item.images && item.images.length > 0) {
+          for (let j = 0; j < item.images.length; j++) {
+            if (typeof item.images[j] === 'string') {
+              imageUrls.push(item.images[j]);
+            } else {
+              const uploadedUrl = await uploadToCloudinary(item.images[j]);
+              if (uploadedUrl) {
+                imageUrls.push(uploadedUrl);
+              }
             }
           }
         }
-      }
 
-      // Add item data to formData
-      formDataToSend.append(`items[${i}][itemName]`, item.itemName);
-      formDataToSend.append(`items[${i}][serialNo]`, item.serialNo);
-      formDataToSend.append(`items[${i}][category]`, item.category);
-      formDataToSend.append(`items[${i}][description]`, item.description);
-      formDataToSend.append(`items[${i}][returnable]`, item.returnable);
-      formDataToSend.append(`items[${i}][quantity]`, item.quantity);
-      
-      // Handle both legacy single image and new multiple images
-      if (item.image) {
-        // Legacy single image support
-        const uploadedUrl = await uploadToCloudinary(item.image);
-        if (uploadedUrl) {
-          formDataToSend.append(`items[${i}][image]`, uploadedUrl);
+        // Add item data to formData
+        formDataToSend.append(`items[${i}][itemName]`, item.itemName);
+        formDataToSend.append(`items[${i}][serialNo]`, item.serialNo);
+        formDataToSend.append(`items[${i}][category]`, item.category);
+        formDataToSend.append(`items[${i}][description]`, item.description);
+        formDataToSend.append(`items[${i}][returnable]`, item.returnable);
+        formDataToSend.append(`items[${i}][quantity]`, item.quantity);
+        
+        if (item.image) {
+          const uploadedUrl = await uploadToCloudinary(item.image);
+          if (uploadedUrl) {
+            formDataToSend.append(`items[${i}][image]`, uploadedUrl);
+          }
         }
+        
+        formDataToSend.append(`items[${i}][images]`, JSON.stringify(imageUrls));
       }
-      
-      // Add processed images (could be from CSV or manual upload)
-      formDataToSend.append(`items[${i}][images]`, JSON.stringify(imageUrls));
+
+      await axios.post("http://localhost:5000/api/requests/create", formDataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      navigate("/my-request");
+    } catch (error) {
+      setError("Failed to create request. Please try again.");
+      console.error("Error creating request:", error);
     }
-
-    await axios.post("http://localhost:5000/api/requests/create", formDataToSend, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    navigate("/my-request");
-  } catch (error) {
-    setError("Failed to create request. Please try again.");
-    console.error("Error creating request:", error);
-  }
-};
+  };
 
   // Common form field handler
   const handleCommonChange = (e) => {
@@ -182,11 +197,11 @@ const NewRequest = () => {
   };
 
   const handleItemImageChange = (index, e) => {
-  const files = Array.from(e.target.files).slice(0, 5); // Limit to 5 files
-  const newItems = [...items];
-  newItems[index].images = files; // Store File objects temporarily
-  setItems(newItems);
-};
+    const files = Array.from(e.target.files).slice(0, 5); // Limit to 5 files
+    const newItems = [...items];
+    newItems[index].images = files; // Store File objects temporarily
+    setItems(newItems);
+  };
 
   // Item management
   const addItem = () => {
@@ -272,7 +287,7 @@ const NewRequest = () => {
             description: item.description || '',
             returnable: item.returnable || 'no',
             quantity: item.quantity || 1,
-            images: item.image ? [item.image] : [] // Convert single image to array
+            images: item.image ? [item.image] : []
           });
         }
 
@@ -641,7 +656,7 @@ const NewRequest = () => {
             </div>
           </div>
 
-          {/* Receiver Available Section */}
+          {/* Updated Receiver Available Section */}
           <div className="mb-6 border-2 border-blue-400 p-4 rounded-lg">
             <div className="flex items-center mb-4">
               <input
@@ -653,11 +668,13 @@ const NewRequest = () => {
                   setCommonData({
                     ...commonData,
                     receiverAvailable: e.target.checked,
+                    receiverType: "",
                     ...(!e.target.checked && {
                       receiverName: "",
                       receiverContact: "",
                       receiverGroup: "",
-                      receiverServiceNumber: ""
+                      receiverServiceNumber: "",
+                      receiverIdNumber: ""
                     })
                   });
                 }}
@@ -670,92 +687,161 @@ const NewRequest = () => {
 
             {commonData.receiverAvailable && (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label htmlFor="receiverServiceNumber" className="block text-sm font-medium text-gray-700">
-                      Receiver Service Number
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Receiver Type</label>
+                  <div className="flex space-x-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="receiverType"
+                        value="SLT"
+                        checked={commonData.receiverType === "SLT"}
+                        onChange={() => setCommonData({...commonData, receiverType: "SLT"})}
+                        className="h-4 w-4 text-blue-600 border-gray-300"
+                      />
+                      <span className="ml-2 text-gray-700">SLT</span>
                     </label>
-                    <input
-                      type="text"
-                      name="receiverServiceNumber"
-                      id="receiverServiceNumber"
-                      value={commonData.receiverServiceNumber}
-                      onChange={async (e) => {
-                        const serviceNo = e.target.value;
-                        setCommonData({
-                          ...commonData,
-                          receiverServiceNumber: serviceNo
-                        });
-                        
-                        if (serviceNo) {
-                          try {
-                            const response = await axios.get(`http://localhost:5000/api/auth/by-service/${serviceNo}`);
-                            const user = response.data;
-                            if (user) {
-                              setCommonData(prev => ({
-                                ...prev,
-                                receiverName: user.sender_name,
-                                receiverContact: user.contact_number,
-                                receiverGroup: user.group_number
-                              }));
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="receiverType"
+                        value="Non-SLT"
+                        checked={commonData.receiverType === "Non-SLT"}
+                        onChange={() => setCommonData({...commonData, receiverType: "Non-SLT"})}
+                        className="h-4 w-4 text-blue-600 border-gray-300"
+                      />
+                      <span className="ml-2 text-gray-700">Non-SLT</span>
+                    </label>
+                  </div>
+                </div>
+
+                {commonData.receiverType === "SLT" && (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <label htmlFor="receiverServiceNumber" className="block text-sm font-medium text-gray-700">
+                          Receiver Service Number
+                        </label>
+                        <input
+                          type="text"
+                          name="receiverServiceNumber"
+                          id="receiverServiceNumber"
+                          value={commonData.receiverServiceNumber}
+                          onChange={async (e) => {
+                            const serviceNo = e.target.value;
+                            setCommonData({
+                              ...commonData,
+                              receiverServiceNumber: serviceNo
+                            });
+                            
+                            if (serviceNo) {
+                              try {
+                                const response = await axios.get(`http://localhost:5000/api/auth/by-service/${serviceNo}`);
+                                const user = response.data;
+                                if (user) {
+                                  setCommonData(prev => ({
+                                    ...prev,
+                                    receiverName: user.sender_name,
+                                    receiverContact: user.contact_number,
+                                    receiverGroup: user.group_number
+                                  }));
+                                }
+                              } catch (error) {
+                                console.error("Error fetching receiver details:", error);
+                              }
                             }
-                          } catch (error) {
-                            console.error("Error fetching receiver details:", error);
-                          }
-                        }
-                      }}
-                      className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                      required
-                    />
-                  </div>
-                </div>
+                          }}
+                          className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                          required
+                        />
+                      </div>
+                    </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="receiverName" className="block text-sm font-medium text-gray-700">
-                      Receiver Name
-                    </label>
-                    <input
-                      type="text"
-                      name="receiverName"
-                      id="receiverName"
-                      value={commonData.receiverName}
-                      onChange={handleCommonChange}
-                      className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                      required
-                    />
-                  </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="receiverName" className="block text-sm font-medium text-gray-700">
+                          Receiver Name
+                        </label>
+                        <input
+                          type="text"
+                          name="receiverName"
+                          id="receiverName"
+                          value={commonData.receiverName}
+                          onChange={handleCommonChange}
+                          className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
+                          readOnly
+                          required
+                        />
+                      </div>
 
-                  <div>
-                    <label htmlFor="receiverContact" className="block text-sm font-medium text-gray-700">
-                      Contact No
-                    </label>
-                    <input
-                      type="text"
-                      name="receiverContact"
-                      id="receiverContact"
-                      value={commonData.receiverContact}
-                      onChange={handleCommonChange}
-                      className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                      required
-                    />
-                  </div>
+                      <div>
+                        <label htmlFor="receiverContact" className="block text-sm font-medium text-gray-700">
+                          Contact No
+                        </label>
+                        <input
+                          type="text"
+                          name="receiverContact"
+                          id="receiverContact"
+                          value={commonData.receiverContact}
+                          onChange={handleCommonChange}
+                          className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
+                          readOnly
+                          required
+                        />
+                      </div>
 
-                  <div>
-                    <label htmlFor="receiverGroup" className="block text-sm font-medium text-gray-700">
-                      Group
-                    </label>
-                    <input
-                      type="text"
-                      name="receiverGroup"
-                      id="receiverGroup"
-                      value={commonData.receiverGroup}
-                      onChange={handleCommonChange}
-                      className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                      required
-                    />
+                      <div>
+                        <label htmlFor="receiverGroup" className="block text-sm font-medium text-gray-700">
+                          Group
+                        </label>
+                        <input
+                          type="text"
+                          name="receiverGroup"
+                          id="receiverGroup"
+                          value={commonData.receiverGroup}
+                          onChange={handleCommonChange}
+                          className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100"
+                          readOnly
+                          required
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {commonData.receiverType === "Non-SLT" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="receiverIdNumber" className="block text-sm font-medium text-gray-700">
+                        ID Number
+                      </label>
+                      <input
+                        type="text"
+                        name="receiverIdNumber"
+                        id="receiverIdNumber"
+                        value={commonData.receiverIdNumber || ""}
+                        onChange={handleCommonChange}
+                        className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="receiverContact" className="block text-sm font-medium text-gray-700">
+                        Telephone Number
+                      </label>
+                      <input
+                        type="text"
+                        name="receiverContact"
+                        id="receiverContact"
+                        value={commonData.receiverContact || ""}
+                        onChange={handleCommonChange}
+                        className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                        required
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
               </>
             )}
           </div>
