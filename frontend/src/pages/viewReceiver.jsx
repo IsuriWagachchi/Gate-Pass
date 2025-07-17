@@ -44,6 +44,8 @@ const ViewReceiver = () => {
     return `${dateStr}-${uniquePart}`;
   };
 
+
+
   const downloadPdf = async () => {
     if (!request) return;
 
@@ -257,7 +259,7 @@ const ViewReceiver = () => {
         <div className="p-3 rounded-lg shadow-md border border-gray-300 mt-6">
           {/* Reference Number Header */}
           <div className="bg-[#2A6BAC] text-white px-4 py-2 rounded-t-md font-bold">
-              Ref. No: {request._id}
+              Ref. No: {formatReferenceNumber(request._id, request.createdAt)}
           </div>
 
           <div className="p-4 space-y-6">
