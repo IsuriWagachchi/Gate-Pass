@@ -36,6 +36,7 @@ const NewRequest = () => {
     receiverGroup: "",
     receiverServiceNumber: "",
     receiverIdNumber: "",
+    receiverContactteli:"",
     vehicleNumber: "",
     byHand: ""
   });
@@ -99,7 +100,7 @@ const NewRequest = () => {
         return;
       }
 
-      if (commonData.receiverType === "Non-SLT" && (!commonData.receiverIdNumber || !commonData.receiverContact)) {
+      if (commonData.receiverType === "Non-SLT" && (!commonData.receiverIdNumber || !commonData.receiverContactteli)) {
         setError("ID number and telephone are required for Non-SLT receivers");
         return;
       }
@@ -827,14 +828,14 @@ const NewRequest = () => {
                     </div>
 
                     <div>
-                      <label htmlFor="receiverContact" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="receiverContactteli" className="block text-sm font-medium text-gray-700">
                         Telephone Number
                       </label>
                       <input
                         type="text"
-                        name="receiverContact"
-                        id="receiverContact"
-                        value={commonData.receiverContact || ""}
+                        name="receiverContactteli"
+                        id="receiverContactteli"
+                        value={commonData.receiverContactteli || ""}
                         onChange={handleCommonChange}
                         className="mt-1 p-2 w-full border border-gray-300 rounded-md"
                         required

@@ -74,6 +74,8 @@ const requestSchema = new mongoose.Schema({
   assignedOfficerName: { type: String },
   assignedOfficerServiceNo: { type: String },
   assignedAt: { type: Date },
+ receiverIdNumber:{type: Number},
+ receiverContactteli:{type: Number},
 
   returnedItems: [
   {
