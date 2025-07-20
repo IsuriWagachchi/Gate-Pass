@@ -12,7 +12,7 @@ import receiverRoutes from "./routes/receiverRoutes.js";
 import userRoutes from "./routes/userRoutes.js"; // User routes
 import locationRoutes from "./routes/locationRoutes.js"; // User routes
 import categoryRoutes from "./routes/categoryRoutes.js";
-
+import patrolLeaderRoutes from "./routes/patrolLeaderRoutes.js"; // Patrol Leader routes
 
 
 
@@ -37,6 +37,7 @@ app.use('/api/receiver', receiverRoutes);
 app.use('/api/users', userRoutes); // User routes
 app.use('/api/locations', locationRoutes); // User routes
 app.use('/api/categories', categoryRoutes);
+app.use('/api/patrol-leader', patrolLeaderRoutes); // Patrol Leader routes
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
