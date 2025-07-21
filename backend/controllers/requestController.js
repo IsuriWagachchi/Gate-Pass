@@ -23,6 +23,8 @@ const createRequest = async (req, res) => {
       byHand,
       receiverIdNumber,
       receiverContactteli,
+       receiverNonsltName,
+       receiverNonsltemail,
       ...itemsData
     } = req.body;
 
@@ -109,6 +111,8 @@ const createRequest = async (req, res) => {
       receiverContact,
       receiverIdNumber,
       receiverContactteli,
+      receiverNonsltName,
+       receiverNonsltemail,
       receiverGroup,
       receiverServiceNumber,
       vehicleNumber: byHand === "Yes" ? "" : vehicleNumber,
@@ -149,6 +153,8 @@ const updateRequest = async (req, res) => {
     receiverContact,
     receiverIdNumber,
     receiverContactteli,
+    receiverNonsltName,
+    receiverNonsltemail,
     receiverGroup,
     receiverServiceNumber, 
     status,
@@ -184,6 +190,8 @@ const updateRequest = async (req, res) => {
       receiverContact,
       receiverIdNumber,
       receiverContactteli,
+      receiverNonsltName,
+       receiverNonsltemail,
       receiverGroup,
       receiverServiceNumber,
       status,

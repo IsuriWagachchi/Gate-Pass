@@ -37,6 +37,8 @@ const NewRequest = () => {
     receiverServiceNumber: "",
     receiverIdNumber: "",
     receiverContactteli:"",
+    receiverNonsltName:"",
+       receiverNonsltemail:"",
     vehicleNumber: "",
     byHand: ""
   });
@@ -100,7 +102,7 @@ const NewRequest = () => {
         return;
       }
 
-      if (commonData.receiverType === "Non-SLT" && (!commonData.receiverIdNumber || !commonData.receiverContactteli)) {
+      if (commonData.receiverType === "Non-SLT" && (!commonData.receiverIdNumber || !commonData.receiverContactteli || !commonData.receiverNonsltName || !commonData.receiverNonsltemail )) {
         setError("ID number and telephone are required for Non-SLT receivers");
         return;
       }
@@ -812,6 +814,35 @@ const NewRequest = () => {
 
                 {commonData.receiverType === "Non-SLT" && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div>
+                      <label htmlFor="receiverNonsltName" className="block text-sm font-medium text-gray-700">
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        name="receiverNonsltName"
+                        id="receiverNonsltName"
+                        value={commonData.receiverNonsltName || ""}
+                        onChange={handleCommonChange}
+                        className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                        required
+                      />
+                    </div>
+
+                     <div>
+                      <label htmlFor="receiverNonsltemail" className="block text-sm font-medium text-gray-700">
+                        Email
+                      </label>
+                      <input
+                        type="text"
+                        name="receiverNonsltemail"
+                        id="receiverNonsltemail"
+                        value={commonData.receiverNonsltemail || ""}
+                        onChange={handleCommonChange}
+                        className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                        required
+                      />
+                    </div>
                     <div>
                       <label htmlFor="receiverIdNumber" className="block text-sm font-medium text-gray-700">
                         ID Number
