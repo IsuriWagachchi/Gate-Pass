@@ -78,7 +78,7 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <motion.div 
+          {/* <motion.div 
             className="space-y-2"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -92,14 +92,14 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
               <option value="SLT">SLT</option>
               <option value="User">NON SLT</option>
             </select>
-          </motion.div>
+          </motion.div> */}
           <motion.div 
             className="space-y-2"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <label className="block text-sm font-medium text-gray-700">User Email</label>
+            <label className="block text-sm font-medium text-gray-700">User ID</label>
             <input
               type="email"
               value={formData.email}
@@ -134,9 +134,9 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
             </motion.button>
           </div>
         </form>
-        <p className="mt-4 text-center">
+        {/* <p className="mt-4 text-center">
           Don't have an account? <Link to="/signup" className="text-blue-500 hover:text-blue-600">Sign up</Link>
-        </p>
+        </p> */}
       </motion.div>
     </div>
   );
