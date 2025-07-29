@@ -9,14 +9,16 @@ import PopupLogout from "./PopupLogout";
 
 const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ userID: "", password: "" });
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", formData);
-
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
+        userID: formData.userID,
+        password: formData.password,
+      });
       console.log("Login response:", res.data);
       const { username, role, token } = res.data;
       if (!username) {
@@ -101,11 +103,11 @@ const Login = ({ setRole, setUsername, setIsAuthenticated }) => {
           >
             <label className="block text-sm font-medium text-gray-700">User ID</label>
             <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              type="text"
+              value={formData.userID}
+              onChange={(e) => setFormData({ ...formData, userID: e.target.value })}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter User Email"
+              placeholder="Enter User ID"
             />
           </motion.div>
           <motion.div 

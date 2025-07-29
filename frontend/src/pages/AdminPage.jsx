@@ -33,12 +33,12 @@ const AdminPage = () => {
 
   const downloadTemplate = () => {
     // Create CSV template content with the provided format
-    const csvContent = `data:text/csv;charset=utf-8,username,email,password,sender_name,designation,service_no,section,group_number,contact_number,branch_location,role
-john_doe,johnd@gmail.com,12345,John Doe,officer,12305,IT,5,771239567,Matara,admin
-jane_smith,jane@gmail.com,12345,Jane Smith,clerk,64890,IT,4,770876543,Matara,user
-ann_william,ann@gmail.com,12345,Ann William,Manager,67490,Management,3,789879543,Matara,executive_officer
-jenny_smith,jenny@gmail.com,12345,Jenny Smith,Manager,65890,HR,6,769876543,Matara,duty_officer
-kelly_felder,kelly@gmail.com,12345,Kelly Felder,security,676690,HR,8,779896543,Matara,security_officer`;
+    const csvContent = `data:text/csv;charset=utf-8,userID,username,email,password,sender_name,designation,service_no,section,group_number,contact_number,branch_location,role
+ADMIN001,john_doe,johnd@gmail.com,12345,John Doe,officer,12305,IT,5,771239567,Matara,admin
+USR001,jane_smith,jane@gmail.com,12345,Jane Smith,clerk,64890,IT,4,770876543,Matara,user
+EXO001,ann_william,ann@gmail.com,12345,Ann William,Manager,67490,Management,3,789879543,Matara,executive_officer
+DTO001,jenny_smith,jenny@gmail.com,12345,Jenny Smith,Manager,65890,HR,6,769876543,Matara,duty_officer
+PL001,nirmani_fernando,nirmani@gmail.com,12345,Nirmani Fernando,Manager,676690,HR,8,779896543,Matara,patrol_leader`;
     
     // Create download link
     const encodedUri = encodeURI(csvContent);

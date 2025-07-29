@@ -4,13 +4,14 @@ import jwt from "jsonwebtoken";
 // Signup
 export const signup = async (req, res) => {
     try {
-        const { username, email, password, sender_name, designation, service_no, section, group_number, contact_number ,branch_location,role} = req.body;
+        const { userID, username, email, password, sender_name, designation, service_no, section, group_number, contact_number ,branch_location,role} = req.body;
 
         // Check if the user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) return res.status(400).json({ error: "User already exists" });
 
         const user = new User({
+            userID,
             username,
             email,
             password,
@@ -34,14 +35,14 @@ export const signup = async (req, res) => {
 // Login
 export const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email });
+        const { userID, password } = req.body;
+
+        const user = await User.findOne({ userID });
         if (!user) return res.status(400).json({ error: "User not found" });
 
         const isMatch = await user.comparePassword(password);
         if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
 
-        // Include branch_location in the token payload
         const token = jwt.sign(
             {
                 id: user._id,
