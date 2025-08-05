@@ -40,6 +40,7 @@ const NewRequest = () => {
     receiverNonsltName:"",
        receiverNonsltemail:"",
     vehicleNumber: "",
+    vehicleMethod: '',
     byHand: ""
   });
 
@@ -623,38 +624,75 @@ const NewRequest = () => {
               </div>
 
               <div>
-                <label htmlFor="byHand" className="block text-sm font-medium text-gray-700">
-                  By Hand
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Transport Method
                 </label>
-                <select
-                  name="byHand"
-                  id="byHand"
-                  value={commonData.byHand}
-                  onChange={handleCommonChange}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  required
-                >
-                  <option value="">Select</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="byHand"
+                      value="By Hand"
+                      checked={commonData.byHand === "By Hand"}
+                      onChange={handleCommonChange}
+                      className="form-radio"
+                      required
+                    />
+                    By Hand
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="byHand"
+                      value="By Vehicle"
+                      checked={commonData.byHand === "By Vehicle"}
+                      onChange={handleCommonChange}
+                      className="form-radio"
+                    />
+                    By Vehicle
+                  </label>
+                </div>
               </div>
 
-              {commonData.byHand === "No" && (
-                <div>
-                  <label htmlFor="vehicleNumber" className="block text-sm font-medium text-gray-700">
-                    Vehicle Number
-                  </label>
-                  <input
-                    type="text"
-                    name="vehicleNumber"
-                    id="vehicleNumber"
-                    value={commonData.vehicleNumber}
-                    onChange={handleCommonChange}
-                    className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                    required={commonData.byHand === "No"}
-                  />
-                </div>
+              {commonData.byHand === "By Vehicle" && (
+                <>
+                  <div>
+                    <label htmlFor="vehicleMethod" className="block text-sm font-medium text-gray-700">
+                      Vehicle Method
+                    </label>
+                    <select
+                      name="vehicleMethod"
+                      id="vehicleMethod"
+                      value={commonData.vehicleMethod}
+                      onChange={handleCommonChange}
+                      className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                      required
+                    >
+                      <option value="">Select Vehicle Type</option>
+                      <option value="Car">Car</option>
+                      <option value="Van">Van</option>
+                      <option value="Truck">Truck</option>
+                      <option value="Motorbike">Motorbike</option>
+                      <option value="Three-Wheeler">Three-Wheeler</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="vehicleNumber" className="block text-sm font-medium text-gray-700 mt-1">
+                      Vehicle Number
+                    </label>
+                    <input
+                      type="text"
+                      name="vehicleNumber"
+                      id="vehicleNumber"
+                      value={commonData.vehicleNumber}
+                      onChange={handleCommonChange}
+                      className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                      required
+                    />
+                  </div>
+                </>
               )}
             </div>
           </div>

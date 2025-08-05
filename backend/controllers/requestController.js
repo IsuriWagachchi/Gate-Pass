@@ -20,6 +20,7 @@ const createRequest = async (req, res) => {
       receiverGroup,
       receiverServiceNumber,
       vehicleNumber,
+      vehicleMethod,
       byHand,
       receiverIdNumber,
       receiverContactteli,
@@ -33,16 +34,25 @@ const createRequest = async (req, res) => {
                             req.body.receiverAvailable === 'true';
 
     // Validate byHand and vehicleNumber
-    if (byHand === "No" && !vehicleNumber?.trim()) {
-      return res.status(400).json({ 
-        message: "Vehicle number is required when not delivering by hand" 
-      });
+    if (byHand === "By Vehicle") {
+      if (!vehicleNumber?.trim()) {
+        return res.status(400).json({ 
+          message: "Vehicle number is required when not delivering by hand" 
+        });
+      }
+      if (!vehicleMethod?.trim()) {
+        return res.status(400).json({ 
+          message: "Vehicle method is required when not delivering by hand" 
+        });
+      }
     }
-    
-    if (byHand === "Yes" && vehicleNumber?.trim()) {
-      return res.status(400).json({ 
-        message: "Vehicle number should be empty when delivering by hand" 
-      });
+
+    if (byHand === "By Hand") {
+      if (vehicleNumber?.trim() || vehicleMethod?.trim()) {
+        return res.status(400).json({ 
+          message: "Vehicle number and method should be empty when delivering by hand" 
+        });
+      }
     }
 
     // Process items array - NEW IMPROVED VERSION
@@ -116,6 +126,7 @@ const createRequest = async (req, res) => {
       receiverGroup,
       receiverServiceNumber,
       vehicleNumber: byHand === "Yes" ? "" : vehicleNumber,
+      vehicleMethod,
       byHand,
       status: 'Pending',
       verify: 'Pending',
@@ -148,6 +159,7 @@ const updateRequest = async (req, res) => {
     inLocation, 
     executiveOfficer,
     vehicleNumber,
+    vehicleMethod,
     byHand,
     receiverName,
     receiverContact,
@@ -163,17 +175,27 @@ const updateRequest = async (req, res) => {
 
   try {
     
-    if (byHand === "No" && !vehicleNumber?.trim()) {
-      return res.status(400).json({ 
-        message: "Vehicle number is required when not delivering by hand" 
-      });
+    if (byHand === "By Vehicle") {
+      if (!vehicleNumber?.trim()) {
+        return res.status(400).json({ 
+          message: "Vehicle number is required when not delivering by hand" 
+        });
+      }
+      if (!vehicleMethod?.trim()) {
+        return res.status(400).json({ 
+          message: "Vehicle method is required when not delivering by hand" 
+        });
+      }
     }
-    
-    if (byHand === "Yes" && vehicleNumber?.trim()) {
-      return res.status(400).json({ 
-        message: "Vehicle number should be empty when delivering by hand" 
-      });
+
+    if (byHand === "By Hand") {
+      if (vehicleNumber?.trim() || vehicleMethod?.trim()) {
+        return res.status(400).json({ 
+          message: "Vehicle number and method should be empty when delivering by hand" 
+        });
+      }
     }
+
 
     const updateData = {
       itemName, 
@@ -184,7 +206,8 @@ const updateRequest = async (req, res) => {
       outLocation, 
       inLocation, 
       executiveOfficer,
-      vehicleNumber: byHand === "Yes" ? "" : vehicleNumber, // Ensure empty if byHand
+      vehicleNumber: byHand === "Yes" ? "" : vehicleNumber,
+      vehicleMethod,
       byHand,
       receiverName,
       receiverContact,
