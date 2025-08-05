@@ -25,6 +25,7 @@ router.post('/upload', upload.single('csvFile'), async (req, res) => {
             }
 
             results.push({
+                userID : row.userID,
                 username: row.username,
                 email: row.email,
                 password: row.password, // Will be hashed before saving
