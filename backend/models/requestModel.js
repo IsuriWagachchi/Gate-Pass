@@ -29,6 +29,7 @@ const requestSchema = new mongoose.Schema({
   receiverGroup: { type: String},
   receiverServiceNumber: { type: Number },
   vehicleNumber: { type: Number },
+  vehicleMethod: { type: String },
   byHand: { type: String },
   status: {
     type: String,
