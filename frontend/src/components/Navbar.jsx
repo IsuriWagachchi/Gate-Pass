@@ -41,7 +41,7 @@ const Navbar = ({ logout, role, username }) => {
       { path: "/my-request", label: "My Requests", roles: ["user", "admin", "executive_officer", "duty_officer", "security_officer","super admin","patrol_leader"] },
       { path: "/executive-approve", label: "Executive Approve", roles: ["admin", "executive_officer","super admin"] },
       { path: "/verify", label: "Verify", roles: ["admin", "duty_officer","super admin"] },
-      { path: "/receiver", label: "Receiver", roles: ["user", "admin", "security_officer","duty_officer","executive_officer","super admin","patrol_leader"] },
+      { path: "/receiver", label: "Receiver", roles: ["admin", "security_officer","duty_officer","executive_officer","super admin","patrol_leader"] },
       { path: "/dispatch", label: "Dispatch", roles: ["admin", "security_officer","super admin","duty_officer","patrol_leader"] },
       { path: "/item-tracker", label: "Item Tracker", roles: ["admin", "security_officer","super admin","executive_officer","duty_officer","patrol_leader"] },
       { path: "/patrol-leader", label: "Patrol Leader", roles: ["patrol_leader", "admin", "super admin"] },

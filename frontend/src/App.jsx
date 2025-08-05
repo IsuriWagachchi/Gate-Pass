@@ -101,7 +101,7 @@ const App = () => {
           <Route path="/view-verify/:id" element={<ProtectedRoute Component={ViewVerify} allowedRoles={["admin","duty_officer","super admin"]} />} />
           <Route path="/dispatch" element={<ProtectedRoute Component={Dispatch} allowedRoles={["admin","security_officer","super admin","duty_officer","patrol_leader"]} />} />
           <Route path="/item-tracker-view/:id" element={<ProtectedRoute Component={ItemTrackerView} allowedRoles={["admin","security_officer","super admin","executive_officer","duty_officer","patrol_leader"]} />} />
-          <Route path="/receiver" element={<ProtectedRoute Component={Receiver} allowedRoles={["user", "admin","security_officer","super admin","executive_officer","duty_officer","patrol_leader"]} />} />
+          <Route path="/receiver" element={<ProtectedRoute Component={Receiver} allowedRoles={["admin","security_officer","super admin","executive_officer","duty_officer","patrol_leader"]} />} />
           <Route path="/dispatch-view/:id" element={<ProtectedRoute Component={DispatchView} allowedRoles={["admin","security_officer","super admin","duty_officer","patrol_leader"]} />} />
           <Route path="/profile" element={<ProtectedRoute Component={ProfileCard} allowedRoles={["user", "admin","executive_officer","duty_officer","security_officer","super admin","patrol_leader"]} />} />
           <Route path="/dispatch-view-In/:id" element={<ProtectedRoute Component={DispatchViewIn} allowedRoles={["admin","security_officer","super admin","duty_officer","patrol_leader"]} />} />
